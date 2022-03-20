@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeormConfigModule } from 'src/infrastructure/config/typeorm/typeorm-config.module';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
 import { bcryptEncrypt } from './auth/encrypt/bcrypt-encrypt';
@@ -11,6 +12,7 @@ import { UserEntity } from './user.entity';
 
 @Module({
   imports: [
+    TypeormConfigModule,
     TypeOrmModule.forFeature([UserEntity]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
