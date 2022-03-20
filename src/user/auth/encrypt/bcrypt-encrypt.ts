@@ -4,13 +4,13 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class bcryptEncrypt implements Encrypt {
-  compare(plainText: string, encryptText: string): boolean {
+  async compare(plainText: string, encryptText: string): Promise<boolean> {
     return bcrypt.compare(plainText, encryptText);
   }
-  genSaltkey(): string {
-    return bcrypt.saltKey();
+  async genSaltkey(): Promise<string> {
+    return await bcrypt.genSalt();
   }
-  hash(plainText: string, saltKey: string): string {
+  async hash(plainText: string, saltKey: string): Promise<string> {
     return bcrypt.hash(plainText, saltKey);
   }
 }
