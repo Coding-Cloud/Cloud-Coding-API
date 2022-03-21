@@ -4,8 +4,11 @@ import { signUpUseCases } from 'src/usecases/auth/signup.usecase';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 import { UsecasesProxyUserModule } from '../../usecases-proxy/user/usecases-proxy-user.module';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('auth')
+@ApiResponse({ status: 500, description: 'Internal error' })
 export class AuthController {
   constructor(
     @Inject(UsecasesProxyUserModule.SIGNIN_USECASES_PROXY)
@@ -15,11 +18,17 @@ export class AuthController {
   ) {}
 
   @Post('/signup')
+  @ApiResponse({ status: 201 })
+  @ApiResponse({ status: 400 })
+  @ApiResponse({ status: 403 })
   signUp(@Body() authCredentialsDto: AuthCredentialsDto): Promise<void> {
     return this.signUpUseCaseProxy.getInstance().signUp(authCredentialsDto);
   }
 
   @Post('/signin')
+  @ApiResponse({ status: 201 })
+  @ApiResponse({ status: 400 })
+  @ApiResponse({ status: 403 })
   signIn(
     @Body() authCredentialsDto: AuthCredentialsDto,
   ): Promise<{ accessToken: string }> {
