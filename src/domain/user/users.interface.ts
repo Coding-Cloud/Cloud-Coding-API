@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { AuthCredentialsDto } from '../../infrastructure/controllers/auth/dto/auth-credentials.dto';
 import { UserEntity } from '../../infrastructure/entities/user.entity';
 
