@@ -8,8 +8,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthCredentialsDto } from '../../controllers/auth/dto/auth-credentials.dto';
 import { Encrypt } from '../../../domain/encrypt.interface';
-import { UserEntity } from '../../entities/user.entity';
+import { UserEntity } from '../../entities/user/user.entity';
 import { Users } from '../../../domain/user/users.interface';
+import { User } from 'src/domain/user/user';
+import UserAdapter from 'src/infrastructure/entities/user/user.adapter';
 
 @Injectable()
 export class TypeormUsersRespository implements Users {
@@ -41,8 +43,14 @@ export class TypeormUsersRespository implements Users {
     }
   }
 
-  findBy(props: { id: string; username: string }): Promise<UserEntity> {
-    if (props.id) return this.userEntityRepository.findOne(props.id);
-    if (props.username) return this.userEntityRepository.findOne(props.id);
+  async findBy(props: { id: string; username: string }): Promise<User> {
+    if (props.id) {
+      const userEntity = await this.userEntityRepository.findOne(props.id);
+      return UserAdapter.toUser(userEntity);
+    }
+    if (props.username) {
+      const userEntity = await this.userEntityRepository.findOne(props.id);
+      return UserAdapter.toUser(userEntity);
+    }
   }
 }

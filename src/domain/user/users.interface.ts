@@ -1,7 +1,7 @@
 import { AuthCredentialsDto } from '../../infrastructure/controllers/auth/dto/auth-credentials.dto';
-import { UserEntity } from '../../infrastructure/entities/user.entity';
+import { User } from './user';
 
 export interface Users {
   createUser(authCredentialsDto: AuthCredentialsDto): Promise<void>;
-  findBy(props: { id?: string; username?: string }): Promise<UserEntity>;
+  findBy(props: { id?: string; username?: string }): Promise<User>;
 }
