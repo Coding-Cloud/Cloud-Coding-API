@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { UserModule } from './user/user.module';
+import { ControllersModule } from './infrastructure/controllers/controllers.module';
+import { UsecasesProxyUserModule } from './infrastructure/usecases-proxy/user/usecases-proxy-user.module';
 
 @Module({
-  imports: [UserModule],
+  imports: [UsecasesProxyUserModule, ControllersModule],
 })
 export class AppModule {}

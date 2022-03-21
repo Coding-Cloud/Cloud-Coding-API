@@ -1,9 +1,9 @@
-import { Encrypt } from './encrypt.interface';
+import { Encrypt } from '../../domain/encrypt.interface';
 import * as bcrypt from 'bcrypt';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class bcryptEncrypt implements Encrypt {
+export class BcryptEncrypt implements Encrypt {
   async compare(plainText: string, encryptText: string): Promise<boolean> {
     return bcrypt.compare(plainText, encryptText);
   }

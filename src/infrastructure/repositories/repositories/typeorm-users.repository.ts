@@ -6,15 +6,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthCredentialsDto } from '../auth/dto/auth-credentials.dto';
-import { Encrypt } from '../auth/encrypt/encrypt.interface';
-import { UserEntity } from '../user.entity';
-import { Users } from '../users.interface';
+import { AuthCredentialsDto } from '../../controllers/auth/dto/auth-credentials.dto';
+import { Encrypt } from '../../../domain/encrypt.interface';
+import { UserEntity } from '../../entities/user.entity';
+import { Users } from '../../../domain/user/users.interface';
 
 @Injectable()
-export class typeormUsers implements Users {
+export class TypeormUsersRespository implements Users {
   constructor(
-    @Inject('Encrypt') private encrypt: Encrypt,
+    @Inject(Encrypt) private encrypt: Encrypt,
     @InjectRepository(UserEntity)
     private readonly userEntityRepository: Repository<UserEntity>,
   ) {}
