@@ -1,11 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Session } from 'src/domain/session/session';
 import { Sessions } from 'src/domain/session/session.interface';
+import SessionAdapter from 'src/infrastructure/entities/session/session.adapter';
 import { SessionEntity } from 'src/infrastructure/entities/session/session.entity';
-import { JwtEncrypt } from 'src/infrastructure/jwt/jwt-encrypt';
 import { Repository } from 'typeorm';
 
-@Injectable()
 export class TypeormSessionsRespository implements Sessions {
   constructor(
     @InjectRepository(SessionEntity)
@@ -18,10 +17,18 @@ export class TypeormSessionsRespository implements Sessions {
     });
     await this.sessionEntityRepository.save(session);
   }
-  async findByUserId(userId: string): Promise<SessionEntity[]> {
-    return await this.sessionEntityRepository.find({ where: userId });
+  async findByUserId(userId: string): Promise<Session[]> {
+    const sessionsEntities = await this.sessionEntityRepository.find({
+      where: { userId },
+    });
+    return sessionsEntities.map((sessionEntity) =>
+      SessionAdapter.toSession(sessionEntity),
+    );
   }
-  async findByToken(token: string): Promise<SessionEntity> {
-    return await this.sessionEntityRepository.findOne({ where: token });
+  async findByToken(token: string): Promise<Session> {
+    const sessionEntity = await this.sessionEntityRepository.findOne({
+      token,
+    });
+    return SessionAdapter.toSession(sessionEntity);
   }
 }

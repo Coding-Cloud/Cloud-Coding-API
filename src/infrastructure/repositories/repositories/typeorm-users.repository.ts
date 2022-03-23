@@ -13,7 +13,6 @@ import { Users } from '../../../domain/user/users.interface';
 import { User } from 'src/domain/user/user';
 import UserAdapter from 'src/infrastructure/entities/user/user.adapter';
 
-@Injectable()
 export class TypeormUsersRespository implements Users {
   constructor(
     @Inject(Encrypt) private encrypt: Encrypt,

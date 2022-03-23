@@ -10,4 +10,14 @@ export default class UserAdapter {
       password,
     };
   }
+
+  static toUserEntity(user: User): UserEntity {
+    const { id, username, password } = user;
+    return {
+      id,
+      username,
+      password,
+      passworsdResets: [],
+    };
+  }
 }
