@@ -4,12 +4,14 @@ import { AuthCredentialsDto } from 'src/infrastructure/controllers/auth/dto/auth
 import { Encrypt } from 'src/domain/encrypt.interface';
 import { JwtPayload } from 'src/infrastructure/jwt/jwt-payload.interface';
 import { JwtEncrypt } from 'src/infrastructure/jwt/jwt-encrypt';
+import { Sessions } from 'src/domain/session/session.interface';
 
 export class signInUseCases {
   constructor(
     private readonly users: Users,
     private readonly encrypt: Encrypt,
     private readonly jwtEncrypt: JwtEncrypt,
+    private readonly sessions: Sessions,
   ) {}
 
   async signIn(
@@ -21,6 +23,7 @@ export class signInUseCases {
     if (user && (await this.encrypt.compare(password, user.password))) {
       const payload: JwtPayload = { username };
       const accessToken: string = await this.jwtEncrypt.sign(payload);
+      this.sessions.createSession(user.id, accessToken);
       return { accessToken };
     } else {
       throw new UnauthorizedException('Please check your login credentials');

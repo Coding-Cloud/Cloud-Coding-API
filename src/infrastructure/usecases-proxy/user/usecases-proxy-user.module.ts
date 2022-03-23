@@ -1,5 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { Encrypt } from 'src/domain/encrypt.interface';
+import { TypeormSessionsRespository } from 'src/infrastructure/repositories/repositories/typeorm-session.repository';
 import { signInUseCases } from 'src/usecases/auth/signin.usecase';
 import { signUpUseCases } from 'src/usecases/auth/signup.usecase';
 import { EncryptModule } from '../../encrypt/encrypt.module';
@@ -21,13 +22,22 @@ export class UsecasesProxyUserModule {
       module: UsecasesProxyUserModule,
       providers: [
         {
-          inject: [TypeormUsersRespository, Encrypt, JwtEncrypt],
+          inject: [
+            TypeormUsersRespository,
+            Encrypt,
+            JwtEncrypt,
+            TypeormSessionsRespository,
+          ],
           provide: UsecasesProxyUserModule.SIGNIN_USECASES_PROXY,
           useFactory: (
             users: TypeormUsersRespository,
             encrypt: Encrypt,
             jwtEncrypt: JwtEncrypt,
-          ) => new UseCaseProxy(new signInUseCases(users, encrypt, jwtEncrypt)),
+            session: TypeormSessionsRespository,
+          ) =>
+            new UseCaseProxy(
+              new signInUseCases(users, encrypt, jwtEncrypt, session),
+            ),
         },
         {
           inject: [TypeormUsersRespository],

@@ -33,8 +33,10 @@ export class AuthController {
   @ApiResponse({ status: 201 })
   @ApiResponse({ status: 400 })
   @ApiResponse({ status: 403 })
-  async signIn(@Body() authCredentialsDto: AuthCredentialsDto): Promise<{ accessToken: string; }> {
-    const accessToken = await this.signInUseCaseProxy
+  async signIn(
+    @Body() authCredentialsDto: AuthCredentialsDto,
+  ): Promise<{ accessToken: string }> {
+    return await this.signInUseCaseProxy
       .getInstance()
       .signIn(authCredentialsDto);
   }
