@@ -10,6 +10,8 @@ import { UseCaseProxy } from '../usecases-proxy';
 export class UsecasesProxyResetPasswordModule {
   static CREATE_PASSWORD_RESET_USECASES_PROXY =
     'createPasswordResetUsecasesProxy';
+  static VERIF_PASSWORD_RESET_USECASES_PROXY =
+    'verifPasswordResetUsecasesProxy';
 
   static register(): DynamicModule {
     return {
@@ -22,9 +24,17 @@ export class UsecasesProxyResetPasswordModule {
           useFactory: (passwordResets: TypeormPasswordResetRespository) =>
             new UseCaseProxy(new resetPasswordUseCases(passwordResets)),
         },
+        {
+          inject: [TypeormPasswordResetRespository],
+          provide:
+            UsecasesProxyResetPasswordModule.VERIF_PASSWORD_RESET_USECASES_PROXY,
+          useFactory: (passwordResets: TypeormPasswordResetRespository) =>
+            new UseCaseProxy(new resetPasswordUseCases(passwordResets)),
+        },
       ],
       exports: [
         UsecasesProxyResetPasswordModule.CREATE_PASSWORD_RESET_USECASES_PROXY,
+        UsecasesProxyResetPasswordModule.VERIF_PASSWORD_RESET_USECASES_PROXY,
       ],
     };
   }

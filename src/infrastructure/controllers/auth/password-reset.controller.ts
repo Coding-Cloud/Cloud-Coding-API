@@ -1,4 +1,12 @@
-import { Controller, Inject, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from './auth.guards';
 import { Request } from 'express';
@@ -24,5 +32,20 @@ export class PasswordResetController {
   @ApiResponse({ status: 201 })
   resetPassword(@GetUser() user: User): Promise<void> {
     return this.resetPasswordUseCaseProxy.getInstance().reset(user);
+  }
+
+  @Get('/:token')
+  @ApiResponse({ status: 201 })
+  async verifToken(
+    @Param('token') token: string,
+    @GetUser() user: User,
+  ): Promise<void> {
+    if (
+      (await this.resetPasswordUseCaseProxy
+        .getInstance()
+        .verifResetToken(user, token)) === false
+    ) {
+      throw new BadRequestException();
+    }
   }
 }

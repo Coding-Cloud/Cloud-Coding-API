@@ -9,4 +9,9 @@ export class resetPasswordUseCases {
     const token = uuidv4();
     return await this.passwordResets.createPasswordResets(user, token);
   }
+
+  async verifResetToken(user: User, token: string): Promise<boolean> {
+    const passwordReset = await this.passwordResets.findByUser(user);
+    return token === passwordReset.token;
+  }
 }
