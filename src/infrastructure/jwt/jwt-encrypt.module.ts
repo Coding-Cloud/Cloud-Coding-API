@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { JwtEncrypt } from './jwt-encrypt';
+import { JwtEncrypt } from './jwt-encrypt.abstract';
 import { NestJwtEncrypt } from './nest-jwt-encrypt';
 
 @Module({

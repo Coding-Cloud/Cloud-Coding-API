@@ -1,5 +1,5 @@
 import { JwtPayload } from './jwt-payload.interface';
-import { JwtEncrypt } from './jwt-encrypt';
+import { JwtEncrypt } from './jwt-encrypt.abstract';
 import { JwtService } from '@nestjs/jwt';
 import { Inject, Injectable } from '@nestjs/common';
 

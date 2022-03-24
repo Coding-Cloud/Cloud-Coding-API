@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from './auth.guards';
-import { Request } from 'express';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from 'src/domain/user/user';
 import { UsecasesProxyResetPasswordModule } from 'src/infrastructure/usecases-proxy/reset-password/usecase-proxy-reset-password.module';

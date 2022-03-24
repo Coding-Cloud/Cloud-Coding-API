@@ -5,8 +5,7 @@ import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 import { UsecasesProxyUserModule } from '../../usecases-proxy/user/usecases-proxy-user.module';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { UsecasesProxySessionModule } from 'src/infrastructure/usecases-proxy/session/usecase-proxy-session.module';
-import { createSessionUseCases } from 'src/usecases/session/create-session.usecase';
+
 
 @Controller('auth')
 @ApiTags('auth')
@@ -17,8 +16,6 @@ export class AuthController {
     private readonly signInUseCaseProxy: UseCaseProxy<signInUseCases>,
     @Inject(UsecasesProxyUserModule.SIGNUP_USECASES_PROXY)
     private readonly signUpUseCaseProxy: UseCaseProxy<signUpUseCases>,
-    @Inject(UsecasesProxySessionModule.CREATE_SESSION_USECASES_PROXY)
-    private readonly createSessionUseCaseProxy: UseCaseProxy<createSessionUseCases>,
   ) {}
 
   @Post('/signup')
