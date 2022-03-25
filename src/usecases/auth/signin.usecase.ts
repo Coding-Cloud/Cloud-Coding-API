@@ -7,7 +7,7 @@ import { JwtEncrypt } from 'src/infrastructure/jwt/jwt-encrypt.abstract';
 import { Sessions } from 'src/domain/session/session.interface';
 import { MailjetMailApi } from 'src/infrastructure/mail/mailjet-mail-api';
 
-export class signInUseCases {
+export class SignInUseCases {
   constructor(
     private readonly users: Users,
     private readonly encrypt: Encrypt,

@@ -12,6 +12,7 @@ export class TypeormPasswordResetRespository implements PasswordResets {
     @InjectRepository(PasswordResetEntity)
     private readonly passwordResetEntityRepository: Repository<PasswordResetEntity>,
   ) {}
+
   async createPasswordResets(user: User, token: string): Promise<void> {
     const passwordReset = await this.passwordResetEntityRepository.create({
       token,
@@ -26,5 +27,19 @@ export class TypeormPasswordResetRespository implements PasswordResets {
         where: { user },
       });
     return PasswordResetAdapter.toPasswordReset(passwordResetEntity);
+  }
+
+  async findByToken(token: string): Promise<PasswordReset> {
+    const passwordResetEntity =
+      await this.passwordResetEntityRepository.findOne({
+        where: { token },
+      });
+
+    return passwordResetEntity
+      ? PasswordResetAdapter.toPasswordReset(passwordResetEntity)
+      : null;
+  }
+  async delete(passwordreset: PasswordReset): Promise<void> {
+    this.passwordResetEntityRepository.delete(passwordreset);
   }
 }

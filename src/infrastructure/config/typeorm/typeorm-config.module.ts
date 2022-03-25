@@ -8,7 +8,7 @@ export const getTypeOrmModuleOptions = (): TypeOrmModuleOptions =>
     port: process.env.DATABASE_PORT as unknown as number,
     username: process.env.DATABASE_USER as string,
     password: process.env.DATABASE_PASSWORD as string,
-    database: 'nest_task_2',
+    database: 'nest_cloud_3',
     synchronize: true,
     autoLoadEntities: true,
   } as TypeOrmModuleOptions);

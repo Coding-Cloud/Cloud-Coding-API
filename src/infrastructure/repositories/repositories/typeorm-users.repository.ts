@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -12,6 +13,9 @@ import { UserEntity } from '../../entities/user/user.entity';
 import { Users } from '../../../domain/user/users.interface';
 import { User } from 'src/domain/user/user';
 import UserAdapter from 'src/infrastructure/entities/user/user.adapter';
+import { CreateUserDTO } from 'src/infrastructure/controllers/auth/dto/create-user.dto';
+import { PasswordReset } from 'src/domain/user/password-reset';
+import { PasswordResetEntity } from 'src/infrastructure/entities/password-reset/password-reset.entity';
 
 export class TypeormUsersRespository implements Users {
   constructor(
@@ -20,8 +24,8 @@ export class TypeormUsersRespository implements Users {
     private readonly userEntityRepository: Repository<UserEntity>,
   ) {}
 
-  async createUser(authCredentialsDto: AuthCredentialsDto): Promise<void> {
-    const { username, password } = authCredentialsDto;
+  async createUser(createUserDTO: CreateUserDTO): Promise<void> {
+    const { username, password, email } = createUserDTO;
 
     const salt = await this.encrypt.genSaltkey();
     const hashedPassword = await this.encrypt.hash(password, salt);
@@ -29,6 +33,7 @@ export class TypeormUsersRespository implements Users {
     const user = this.userEntityRepository.create({
       username,
       password: hashedPassword,
+      email,
     });
 
     try {
@@ -42,14 +47,46 @@ export class TypeormUsersRespository implements Users {
     }
   }
 
-  async findBy(props: { id: string; username: string }): Promise<User> {
-    if (props.id) {
-      const userEntity = await this.userEntityRepository.findOne(props.id);
+  async findBy(props: {
+    id?: string;
+    username?: string;
+    email?: string;
+  }): Promise<User> {
+    const { id, username, email } = props;
+    if (id) {
+      const userEntity = await this.userEntityRepository.findOne(id);
       return UserAdapter.toUser(userEntity);
     }
-    if (props.username) {
-      const userEntity = await this.userEntityRepository.findOne(props.id);
+    if (username) {
+      const userEntity = await this.userEntityRepository.findOne({
+        where: { username },
+      });
       return UserAdapter.toUser(userEntity);
     }
+
+    if (email) {
+      const userEntity = await this.userEntityRepository.findOne({
+        where: { email },
+      });
+      return UserAdapter.toUser(userEntity);
+    }
+  }
+
+  async changePassword(user: User, password: string): Promise<void> {
+    const userEntity = UserAdapter.toUserEntity(user);
+    await this.userEntityRepository.update({ id: userEntity.id }, { password });
+  }
+
+  async findUserByResetPassword(token: string): Promise<User> {
+    const userEntity: UserEntity = await this.userEntityRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect(
+        'password_reset',
+        'password_reset',
+        'password_reset.userId = user.id',
+      )
+      .where('password_reset.token = :token', { token })
+      .getOne();
+    return userEntity ? UserAdapter.toUser(userEntity) : null;
   }
 }

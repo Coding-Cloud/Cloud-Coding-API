@@ -4,11 +4,10 @@ import {
   ExecutionContext,
   Inject,
 } from '@nestjs/common';
-import { Session } from 'inspector';
 import { UsecasesProxySessionModule } from 'src/infrastructure/usecases-proxy/session/usecase-proxy-session.module';
 import { UseCaseProxy } from 'src/infrastructure/usecases-proxy/usecases-proxy';
 import { UsecasesProxyUserModule } from 'src/infrastructure/usecases-proxy/user/usecases-proxy-user.module';
-import { getSessionUseCases } from 'src/usecases/session/get-session.usecase';
+import { GetSessionUseCases } from 'src/usecases/session/get-session.usecase';
 import { getUserUseCases } from 'src/usecases/user/get-user.usecase';
 
 @Injectable()
@@ -17,7 +16,7 @@ export class AuthGuard implements CanActivate {
     @Inject(UsecasesProxyUserModule.GET_USER_USECASES_PROXY)
     private readonly getUserUseCaseProxy: UseCaseProxy<getUserUseCases>,
     @Inject(UsecasesProxySessionModule.GET_SESSION_USECASES_PROXY)
-    private readonly getSessionUseCaseProxy: UseCaseProxy<getSessionUseCases>,
+    private readonly getSessionUseCaseProxy: UseCaseProxy<GetSessionUseCases>,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();

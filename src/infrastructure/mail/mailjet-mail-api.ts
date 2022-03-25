@@ -76,7 +76,6 @@ export class MailjetMailApi implements MailApi {
           },
         ],
       });
-    console.log(res);
   }
 
   private buildResetPasswordEmailTextBody(args: BuildEmailResetPasswordArgs) {

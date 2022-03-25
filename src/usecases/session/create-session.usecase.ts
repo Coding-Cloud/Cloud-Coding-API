@@ -1,7 +1,6 @@
 import { Sessions } from 'src/domain/session/session.interface';
 
-//NOT USE YET IMPLEMENT WITH EVENT
-export class createSessionUseCases {
+export class CreateSessionUseCases {
   constructor(private readonly sessions: Sessions) {}
 
   async createSession(userId: string, token: string): Promise<void> {

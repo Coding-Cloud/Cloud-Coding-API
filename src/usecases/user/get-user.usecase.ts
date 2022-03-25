@@ -7,4 +7,8 @@ export class getUserUseCases {
   async getUserById(userId: string): Promise<User> {
     return this.users.findBy({ id: userId });
   }
+
+  async getUserByEmail(email: string): Promise<User> {
+    return this.users.findBy({ email });
+  }
 }

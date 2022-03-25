@@ -14,6 +14,9 @@ export class UserEntity {
   @Column()
   password: string;
 
+  @Column({ unique: true })
+  email: string;
+
   @ManyToOne(
     (_type) => PasswordResetEntity,
     (passwordReset) => passwordReset.user,

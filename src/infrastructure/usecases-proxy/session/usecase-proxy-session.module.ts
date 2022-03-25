@@ -1,7 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { TypeormSessionsRespository } from 'src/infrastructure/repositories/repositories/typeorm-session.repository';
-import { createSessionUseCases } from 'src/usecases/session/create-session.usecase';
-import { getSessionUseCases } from 'src/usecases/session/get-session.usecase';
+import { CreateSessionUseCases } from 'src/usecases/session/create-session.usecase';
+import { GetSessionUseCases } from 'src/usecases/session/get-session.usecase';
 import { RepositoriesModule } from '../../repositories/repositories/repositories.module';
 import { UseCaseProxy } from '../usecases-proxy';
 
@@ -20,13 +20,13 @@ export class UsecasesProxySessionModule {
           inject: [TypeormSessionsRespository],
           provide: UsecasesProxySessionModule.CREATE_SESSION_USECASES_PROXY,
           useFactory: (sessions: TypeormSessionsRespository) =>
-            new UseCaseProxy(new createSessionUseCases(sessions)),
+            new UseCaseProxy(new CreateSessionUseCases(sessions)),
         },
         {
           inject: [TypeormSessionsRespository],
           provide: UsecasesProxySessionModule.GET_SESSION_USECASES_PROXY,
           useFactory: (sessions: TypeormSessionsRespository) =>
-            new UseCaseProxy(new getSessionUseCases(sessions)),
+            new UseCaseProxy(new GetSessionUseCases(sessions)),
         },
       ],
       exports: [

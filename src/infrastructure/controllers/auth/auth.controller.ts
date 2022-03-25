@@ -1,11 +1,11 @@
 import { Body, Controller, Inject, Post } from '@nestjs/common';
-import { signInUseCases } from 'src/usecases/auth/signin.usecase';
-import { signUpUseCases } from 'src/usecases/auth/signup.usecase';
+import { SignInUseCases } from 'src/usecases/auth/signin.usecase';
+import { SignUpUseCases } from 'src/usecases/auth/signup.usecase';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
 import { UsecasesProxyUserModule } from '../../usecases-proxy/user/usecases-proxy-user.module';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-
+import { CreateUserDTO } from './dto/create-user.dto';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -13,17 +13,19 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 export class AuthController {
   constructor(
     @Inject(UsecasesProxyUserModule.SIGNIN_USECASES_PROXY)
-    private readonly signInUseCaseProxy: UseCaseProxy<signInUseCases>,
+    private readonly signInUseCaseProxy: UseCaseProxy<SignInUseCases>,
     @Inject(UsecasesProxyUserModule.SIGNUP_USECASES_PROXY)
-    private readonly signUpUseCaseProxy: UseCaseProxy<signUpUseCases>,
+    private readonly signUpUseCaseProxy: UseCaseProxy<SignUpUseCases>,
   ) {}
 
   @Post('/signup')
   @ApiResponse({ status: 201 })
   @ApiResponse({ status: 400 })
   @ApiResponse({ status: 403 })
-  signUp(@Body() authCredentialsDto: AuthCredentialsDto): Promise<void> {
-    return this.signUpUseCaseProxy.getInstance().signUp(authCredentialsDto);
+  signUp(@Body() createUserDTO: CreateUserDTO): Promise<void> {
+    console.log('je passe là');
+
+    return this.signUpUseCaseProxy.getInstance().signUp(createUserDTO);
   }
 
   @Post('/signin')

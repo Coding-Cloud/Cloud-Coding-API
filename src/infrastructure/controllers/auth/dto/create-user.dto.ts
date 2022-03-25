@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class AuthCredentialsDto {
+export class CreateUserDTO {
   @IsString()
   @MinLength(4)
   @MaxLength(20)
@@ -22,4 +22,7 @@ export class AuthCredentialsDto {
   })
   @ApiProperty()
   password: string;
+
+  @IsEmail()
+  email: string;
 }

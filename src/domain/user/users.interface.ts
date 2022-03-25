@@ -1,7 +1,13 @@
-import { AuthCredentialsDto } from '../../infrastructure/controllers/auth/dto/auth-credentials.dto';
+import { CreateUserDTO } from 'src/infrastructure/controllers/auth/dto/create-user.dto';
 import { User } from './user';
 
 export interface Users {
-  createUser(authCredentialsDto: AuthCredentialsDto): Promise<void>;
-  findBy(props: { id?: string; username?: string }): Promise<User>;
+  createUser(createUserDTO: CreateUserDTO): Promise<void>;
+  findBy(props: {
+    id?: string;
+    username?: string;
+    email?: string;
+  }): Promise<User>;
+  changePassword(user: User, password: string): Promise<void>;
+  findUserByResetPassword(token: string): Promise<User>;
 }
