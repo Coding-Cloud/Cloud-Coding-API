@@ -5,9 +5,18 @@ import { TypeormProjectsRepository } from '../../repositories/repositories/typeo
 import { CreateProjectUseCase } from '../../../usecases/project/create-project.usecase';
 import { UpdateProjectUseCase } from '../../../usecases/project/update-project-use.case';
 import { InitialisedProjectUseCase } from '../../../usecases/project/initialised-project.usecase';
+import { ProjectInitialiserModule } from '../../project-initialiser/project-initialiser.module';
+import { CodeRunnerModule } from '../../code-runner/code-runner.module';
+import { ProjectInitialiserApi } from '../../project-initialiser/project-initialiser.abstract';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [RepositoriesModule],
+  imports: [
+    RepositoriesModule,
+    ProjectInitialiserModule,
+    CodeRunnerModule,
+    HttpModule,
+  ],
 })
 export class UseCasesProxyProjectModule {
   static CREATE_PROJECT_USE_CASES_PROXY = 'createProjectUseCaseProxy';
@@ -19,10 +28,15 @@ export class UseCasesProxyProjectModule {
       module: UseCasesProxyProjectModule,
       providers: [
         {
-          inject: [TypeormProjectsRepository],
+          inject: [TypeormProjectsRepository, ProjectInitialiserApi],
           provide: UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
-          useFactory: (projects: TypeormProjectsRepository) =>
-            new UseCaseProxy(new CreateProjectUseCase(projects)),
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            projectInitialiserApi: ProjectInitialiserApi,
+          ) =>
+            new UseCaseProxy(
+              new CreateProjectUseCase(projects, projectInitialiserApi),
+            ),
         },
         {
           inject: [TypeormProjectsRepository],
