@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -31,6 +32,7 @@ export class TypeormProjectsRepository implements Projects {
       const projectEntity = await this.projectEntityRepository.save(project);
       return ProjectAdapter.toProject(projectEntity);
     } catch (error) {
+      Logger.error(error);
       if (error.code === '23505') {
         throw new ConflictException('Name already exists');
       } else {
@@ -49,6 +51,7 @@ export class TypeormProjectsRepository implements Projects {
     try {
       await this.projectEntityRepository.update(id, project);
     } catch (error) {
+      Logger.error(error);
       throw new BadRequestException('Name already exists');
     }
   }
@@ -59,7 +62,7 @@ export class TypeormProjectsRepository implements Projects {
         status: ProjectStatusEnum.INACTIVE,
       });
     } catch (error) {
-      console.log(error.code);
+      Logger.error(error);
       if (error.code === '23505') {
         throw new ConflictException('Name already exists');
       } else {
