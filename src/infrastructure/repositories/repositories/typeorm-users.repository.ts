@@ -1,17 +1,17 @@
 import {
   ConflictException,
   Inject,
-  Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthCredentialsDto } from '../../controllers/auth/dto/auth-credentials.dto';
 import { Encrypt } from '../../../domain/encrypt.interface';
-import { UserEntity } from '../../entities/user.entity';
+import { UserEntity } from '../entities/user/user.entity';
 import { Users } from '../../../domain/user/users.interface';
+import { User } from 'src/domain/user/user';
+import UserAdapter from 'src/infrastructure/repositories/entities/user/user.adapter';
+import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/create-user.dto';
 
-@Injectable()
 export class TypeormUsersRespository implements Users {
   constructor(
     @Inject(Encrypt) private encrypt: Encrypt,
@@ -19,8 +19,8 @@ export class TypeormUsersRespository implements Users {
     private readonly userEntityRepository: Repository<UserEntity>,
   ) {}
 
-  async createUser(authCredentialsDto: AuthCredentialsDto): Promise<void> {
-    const { username, password } = authCredentialsDto;
+  async createUser(createUserDTO: CreateUserDTO): Promise<void> {
+    const { username, password, email } = createUserDTO;
 
     const salt = await this.encrypt.genSaltkey();
     const hashedPassword = await this.encrypt.hash(password, salt);
@@ -28,6 +28,7 @@ export class TypeormUsersRespository implements Users {
     const user = this.userEntityRepository.create({
       username,
       password: hashedPassword,
+      email,
     });
 
     try {
@@ -41,8 +42,46 @@ export class TypeormUsersRespository implements Users {
     }
   }
 
-  findBy(props: { id: string; username: string }): Promise<UserEntity> {
-    if (props.id) return this.userEntityRepository.findOne(props.id);
-    if (props.username) return this.userEntityRepository.findOne(props.id);
+  async findBy(props: {
+    id?: string;
+    username?: string;
+    email?: string;
+  }): Promise<User> {
+    const { id, username, email } = props;
+    if (id) {
+      const userEntity = await this.userEntityRepository.findOne(id);
+      return UserAdapter.toUser(userEntity);
+    }
+    if (username) {
+      const userEntity = await this.userEntityRepository.findOne({
+        where: { username },
+      });
+      return UserAdapter.toUser(userEntity);
+    }
+
+    if (email) {
+      const userEntity = await this.userEntityRepository.findOne({
+        where: { email },
+      });
+      return UserAdapter.toUser(userEntity);
+    }
+  }
+
+  async changePassword(user: User, password: string): Promise<void> {
+    const userEntity = UserAdapter.toUserEntity(user);
+    await this.userEntityRepository.update({ id: userEntity.id }, { password });
+  }
+
+  async findUserByResetPassword(token: string): Promise<User> {
+    const userEntity: UserEntity = await this.userEntityRepository
+      .createQueryBuilder('user')
+      .leftJoinAndSelect(
+        'password_reset',
+        'password_reset',
+        'password_reset.userId = user.id',
+      )
+      .where('password_reset.token = :token', { token })
+      .getOne();
+    return userEntity ? UserAdapter.toUser(userEntity) : null;
   }
 }

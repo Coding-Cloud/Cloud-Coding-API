@@ -1,11 +1,13 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { Encrypt } from 'src/domain/encrypt.interface';
-import { signInUseCases } from 'src/usecases/auth/signin.usecase';
-import { signUpUseCases } from 'src/usecases/auth/signup.usecase';
+import { TypeormSessionsRespository } from 'src/infrastructure/repositories/repositories/typeorm-session.repository';
+import { SignInUseCases } from 'src/usecases/auth/signin.usecase';
+import { SignUpUseCases } from 'src/usecases/auth/signup.usecase';
+import { getUserUseCases } from 'src/usecases/user/get-user.usecase';
 import { EncryptModule } from '../../encrypt/encrypt.module';
-import { JwtEncrypt } from '../../jwt/jwt-encrypt';
-import { JwtEncryptModule } from '../../jwt/jwt-encrypt.module';
-import { RepositoriesModule } from '../../repositories/repositories/repositories.module';
+import { JwtEncrypt } from '../../web/jwt/jwt-encrypt.abstract';
+import { JwtEncryptModule } from '../../web/jwt/jwt-encrypt.module';
+import { RepositoriesModule } from '../../repositories/repositories.module';
 import { TypeormUsersRespository } from '../../repositories/repositories/typeorm-users.repository';
 import { UseCaseProxy } from '../usecases-proxy';
 
@@ -15,30 +17,47 @@ import { UseCaseProxy } from '../usecases-proxy';
 export class UsecasesProxyUserModule {
   static SIGNIN_USECASES_PROXY = 'signinUsecasesProxy';
   static SIGNUP_USECASES_PROXY = 'signupUsecasesProxy';
+  static GET_USER_USECASES_PROXY = 'getUserUsecasesProxy';
 
   static register(): DynamicModule {
     return {
       module: UsecasesProxyUserModule,
       providers: [
         {
-          inject: [TypeormUsersRespository, Encrypt, JwtEncrypt],
+          inject: [
+            TypeormUsersRespository,
+            Encrypt,
+            JwtEncrypt,
+            TypeormSessionsRespository,
+          ],
           provide: UsecasesProxyUserModule.SIGNIN_USECASES_PROXY,
           useFactory: (
             users: TypeormUsersRespository,
             encrypt: Encrypt,
             jwtEncrypt: JwtEncrypt,
-          ) => new UseCaseProxy(new signInUseCases(users, encrypt, jwtEncrypt)),
+            session: TypeormSessionsRespository,
+          ) =>
+            new UseCaseProxy(
+              new SignInUseCases(users, encrypt, jwtEncrypt, session),
+            ),
         },
         {
           inject: [TypeormUsersRespository],
           provide: UsecasesProxyUserModule.SIGNUP_USECASES_PROXY,
           useFactory: (users: TypeormUsersRespository) =>
-            new UseCaseProxy(new signUpUseCases(users)),
+            new UseCaseProxy(new SignUpUseCases(users)),
+        },
+        {
+          inject: [TypeormUsersRespository],
+          provide: UsecasesProxyUserModule.GET_USER_USECASES_PROXY,
+          useFactory: (users: TypeormUsersRespository) =>
+            new UseCaseProxy(new getUserUseCases(users)),
         },
       ],
       exports: [
         UsecasesProxyUserModule.SIGNIN_USECASES_PROXY,
         UsecasesProxyUserModule.SIGNUP_USECASES_PROXY,
+        UsecasesProxyUserModule.GET_USER_USECASES_PROXY,
       ],
     };
   }
