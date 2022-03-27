@@ -10,9 +10,9 @@ export const databaseConfig: ConnectionOptions = {
   synchronize: false,
   entities: [__dirname + './../../**/*.entity{.ts,.js}'],
   migrationsRun: true,
-  migrations: ['migrations'],
+  migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
   //autoLoadEntities: true,
   cli: {
-    migrationsDir: 'migrations',
+    migrationsDir: 'src/infrastructure/config/migrations',
   },
 };

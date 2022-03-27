@@ -24,4 +24,4 @@ ENV \
 
 # DB TYPE / NAME / SYNC unused yet
 
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]
