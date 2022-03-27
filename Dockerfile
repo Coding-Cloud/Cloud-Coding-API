@@ -13,15 +13,20 @@ COPY --from=node-builder --chown=node:node /app/node_modules/ ./node_modules/
 COPY --from=node-builder --chown=node:node /app/dist/ ./dist/
 
 ENV \
- DATABASE_TYPE=postgres \
- DATABASE_HOST=127.0.0.1 \
- DATABASE_PORT=5432 \
- DATABASE_NAME=dbname \
- DATABASE_USER=user \
- DATABASE_PASSWORD=password \
- DATABASE_SYNC=false \
- JWT_SECRET=mysecret
-
+  DATABASE_HOST=127.0.0.1 \
+  DATABASE_PORT=5432 \
+  DATABASE_USER=postgres \
+  DATABASE_PASSWORD=postgres \
+  DATABASE_NAME=postgres \
+  JWT_SECRET=mysecret \
+  SMTP_APIKEY_PUBLIC=publickey \
+  SMTP_APIKEY_PRIVATE=privatekey \
+  MAIL_SENDER=example@mail.com \
+  MAIL_SENDER_NAME=CloudCoding \
+  MAIL_RECEIVER=example@mail.com \
+  FRONT_URL=http://localhost \
+  FRONT_PORT=4200 \
+  HELM_BRIDGE_URL=http://helm-bridge.default.svc.cluster.local:5000
 # DB TYPE / NAME / SYNC unused yet
 
 CMD ["node", "dist/main.js"]
