@@ -13,4 +13,6 @@ export interface Projects {
   findBy(props: { id?: string; name?: string }): Promise<Project>;
 
   initialisedProjectById(id: string): Promise<void>;
+
+  deleteProject(id: string): Promise<void>;
 }

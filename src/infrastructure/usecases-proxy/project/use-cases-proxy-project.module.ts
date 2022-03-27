@@ -4,6 +4,7 @@ import { UseCaseProxy } from '../usecases-proxy';
 import { TypeormProjectsRepository } from '../../repositories/repositories/typeorm-projects.repository';
 import { CreateProjectUseCase } from '../../../usecases/project/create-project.usecase';
 import { UpdateProjectUseCase } from '../../../usecases/project/update-project-use.case';
+import { DeleteProjectUseCase } from '../../../usecases/project/delete-project.usecase';
 import { InitialisedProjectUseCase } from '../../../usecases/project/initialised-project.usecase';
 import { ProjectInitialiserModule } from '../../project-initialiser/project-initialiser.module';
 import { CodeRunnerModule } from '../../code-runner/code-runner.module';
@@ -20,6 +21,7 @@ import { HttpModule } from '@nestjs/axios';
 })
 export class UseCasesProxyProjectModule {
   static CREATE_PROJECT_USE_CASES_PROXY = 'createProjectUseCaseProxy';
+  static DELETE_PROJECT_USE_CASES_PROXY = 'deleteProjectUseCaseProxy';
   static UPDATE_PROJECT_USE_CASES_PROXY = 'updateProjectUseCaseProxy';
   static INITIALISED_PROJECT_USE_CASES_PROXY = 'initialisedProjectUseCaseProxy';
 
@@ -36,6 +38,17 @@ export class UseCasesProxyProjectModule {
           ) =>
             new UseCaseProxy(
               new CreateProjectUseCase(projects, projectInitialiserApi),
+            ),
+        },
+        {
+          inject: [TypeormProjectsRepository, ProjectInitialiserApi],
+          provide: UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            projectInitialiserApi: ProjectInitialiserApi,
+          ) =>
+            new UseCaseProxy(
+              new DeleteProjectUseCase(projects, projectInitialiserApi),
             ),
         },
         {
