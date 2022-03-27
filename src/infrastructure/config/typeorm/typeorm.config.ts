@@ -1,6 +1,6 @@
 import { ConnectionOptions } from 'typeorm';
 
-const config: ConnectionOptions = {
+export const databaseConfig: ConnectionOptions = {
   type: 'postgres',
   host: process.env.DATABASE_HOST as string,
   port: process.env.DATABASE_PORT as unknown as number,
@@ -13,8 +13,6 @@ const config: ConnectionOptions = {
   migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
   //autoLoadEntities: true,
   cli: {
-    migrationsDir: 'src/infrastructure/config/migrations',
+    migrationsDir: 'migrations',
   },
 };
-
-export default config;

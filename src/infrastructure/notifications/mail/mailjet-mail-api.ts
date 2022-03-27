@@ -54,8 +54,7 @@ export class MailjetMailApi implements MailApi {
 
   private async sendEmail(args: EmailApiSendEmailArgs): Promise<void> {
     const { toEmail, subject, textBody, htmlBody } = args;
-    console.log("on passe bien là");
-    
+
     const res = await this.transporter
       .post('send', { version: 'v3.1' })
       .request({

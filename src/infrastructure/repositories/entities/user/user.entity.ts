@@ -1,7 +1,5 @@
-import { Session } from '@nestjs/common';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { PasswordResetEntity } from '../password-reset/password-reset.entity';
-import { SessionEntity } from '../session/session.entity';
 
 @Entity('user')
 export class UserEntity {

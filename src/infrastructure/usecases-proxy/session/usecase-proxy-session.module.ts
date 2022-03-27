@@ -2,7 +2,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { TypeormSessionsRespository } from 'src/infrastructure/repositories/repositories/typeorm-session.repository';
 import { CreateSessionUseCases } from 'src/usecases/session/create-session.usecase';
 import { GetSessionUseCases } from 'src/usecases/session/get-session.usecase';
-import { RepositoriesModule } from '../../repositories/repositories/repositories.module';
+import { RepositoriesModule } from '../../repositories/repositories.module';
 import { UseCaseProxy } from '../usecases-proxy';
 
 @Module({

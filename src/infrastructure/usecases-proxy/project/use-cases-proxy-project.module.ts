@@ -1,5 +1,5 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { RepositoriesModule } from '../../repositories/repositories/repositories.module';
+import { RepositoriesModule } from '../../repositories/repositories.module';
 import { UseCaseProxy } from '../usecases-proxy';
 import { TypeormProjectsRepository } from '../../repositories/repositories/typeorm-projects.repository';
 import { CreateProjectUseCase } from '../../../usecases/project/create-project.usecase';

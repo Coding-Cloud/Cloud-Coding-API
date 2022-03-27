@@ -1,21 +1,16 @@
 import {
-  BadRequestException,
   ConflictException,
   Inject,
-  Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthCredentialsDto } from '../../controllers/auth/dto/auth-credentials.dto';
 import { Encrypt } from '../../../domain/encrypt.interface';
-import { UserEntity } from '../../entities/user/user.entity';
+import { UserEntity } from '../entities/user/user.entity';
 import { Users } from '../../../domain/user/users.interface';
 import { User } from 'src/domain/user/user';
-import UserAdapter from 'src/infrastructure/entities/user/user.adapter';
-import { CreateUserDTO } from 'src/infrastructure/controllers/auth/dto/create-user.dto';
-import { PasswordReset } from 'src/domain/user/password-reset';
-import { PasswordResetEntity } from 'src/infrastructure/entities/password-reset/password-reset.entity';
+import UserAdapter from 'src/infrastructure/repositories/entities/user/user.adapter';
+import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/create-user.dto';
 
 export class TypeormUsersRespository implements Users {
   constructor(

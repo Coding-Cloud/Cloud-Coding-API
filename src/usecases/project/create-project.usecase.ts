@@ -1,6 +1,6 @@
 import { Projects } from '../../domain/project/projects.interface';
 import { Project } from '../../domain/project/project';
-import { CreateProjectDTO } from '../../infrastructure/controllers/project/dto/create-project.dto';
+import { CreateProjectDTO } from '../../infrastructure/web/controllers/project/dto/create-project.dto';
 import { ProjectInitialiserApi } from '../../infrastructure/project-initialiser/project-initialiser.abstract';
 import { Logger } from '@nestjs/common';
 

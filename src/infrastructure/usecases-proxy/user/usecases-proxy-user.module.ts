@@ -5,9 +5,9 @@ import { SignInUseCases } from 'src/usecases/auth/signin.usecase';
 import { SignUpUseCases } from 'src/usecases/auth/signup.usecase';
 import { getUserUseCases } from 'src/usecases/user/get-user.usecase';
 import { EncryptModule } from '../../encrypt/encrypt.module';
-import { JwtEncrypt } from '../../jwt/jwt-encrypt.abstract';
-import { JwtEncryptModule } from '../../jwt/jwt-encrypt.module';
-import { RepositoriesModule } from '../../repositories/repositories/repositories.module';
+import { JwtEncrypt } from '../../web/jwt/jwt-encrypt.abstract';
+import { JwtEncryptModule } from '../../web/jwt/jwt-encrypt.module';
+import { RepositoriesModule } from '../../repositories/repositories.module';
 import { TypeormUsersRespository } from '../../repositories/repositories/typeorm-users.repository';
 import { UseCaseProxy } from '../usecases-proxy';
 

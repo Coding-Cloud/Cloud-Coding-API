@@ -2,8 +2,8 @@ import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { SignInUseCases } from 'src/usecases/auth/signin.usecase';
 import { SignUpUseCases } from 'src/usecases/auth/signup.usecase';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
-import { UseCaseProxy } from '../../usecases-proxy/usecases-proxy';
-import { UsecasesProxyUserModule } from '../../usecases-proxy/user/usecases-proxy-user.module';
+import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
+import { UsecasesProxyUserModule } from '../../../usecases-proxy/user/usecases-proxy-user.module';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDTO } from './dto/create-user.dto';
 

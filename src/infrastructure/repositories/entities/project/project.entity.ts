@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { ProjectStatusEnum } from '../../../domain/project/project-status.enum';
-import { ProjectLanguageEnum } from '../../../domain/project/project-language.enum';
+import { ProjectLanguageEnum } from '../../../../domain/project/project-language.enum';
+import { ProjectStatusEnum } from '../../../../domain/project/project-status.enum';
 
 @Entity('project')
 export class ProjectEntity {

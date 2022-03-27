@@ -1,5 +1,5 @@
-import { CreateProjectDTO } from '../../infrastructure/controllers/project/dto/create-project.dto';
-import { UpdateProjectDTO } from '../../infrastructure/controllers/project/dto/update-project.dto';
+import { CreateProjectDTO } from '../../infrastructure/web/controllers/project/dto/create-project.dto';
+import { UpdateProjectDTO } from '../../infrastructure/web/controllers/project/dto/update-project.dto';
 import { Project } from './project';
 
 export interface Projects {

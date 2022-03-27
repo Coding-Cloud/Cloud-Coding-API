@@ -1,11 +1,10 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { Users } from '../../domain/user/users.interface';
-import { AuthCredentialsDto } from 'src/infrastructure/controllers/auth/dto/auth-credentials.dto';
+import { AuthCredentialsDto } from 'src/infrastructure/web/controllers/auth/dto/auth-credentials.dto';
 import { Encrypt } from 'src/domain/encrypt.interface';
-import { JwtPayload } from 'src/infrastructure/jwt/jwt-payload.interface';
-import { JwtEncrypt } from 'src/infrastructure/jwt/jwt-encrypt.abstract';
+import { JwtPayload } from 'src/infrastructure/web/jwt/jwt-payload.interface';
+import { JwtEncrypt } from 'src/infrastructure/web/jwt/jwt-encrypt.abstract';
 import { Sessions } from 'src/domain/session/session.interface';
-import { MailjetMailApi } from 'src/infrastructure/mail/mailjet-mail-api';
 
 export class SignInUseCases {
   constructor(

@@ -7,11 +7,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Projects } from '../../../domain/project/projects.interface';
 import { Project } from '../../../domain/project/project';
-import ProjectAdapter from '../../entities/project/project.adapter';
-import { ProjectEntity } from '../../entities/project/project.entity';
-import { CreateProjectDTO } from '../../controllers/project/dto/create-project.dto';
+import ProjectAdapter from '../entities/project/project.adapter';
+import { ProjectEntity } from '../entities/project/project.entity';
+import { CreateProjectDTO } from '../../web/controllers/project/dto/create-project.dto';
 import { ProjectStatusEnum } from '../../../domain/project/project-status.enum';
-import { UpdateProjectDTO } from '../../controllers/project/dto/update-project.dto';
+import { UpdateProjectDTO } from '../../web/controllers/project/dto/update-project.dto';
 
 export class TypeormProjectsRepository implements Projects {
   constructor(
