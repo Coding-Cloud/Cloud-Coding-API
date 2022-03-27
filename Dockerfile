@@ -12,6 +12,8 @@ COPY --from=node-builder --chown=node:node /app/package*.json ./
 COPY --from=node-builder --chown=node:node /app/node_modules/ ./node_modules/
 COPY --from=node-builder --chown=node:node /app/dist/ ./dist/
 
+EXPOSE 3000
+
 ENV \
   DATABASE_HOST=127.0.0.1 \
   DATABASE_PORT=5432 \
