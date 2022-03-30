@@ -10,6 +10,9 @@ export class ProjectEntity {
   @Column({ unique: true, nullable: false })
   name: string;
 
+  @Column({ nullable: false, default: 1 })
+  lastVersion: number;
+
   @Column('enum', { enum: ProjectLanguageEnum, nullable: false })
   language: ProjectLanguageEnum;
 

@@ -10,11 +10,17 @@ import { ProjectInitialiserModule } from '../../project-initialiser/project-init
 import { CodeRunnerModule } from '../../code-runner/code-runner.module';
 import { ProjectInitialiserApi } from '../../project-initialiser/project-initialiser.abstract';
 import { HttpModule } from '@nestjs/axios';
+import { AddProjectVersionUseCase } from '../../../usecases/project/add-project-version.usecase';
+import { ProjectVersioningApi } from '../../project-versioning/project-versioning.abstract';
+import { GetProjectVersionsUseCase } from '../../../usecases/project/get-project-versions.usecase';
+import { RollbackProjectVersionUseCase } from '../../../usecases/project/rollback-project-version.usecase';
+import { ProjectVersioningModule } from '../../project-versioning/project-versioning.module';
 
 @Module({
   imports: [
     RepositoriesModule,
     ProjectInitialiserModule,
+    ProjectVersioningModule,
     CodeRunnerModule,
     HttpModule,
   ],
@@ -24,6 +30,11 @@ export class UseCasesProxyProjectModule {
   static DELETE_PROJECT_USE_CASES_PROXY = 'deleteProjectUseCaseProxy';
   static UPDATE_PROJECT_USE_CASES_PROXY = 'updateProjectUseCaseProxy';
   static INITIALISED_PROJECT_USE_CASES_PROXY = 'initialisedProjectUseCaseProxy';
+  static ADD_PROJECT_VERSION_USE_CASES_PROXY = 'addProjectVersionUseCaseProxy';
+  static GET_PROJECT_VERSIONS_USE_CASES_PROXY =
+    'getProjectVersionsUseCaseProxy';
+  static ROLLBACK_PROJECT_VERSION_USE_CASES_PROXY =
+    'rollbackProjectVersionUseCaseProxy';
 
   static register(): DynamicModule {
     return {
@@ -64,11 +75,51 @@ export class UseCasesProxyProjectModule {
           useFactory: (projects: TypeormProjectsRepository) =>
             new UseCaseProxy(new InitialisedProjectUseCase(projects)),
         },
+        {
+          inject: [TypeormProjectsRepository, ProjectVersioningApi],
+          provide:
+            UseCasesProxyProjectModule.ADD_PROJECT_VERSION_USE_CASES_PROXY,
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            projectVersioningApi: ProjectVersioningApi,
+          ) =>
+            new UseCaseProxy(
+              new AddProjectVersionUseCase(projects, projectVersioningApi),
+            ),
+        },
+        {
+          inject: [TypeormProjectsRepository, ProjectVersioningApi],
+          provide:
+            UseCasesProxyProjectModule.GET_PROJECT_VERSIONS_USE_CASES_PROXY,
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            projectVersioningApi: ProjectVersioningApi,
+          ) =>
+            new UseCaseProxy(
+              new GetProjectVersionsUseCase(projects, projectVersioningApi),
+            ),
+        },
+        {
+          inject: [TypeormProjectsRepository, ProjectVersioningApi],
+          provide:
+            UseCasesProxyProjectModule.ROLLBACK_PROJECT_VERSION_USE_CASES_PROXY,
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            projectVersioningApi: ProjectVersioningApi,
+          ) =>
+            new UseCaseProxy(
+              new RollbackProjectVersionUseCase(projects, projectVersioningApi),
+            ),
+        },
       ],
       exports: [
         UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.ADD_PROJECT_VERSION_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.GET_PROJECT_VERSIONS_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.ROLLBACK_PROJECT_VERSION_USE_CASES_PROXY,
       ],
     };
   }

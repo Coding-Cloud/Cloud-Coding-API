@@ -12,13 +12,13 @@ export class HelmBridgeApi implements CodeRunnerApi {
     language: ProjectLanguageEnum,
   ): Observable<AxiosResponse<void>> {
     return this.httpService.post(
-      process.env.HELM_BRIDGE_URL + '/runner/' + id + '/' + language,
+      `${process.env.HELM_BRIDGE_URL}/runners/${id}/${language}`,
     );
   }
 
   stopCodeRunner(id: string): Observable<AxiosResponse<void>> {
     return this.httpService.delete(
-      process.env.HELM_BRIDGE_URL + '/runner/' + id,
+      `${process.env.HELM_BRIDGE_URL}/runners/${id}`,
     );
   }
 }

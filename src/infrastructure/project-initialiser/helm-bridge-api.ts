@@ -13,13 +13,13 @@ export class HelmBridgeApi implements ProjectInitialiserApi {
     language: ProjectLanguageEnum,
   ): Observable<AxiosResponse<void>> {
     return this.httpService.post(
-      `${process.env.HELM_BRIDGE_URL}/project/${id}/${language}`,
+      `${process.env.HELM_BRIDGE_URL}/projects/${id}/${language}`,
     );
   }
 
   deleteProject(id: string): Observable<AxiosResponse<void>> {
     return this.httpService.delete(
-      `${process.env.HELM_BRIDGE_URL}/project/${id}`,
+      `${process.env.HELM_BRIDGE_URL}/projects/${id}`,
     );
   }
 }

@@ -3,12 +3,13 @@ import { Project } from '../../../../domain/project/project';
 
 export default class ProjectAdapter {
   static toProject(project: ProjectEntity): Project {
-    const { id, name, language, status } = project;
+    const { id, name, language, status, lastVersion } = project;
     return {
       id,
       name,
       language,
       status,
+      lastVersion,
     };
   }
 

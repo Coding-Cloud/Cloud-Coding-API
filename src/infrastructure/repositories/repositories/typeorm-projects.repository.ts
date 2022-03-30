@@ -51,6 +51,9 @@ export class TypeormProjectsRepository implements Projects {
   ): Promise<void> {
     const project = {
       ...(updateProjectDTO.name && { name: updateProjectDTO.name }),
+      ...(updateProjectDTO.lastVersion && {
+        lastVersion: updateProjectDTO.lastVersion,
+      }),
     };
     try {
       await this.projectEntityRepository.update(id, project);
