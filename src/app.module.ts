@@ -4,6 +4,7 @@ import { UsecasesProxyResetPasswordModule } from './infrastructure/usecases-prox
 import { UsecasesProxySessionModule } from './infrastructure/usecases-proxy/session/usecase-proxy-session.module';
 import { UsecasesProxyUserModule } from './infrastructure/usecases-proxy/user/usecases-proxy-user.module';
 import { UseCasesProxyProjectModule } from './infrastructure/usecases-proxy/project/use-cases-proxy-project.module';
+import { GatewaysModule } from './infrastructure/web/gateways/gateways.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { UseCasesProxyProjectModule } from './infrastructure/usecases-proxy/proj
     UsecasesProxyResetPasswordModule,
     UseCasesProxyProjectModule,
     ControllersModule,
+    GatewaysModule,
   ],
 })
 export class AppModule {}
