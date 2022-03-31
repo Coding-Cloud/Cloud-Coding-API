@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { CodeRunnerModule } from '../../code-runner/code-runner.module';
 import { ProjectEditionGateway } from './project-edition/project-edition.gateway';
+import { UseCasesProxyProjectEditionModule } from '../../usecases-proxy/project-edition/use-cases-proxy-project-edition.module';
 
 @Module({
-  imports: [CodeRunnerModule],
+  imports: [UseCasesProxyProjectEditionModule.register()],
   providers: [ProjectEditionGateway],
 })
 export class GatewaysModule {}

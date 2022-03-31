@@ -6,11 +6,9 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
-import { AuthGuard } from '../auth/auth.guards';
 import { AddProjectVersionUseCase } from '../../../../usecases/project-version/add-project-version.usecase';
 import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/get-project-versions.usecase';
 import { RollbackProjectVersionUseCase } from '../../../../usecases/project-version/rollback-project-version.usecase';
@@ -18,7 +16,7 @@ import { UseCasesProxyProjectVersioningModule } from '../../../usecases-proxy/pr
 
 @Controller('projects-version')
 @ApiTags('projects-version')
-@UseGuards(AuthGuard)
+//@UseGuards(AuthGuard)
 export class ProjectVersionsController {
   constructor(
     @Inject(

@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmpty, IsString, MaxLength, MinLength } from 'class-validator';
+import { ProjectStatusEnum } from '../../../../../domain/project/project-status.enum';
 
 export class UpdateProjectDTO {
   @IsString()
@@ -10,4 +11,7 @@ export class UpdateProjectDTO {
 
   @IsEmpty()
   lastVersion?: number;
+
+  @IsEmpty()
+  status?: ProjectStatusEnum;
 }

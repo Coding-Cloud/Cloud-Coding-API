@@ -54,12 +54,13 @@ export class TypeormProjectsRepository implements Projects {
       ...(updateProjectDTO.lastVersion && {
         lastVersion: updateProjectDTO.lastVersion,
       }),
+      ...(updateProjectDTO.status && { status: updateProjectDTO.status }),
     };
     try {
       await this.projectEntityRepository.update(id, project);
     } catch (error) {
       Logger.error(error);
-      throw new BadRequestException('Name already exists');
+      throw new BadRequestException();
     }
   }
 
@@ -80,11 +81,16 @@ export class TypeormProjectsRepository implements Projects {
 
   async findBy(props: { id?: string; name?: string }): Promise<Project> {
     const { id, name } = props;
-    const projectEntity = await this.projectEntityRepository
-      .createQueryBuilder()
-      .where('id=:id', { id })
-      .orWhere('name=:name', { name })
-      .getOne();
-    return ProjectAdapter.toProject(projectEntity);
+    try {
+      const projectEntity = await this.projectEntityRepository
+        .createQueryBuilder()
+        .where('id=:id', { id })
+        .orWhere('name=:name', { name })
+        .getOne();
+      return ProjectAdapter.toProject(projectEntity);
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException();
+    }
   }
 }
