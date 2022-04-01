@@ -15,8 +15,10 @@ export class CreateProjectUseCase {
     const subscription = this.projectInitialiserApi
       .initialiseProject(project.id, project.language)
       .subscribe({
-        next: () => subscription.unsubscribe(),
+        next: () =>
+          Logger.log(`Project {${project.id}} repository has been created`),
         error: (error) => Logger.error(error),
+        complete: () => subscription.unsubscribe(),
       });
     return project;
   }

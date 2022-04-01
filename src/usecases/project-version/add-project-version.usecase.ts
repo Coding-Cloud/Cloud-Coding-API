@@ -14,8 +14,10 @@ export class AddProjectVersionUseCase {
     const subscription = this.projectVersioningApi
       .addProjectVersion(id, lastVersion, title)
       .subscribe({
-        next: () => subscription.unsubscribe(),
+        next: () =>
+          Logger.log(`Project {${id}} added new version {${lastVersion}}`),
         error: (error) => Logger.error(error),
+        complete: () => subscription.unsubscribe(),
       });
     await this.projects.updateProjectById(id, { lastVersion });
   }

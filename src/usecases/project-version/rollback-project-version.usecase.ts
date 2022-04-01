@@ -14,7 +14,9 @@ export class RollbackProjectVersionUseCase {
     const subscription = this.projectVersioningApi
       .rollbackProjectVersion(id, versions)
       .subscribe({
-        next: () => subscription.unsubscribe(),
+        next: () =>
+          Logger.log(`Project {${id}} rolled back to version {${lastVersion}}`),
+        complete: () => subscription.unsubscribe(),
         error: (error) => Logger.error(error),
       });
     await this.projects.updateProjectById(id, { lastVersion });

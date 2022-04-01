@@ -13,8 +13,9 @@ export class DeleteProjectUseCase {
     const subscription = this.projectInitialiserApi
       .deleteProject(id)
       .subscribe({
-        next: () => subscription.unsubscribe(),
+        next: () => Logger.log(`Project {${id}} repository has been deleted`),
         error: (error) => Logger.error(error),
+        complete: () => subscription.unsubscribe(),
       });
   }
 }
