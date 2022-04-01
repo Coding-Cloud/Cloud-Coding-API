@@ -42,7 +42,7 @@ export class TypeormProjectsRepository implements Projects {
   }
 
   async deleteProject(id: string): Promise<void> {
-    await this.projectEntityRepository.softDelete(id);
+    await this.projectEntityRepository.delete(id);
   }
 
   async updateProjectById(
