@@ -13,6 +13,7 @@ import { AddProjectVersionUseCase } from '../../../../usecases/project-version/a
 import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/get-project-versions.usecase';
 import { RollbackProjectVersionUseCase } from '../../../../usecases/project-version/rollback-project-version.usecase';
 import { UseCasesProxyProjectVersioningModule } from '../../../usecases-proxy/project-version/use-cases-proxy-project-version.module';
+import { AddProjectVersionDTO } from './dto/add-project-version.dto';
 
 @Controller('projects-version')
 @ApiTags('projects-version')
@@ -36,9 +37,11 @@ export class ProjectVersionsController {
   @Post('/:id/version')
   addProjectVersion(
     @Param('id') id: string,
-    @Body('title') title: string,
+    @Body() addProjectVersionDTO: AddProjectVersionDTO,
   ): Promise<void> {
-    return this.addVersion.getInstance().addProjectVersion(id, title);
+    return this.addVersion
+      .getInstance()
+      .addProjectVersion(id, addProjectVersionDTO);
   }
 
   @Get('/:id/version')
