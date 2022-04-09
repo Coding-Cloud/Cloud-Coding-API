@@ -11,6 +11,9 @@ import { CodeRunnerModule } from '../../code-runner/code-runner.module';
 import { ProjectInitialiserApi } from '../../project-initialiser/project-initialiser.abstract';
 import { HttpModule } from '@nestjs/axios';
 import { ProjectVersioningModule } from '../../project-versioning/project-versioning.module';
+import { CodeWriterModule } from 'src/infrastructure/code-writer/code-writer.module';
+import { CodeWriter } from 'src/domain/code-writer.abstract';
+import { ReadProjectUseCase } from 'src/usecases/project/read-project-file.usecase';
 
 @Module({
   imports: [
@@ -19,6 +22,7 @@ import { ProjectVersioningModule } from '../../project-versioning/project-versio
     ProjectVersioningModule,
     CodeRunnerModule,
     HttpModule,
+    CodeWriterModule,
   ],
 })
 export class UseCasesProxyProjectModule {
@@ -26,6 +30,7 @@ export class UseCasesProxyProjectModule {
   static DELETE_PROJECT_USE_CASES_PROXY = 'deleteProjectUseCaseProxy';
   static UPDATE_PROJECT_USE_CASES_PROXY = 'updateProjectUseCaseProxy';
   static INITIALISED_PROJECT_USE_CASES_PROXY = 'initialisedProjectUseCaseProxy';
+  static READ_PROJECT_USE_CASES_PROXY = 'readProjectUseCaseProxy';
 
   static register(): DynamicModule {
     return {
@@ -66,12 +71,19 @@ export class UseCasesProxyProjectModule {
           useFactory: (projects: TypeormProjectsRepository) =>
             new UseCaseProxy(new InitialisedProjectUseCase(projects)),
         },
+        {
+          inject: [CodeWriter],
+          provide: UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY,
+          useFactory: (codeWriter: CodeWriter) =>
+            new UseCaseProxy(new ReadProjectUseCase(codeWriter)),
+        },
       ],
       exports: [
         UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY,
       ],
     };
   }

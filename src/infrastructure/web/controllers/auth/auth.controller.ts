@@ -23,7 +23,6 @@ export class AuthController {
   @ApiResponse({ status: 400 })
   @ApiResponse({ status: 403 })
   signUp(@Body() createUserDTO: CreateUserDTO): Promise<void> {
-    console.log('je passe là');
 
     return this.signUpUseCaseProxy.getInstance().signUp(createUserDTO);
   }
