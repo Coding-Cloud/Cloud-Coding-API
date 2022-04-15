@@ -11,7 +11,7 @@ import { Project } from '../../../domain/project/project';
 import ProjectAdapter from '../entities/project/project.adapter';
 import { ProjectEntity } from '../entities/project/project.entity';
 import { CreateProjectDTO } from '../../web/controllers/project/dto/create-project.dto';
-import { ProjectStatusEnum } from '../../../domain/project/project-status.enum';
+import { ProjectStatus } from '../../../domain/project/project-status.enum';
 import { UpdateProjectDTO } from '../../web/controllers/project/dto/update-project.dto';
 
 export class TypeormProjectsRepository implements Projects {
@@ -24,7 +24,7 @@ export class TypeormProjectsRepository implements Projects {
     const { name, language } = createProjectDTO;
     const project = this.projectEntityRepository.create({
       name,
-      status: ProjectStatusEnum.INITIALISING,
+      status: ProjectStatus.INITIALISING,
       language,
     });
 
@@ -67,7 +67,7 @@ export class TypeormProjectsRepository implements Projects {
   async initialisedProjectById(id: string): Promise<void> {
     try {
       await this.projectEntityRepository.update(id, {
-        status: ProjectStatusEnum.INACTIVE,
+        status: ProjectStatus.INACTIVE,
       });
     } catch (error) {
       Logger.error(error);

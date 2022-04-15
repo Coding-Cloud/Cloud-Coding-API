@@ -6,7 +6,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ProjectLanguageEnum } from '../../../../../domain/project/project-language.enum';
+import { ProjectLanguage } from '../../../../../domain/project/project-language.enum';
 
 export class CreateProjectDTO {
   @IsString()
@@ -15,8 +15,8 @@ export class CreateProjectDTO {
   @ApiProperty()
   name: string;
 
-  @IsEnum(ProjectLanguageEnum)
+  @IsEnum(ProjectLanguage)
   @IsNotEmpty()
   @ApiProperty()
-  language: ProjectLanguageEnum;
+  language: ProjectLanguage;
 }

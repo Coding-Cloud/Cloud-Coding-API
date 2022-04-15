@@ -1,6 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { ProjectLanguageEnum } from '../../../../domain/project/project-language.enum';
-import { ProjectStatusEnum } from '../../../../domain/project/project-status.enum';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { ProjectLanguage } from '../../../../domain/project/project-language.enum';
+import { ProjectStatus } from '../../../../domain/project/project-status.enum';
+import { ProjectVisibility } from '../../../../domain/project/project-visibility.enum';
 
 @Entity('project')
 export class ProjectEntity {
@@ -13,9 +20,24 @@ export class ProjectEntity {
   @Column({ nullable: false, default: 1 })
   lastVersion: number;
 
-  @Column('enum', { enum: ProjectLanguageEnum, nullable: false })
-  language: ProjectLanguageEnum;
+  @Column('enum', { enum: ProjectLanguage, nullable: false })
+  language: ProjectLanguage;
 
-  @Column('enum', { enum: ProjectStatusEnum, nullable: false })
-  status: ProjectStatusEnum;
+  @Column('enum', { enum: ProjectStatus, nullable: false })
+  status: ProjectStatus;
+
+  @Column('enum', { enum: ProjectVisibility, nullable: false })
+  globalVisibility: ProjectVisibility;
+
+  @Column({ nullable: false })
+  creatorId: string;
+
+  @Column({ nullable: false })
+  groupId: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }
