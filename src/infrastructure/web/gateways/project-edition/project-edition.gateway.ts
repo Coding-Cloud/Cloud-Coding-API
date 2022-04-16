@@ -38,8 +38,10 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
   async handleConnection(client: Socket): Promise<void> {
     try {
+      console.log('connection');
       const projectId = client.handshake.query.projectId as string;
-      client.rooms.forEach((room) => client.leave(room));
+      // pose problème pour faire du broadcast
+      //client.rooms.forEach((room) => client.leave(room));
       client.join(projectId);
       //await this.startProject.getInstance().startProjectRunner(projectId);
 
@@ -66,10 +68,32 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody('project') editsProjectDTO: EditProjectDTO2[],
   ): Promise<void> {
-    const editsProject = editsProjectDTO.map((editProjectDTO) => ({
-      ...editProjectDTO,
-    }));
-    console.log(editsProject);
+    console.log('edit');
+    const editsProject: EditProjectDTO2[] = editsProjectDTO.map(
+      (editProjectDTO) => ({
+        ...editProjectDTO,
+      }),
+    );
     await this.editProject.getInstance().editProject(editsProject);
+    this.broadcastEditProject(
+      'projectModificationFromContributor',
+      editsProject,
+      client,
+    );
+  }
+
+  private broadcastEditProject(
+    event: string,
+    editPorjectDTO: EditProjectDTO2[],
+    client: Socket,
+  ) {
+    console.log('room');
+    console.log('fin room');
+    //2 rooms ici
+    client.rooms.forEach(async (room) => {
+      console.log(room);
+      console.log(room === '1');
+      client.broadcast.to(room).emit(event, editPorjectDTO);
+    });
   }
 }

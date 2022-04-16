@@ -1,16 +1,22 @@
+import * as fs from 'fs';
 import { CodeWriter } from 'src/domain/code-writer.abstract';
 import { FolderStatus } from 'src/domain/folder/folder-status.enum';
-import {  EditProject2 } from './edit-project';
+import { EditProject2 } from './edit-project';
 
 export class EditProjectRunnerUseCase {
   constructor(private readonly codeWriter: CodeWriter) {}
 
   async editProject(editsProject: EditProject2[]): Promise<void> {
     editsProject.forEach(async (editProject) => {
+      console.log(editProject);
       if (
         editProject.folderStatus === FolderStatus.CREATED ||
         editProject.folderStatus === FolderStatus.MODIFIED
       ) {
+        if (!fs.existsSync(editProject.fullPath)) {
+          this.createProjectElement(editProject);
+        }
+
         if (editProject.type === 'file') {
           console.log('writeInContent -> ' + editProject.fullPath);
           const modifications = editProject.modifications.map(
@@ -23,9 +29,6 @@ export class EditProjectRunnerUseCase {
             editProject.fullPath,
             modifications,
           );
-        } else if (editProject.type === 'folder') {
-          console.log('writeInContent -> ' + editProject.fullPath);
-          await this.codeWriter.createDir(editProject.fullPath);
         }
       } else if (editProject.folderStatus === FolderStatus.DELETED) {
         if (editProject.type === 'folder') {
@@ -41,5 +44,13 @@ export class EditProjectRunnerUseCase {
         }
       }
     });
+  }
+
+  private async createProjectElement(editProject: EditProject2) {
+    if (editProject.type === 'file') {
+      await this.codeWriter.createFile('', editProject.fullPath);
+    } else if (editProject.type === 'folder') {
+      await this.codeWriter.createDir(editProject.fullPath);
+    }
   }
 }
