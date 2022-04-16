@@ -11,6 +11,8 @@ import { CodeRunnerModule } from '../../code-runner/code-runner.module';
 import { ProjectInitialiserApi } from '../../project-initialiser/project-initialiser.abstract';
 import { HttpModule } from '@nestjs/axios';
 import { ProjectVersioningModule } from '../../project-versioning/project-versioning.module';
+import { UseCasesProxyGroupModule } from '../group/use-cases-proxy-group.module';
+import { CreateGroupUseCase } from '../../../usecases/group/create-group.usecase';
 
 @Module({
   imports: [
@@ -19,6 +21,7 @@ import { ProjectVersioningModule } from '../../project-versioning/project-versio
     ProjectVersioningModule,
     CodeRunnerModule,
     HttpModule,
+    UseCasesProxyGroupModule.register(),
   ],
 })
 export class UseCasesProxyProjectModule {
@@ -32,14 +35,23 @@ export class UseCasesProxyProjectModule {
       module: UseCasesProxyProjectModule,
       providers: [
         {
-          inject: [TypeormProjectsRepository, ProjectInitialiserApi],
+          inject: [
+            TypeormProjectsRepository,
+            ProjectInitialiserApi,
+            UseCasesProxyGroupModule.CREATE_GROUP_USE_CASES_PROXY,
+          ],
           provide: UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
           useFactory: (
             projects: TypeormProjectsRepository,
             projectInitialiserApi: ProjectInitialiserApi,
+            createGroup: UseCaseProxy<CreateGroupUseCase>,
           ) =>
             new UseCaseProxy(
-              new CreateProjectUseCase(projects, projectInitialiserApi),
+              new CreateProjectUseCase(
+                projects,
+                projectInitialiserApi,
+                createGroup,
+              ),
             ),
         },
         {

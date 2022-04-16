@@ -8,6 +8,8 @@ import { UseCasesProxyProjectModule } from '../../usecases-proxy/project/use-cas
 import { ProjectsController } from './project/projects.controller';
 import { UseCasesProxyProjectVersioningModule } from '../../usecases-proxy/project-version/use-cases-proxy-project-version.module';
 import { ProjectVersionsController } from './project-version/project-versions.controller';
+import { UseCasesProxyGroupModule } from '../../usecases-proxy/group/use-cases-proxy-group.module';
+import { GroupsController } from './group/groups.controller';
 
 @Module({
   imports: [
@@ -16,12 +18,14 @@ import { ProjectVersionsController } from './project-version/project-versions.co
     UsecasesProxyResetPasswordModule.register(),
     UseCasesProxyProjectModule.register(),
     UseCasesProxyProjectVersioningModule.register(),
+    UseCasesProxyGroupModule.register(),
   ],
   controllers: [
     AuthController,
     PasswordResetController,
     ProjectsController,
     ProjectVersionsController,
+    GroupsController,
   ],
 })
 export class ControllersModule {}

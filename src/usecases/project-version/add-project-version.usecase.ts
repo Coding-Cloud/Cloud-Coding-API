@@ -24,6 +24,7 @@ export class AddProjectVersionUseCase {
         error: (error) => Logger.error(error),
         complete: () => subscription.unsubscribe(),
       });
-    await this.projects.updateProjectById(id, { lastVersion });
+    project.lastVersion = lastVersion;
+    await this.projects.updateProjectById(id, project);
   }
 }

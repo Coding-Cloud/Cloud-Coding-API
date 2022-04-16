@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmpty, IsString, MaxLength, MinLength } from 'class-validator';
-import { ProjectStatus } from '../../../../../domain/project/project-status.enum';
+import { IsEnum, IsString, MaxLength, MinLength } from 'class-validator';
+import { ProjectVisibility } from '../../../../../domain/project/project-visibility.enum';
 
 export class UpdateProjectDTO {
   @IsString()
@@ -9,9 +9,7 @@ export class UpdateProjectDTO {
   @ApiProperty()
   name?: string;
 
-  @IsEmpty()
-  lastVersion?: number;
-
-  @IsEmpty()
-  status?: ProjectStatus;
+  @IsEnum(ProjectVisibility)
+  @ApiProperty()
+  globalVisibility?: ProjectVisibility;
 }

@@ -19,9 +19,8 @@ export class StartProjectRunnerUseCase {
           error: (error) => Logger.error(error),
           complete: () => subscription.unsubscribe(),
         });
-      await this.projects.updateProjectById(id, {
-        status: ProjectStatus.RUNNING,
-      });
+      project.status = ProjectStatus.RUNNING;
+      await this.projects.updateProjectById(id, project);
     }
   }
 }

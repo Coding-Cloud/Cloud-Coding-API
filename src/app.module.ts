@@ -5,12 +5,14 @@ import { UsecasesProxySessionModule } from './infrastructure/usecases-proxy/sess
 import { UsecasesProxyUserModule } from './infrastructure/usecases-proxy/user/usecases-proxy-user.module';
 import { UseCasesProxyProjectModule } from './infrastructure/usecases-proxy/project/use-cases-proxy-project.module';
 import { GatewaysModule } from './infrastructure/web/gateways/gateways.module';
+import { UseCasesProxyGroupModule } from './infrastructure/usecases-proxy/group/use-cases-proxy-group.module';
 
 @Module({
   imports: [
     UsecasesProxySessionModule,
     UsecasesProxyUserModule,
     UsecasesProxyResetPasswordModule,
+    UseCasesProxyGroupModule,
     UseCasesProxyProjectModule,
     ControllersModule,
     GatewaysModule,

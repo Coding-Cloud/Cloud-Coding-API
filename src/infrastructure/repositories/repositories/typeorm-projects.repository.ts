@@ -10,9 +10,7 @@ import { Projects } from '../../../domain/project/projects.interface';
 import { Project } from '../../../domain/project/project';
 import ProjectAdapter from '../entities/project/project.adapter';
 import { ProjectEntity } from '../entities/project/project.entity';
-import { CreateProjectDTO } from '../../web/controllers/project/dto/create-project.dto';
 import { ProjectStatus } from '../../../domain/project/project-status.enum';
-import { UpdateProjectDTO } from '../../web/controllers/project/dto/update-project.dto';
 
 export class TypeormProjectsRepository implements Projects {
   constructor(
@@ -20,16 +18,15 @@ export class TypeormProjectsRepository implements Projects {
     private readonly projectEntityRepository: Repository<ProjectEntity>,
   ) {}
 
-  async createProject(createProjectDTO: CreateProjectDTO): Promise<Project> {
-    const { name, language } = createProjectDTO;
-    const project = this.projectEntityRepository.create({
-      name,
-      status: ProjectStatus.INITIALISING,
-      language,
-    });
-
+  async createProject(project: Project): Promise<Project> {
     try {
-      const projectEntity = await this.projectEntityRepository.save(project);
+      const createdProject = ProjectAdapter.toProjectEntity(project);
+      const creationProject =
+        this.projectEntityRepository.create(createdProject);
+
+      const projectEntity = await this.projectEntityRepository.save(
+        creationProject,
+      );
       return ProjectAdapter.toProject(projectEntity);
     } catch (error) {
       Logger.error(error);
@@ -45,19 +42,10 @@ export class TypeormProjectsRepository implements Projects {
     await this.projectEntityRepository.delete(id);
   }
 
-  async updateProjectById(
-    id: string,
-    updateProjectDTO: UpdateProjectDTO,
-  ): Promise<void> {
-    const project = {
-      ...(updateProjectDTO.name && { name: updateProjectDTO.name }),
-      ...(updateProjectDTO.lastVersion && {
-        lastVersion: updateProjectDTO.lastVersion,
-      }),
-      ...(updateProjectDTO.status && { status: updateProjectDTO.status }),
-    };
+  async updateProjectById(id: string, project: Project): Promise<void> {
+    const updatedProject = ProjectAdapter.toProjectEntity(project);
     try {
-      await this.projectEntityRepository.update(id, project);
+      await this.projectEntityRepository.update(id, updatedProject);
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();

@@ -19,6 +19,7 @@ export class RollbackProjectVersionUseCase {
         complete: () => subscription.unsubscribe(),
         error: (error) => Logger.error(error),
       });
-    await this.projects.updateProjectById(id, { lastVersion });
+    project.lastVersion = lastVersion;
+    await this.projects.updateProjectById(id, project);
   }
 }
