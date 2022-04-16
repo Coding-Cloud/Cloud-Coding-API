@@ -11,7 +11,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { UseCasesProxyProjectModule } from '../../../usecases-proxy/project/use-cases-proxy-project.module';
 import { CreateProjectUseCase } from '../../../../usecases/project/create-project.usecase';
-import { UpdateProjectUseCase } from '../../../../usecases/project/update-project-use.case';
+import { UpdateProjectUseCase } from '../../../../usecases/project/update-project.usecase';
 import { CreateProjectDTO } from './dto/create-project.dto';
 import { Project } from '../../../../domain/project/project';
 import { UpdateProjectDTO } from './dto/update-project.dto';

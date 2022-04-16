@@ -21,6 +21,7 @@ import { GroupMembershipEntity } from './entities/group-membership/group-members
 import { PostEntity } from './entities/post/post.entity';
 import { ConversationEntity } from './entities/conversation/conversation.entity';
 import { CommentEntity } from './entities/comment/comment.entity';
+import { TypeormGroupMembershipsRepository } from './repositories/typeorm-group-memberships.repository';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { CommentEntity } from './entities/comment/comment.entity';
     TypeormPasswordResetRespository,
     TypeormProjectsRepository,
     TypeormGroupsRepository,
+    TypeormGroupMembershipsRepository,
   ],
   exports: [
     TypeormUsersRepository,
@@ -56,6 +58,7 @@ import { CommentEntity } from './entities/comment/comment.entity';
     TypeormPasswordResetRespository,
     TypeormProjectsRepository,
     TypeormGroupsRepository,
+    TypeormGroupMembershipsRepository,
   ],
 })
 export class RepositoriesModule {}

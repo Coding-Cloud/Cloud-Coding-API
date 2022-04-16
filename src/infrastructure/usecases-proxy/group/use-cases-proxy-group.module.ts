@@ -3,8 +3,8 @@ import { RepositoriesModule } from '../../repositories/repositories.module';
 import { UseCaseProxy } from '../usecases-proxy';
 import { CreateGroupUseCase } from '../../../usecases/group/create-group.usecase';
 import { TypeormGroupsRepository } from '../../repositories/repositories/typeorm-groups.repository';
-import { UpdateGroupUseCase } from '../../../usecases/group/update-project-use.case';
-import { DeleteGroupUseCase } from '../../../usecases/group/delete-project.usecase';
+import { UpdateGroupUseCase } from '../../../usecases/group/update-group.usecase';
+import { DeleteGroupUseCase } from '../../../usecases/group/delete-group.usecase';
 import { GetGroupUseCase } from '../../../usecases/group/get-group.usecase';
 
 @Module({

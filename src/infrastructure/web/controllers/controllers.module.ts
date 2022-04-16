@@ -10,6 +10,8 @@ import { UseCasesProxyProjectVersioningModule } from '../../usecases-proxy/proje
 import { ProjectVersionsController } from './project-version/project-versions.controller';
 import { UseCasesProxyGroupModule } from '../../usecases-proxy/group/use-cases-proxy-group.module';
 import { GroupsController } from './group/groups.controller';
+import { GroupMembershipsController } from './group-membership/group-memberships.controller';
+import { UseCasesProxyGroupMembershipModule } from '../../usecases-proxy/group-membership/use-cases-proxy-group-membership.module';
 
 @Module({
   imports: [
@@ -19,6 +21,7 @@ import { GroupsController } from './group/groups.controller';
     UseCasesProxyProjectModule.register(),
     UseCasesProxyProjectVersioningModule.register(),
     UseCasesProxyGroupModule.register(),
+    UseCasesProxyGroupMembershipModule.register(),
   ],
   controllers: [
     AuthController,
@@ -26,6 +29,7 @@ import { GroupsController } from './group/groups.controller';
     ProjectsController,
     ProjectVersionsController,
     GroupsController,
+    GroupMembershipsController,
   ],
 })
 export class ControllersModule {}

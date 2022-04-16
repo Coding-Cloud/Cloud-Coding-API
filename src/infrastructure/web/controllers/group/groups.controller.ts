@@ -18,8 +18,8 @@ import { User } from '../../../../domain/user/user';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { GetGroupUseCase } from '../../../../usecases/group/get-group.usecase';
 import { UseCasesProxyGroupModule } from '../../../usecases-proxy/group/use-cases-proxy-group.module';
-import { UpdateGroupUseCase } from '../../../../usecases/group/update-project-use.case';
-import { DeleteGroupUseCase } from '../../../../usecases/group/delete-project.usecase';
+import { UpdateGroupUseCase } from '../../../../usecases/group/update-group.usecase';
+import { DeleteGroupUseCase } from '../../../../usecases/group/delete-group.usecase';
 import { CreateGroupUseCase } from '../../../../usecases/group/create-group.usecase';
 import { AuthGuard } from '../auth/auth.guards';
 

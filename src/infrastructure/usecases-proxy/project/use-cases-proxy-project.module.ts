@@ -3,7 +3,7 @@ import { RepositoriesModule } from '../../repositories/repositories.module';
 import { UseCaseProxy } from '../usecases-proxy';
 import { TypeormProjectsRepository } from '../../repositories/repositories/typeorm-projects.repository';
 import { CreateProjectUseCase } from '../../../usecases/project/create-project.usecase';
-import { UpdateProjectUseCase } from '../../../usecases/project/update-project-use.case';
+import { UpdateProjectUseCase } from '../../../usecases/project/update-project.usecase';
 import { DeleteProjectUseCase } from '../../../usecases/project/delete-project.usecase';
 import { InitialisedProjectUseCase } from '../../../usecases/project/initialised-project.usecase';
 import { ProjectInitialiserModule } from '../../project-initialiser/project-initialiser.module';
