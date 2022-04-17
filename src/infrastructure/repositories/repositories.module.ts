@@ -24,6 +24,7 @@ import { CommentEntity } from './entities/comment/comment.entity';
 import { TypeormGroupMembershipsRepository } from './repositories/typeorm-group-memberships.repository';
 import { TypeormFollowersRepository } from './repositories/typeorm-followers.repository';
 import { TypeormFriendRequestsRepository } from './repositories/typeorm-friend-requests.repository';
+import { TypeormFriendshipsRepository } from './repositories/typeorm-friendships.repository';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { TypeormFriendRequestsRepository } from './repositories/typeorm-friend-r
     TypeormGroupMembershipsRepository,
     TypeormFollowersRepository,
     TypeormFriendRequestsRepository,
+    TypeormFriendshipsRepository,
   ],
   exports: [
     TypeormUsersRepository,
@@ -65,6 +67,7 @@ import { TypeormFriendRequestsRepository } from './repositories/typeorm-friend-r
     TypeormGroupMembershipsRepository,
     TypeormFollowersRepository,
     TypeormFriendRequestsRepository,
+    TypeormFriendshipsRepository,
   ],
 })
 export class RepositoriesModule {}

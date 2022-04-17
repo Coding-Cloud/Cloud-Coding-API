@@ -1,7 +1,15 @@
-import { Column, CreateDateColumn, Entity } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('friendship')
 export class FriendshipEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
   @Column({ primary: true })
   user1Id: string;
 

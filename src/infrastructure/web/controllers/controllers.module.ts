@@ -16,6 +16,8 @@ import { FollowersController } from './follower/followers.controller';
 import { UseCasesProxyFollowerModule } from '../../usecases-proxy/follower/use-cases-proxy-follower.module';
 import { FriendRequestsController } from './friend-request/friend-requests.controller';
 import { UseCasesProxyFriendRequestModule } from '../../usecases-proxy/friend-request/use-cases-proxy-friend-request.module';
+import { UseCasesProxyFriendshipModule } from '../../usecases-proxy/friendship/use-cases-proxy-friendship.module';
+import { FriendshipsController } from './friendship/friendships.controller';
 
 @Module({
   imports: [
@@ -28,6 +30,7 @@ import { UseCasesProxyFriendRequestModule } from '../../usecases-proxy/friend-re
     UseCasesProxyGroupMembershipModule.register(),
     UseCasesProxyFollowerModule.register(),
     UseCasesProxyFriendRequestModule.register(),
+    UseCasesProxyFriendshipModule.register(),
   ],
   controllers: [
     AuthController,
@@ -38,6 +41,7 @@ import { UseCasesProxyFriendRequestModule } from '../../usecases-proxy/friend-re
     PasswordResetController,
     ProjectsController,
     ProjectVersionsController,
+    FriendshipsController,
   ],
 })
 export class ControllersModule {}

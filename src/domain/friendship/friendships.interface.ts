@@ -1,8 +1,9 @@
-import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/create-user.dto';
 import { Friendship } from './friendship';
 
 export interface Friendships {
-  createUser(createUserDTO: CreateUserDTO): Promise<void>;
+  createFriendship(user1Id: string, user2Id: string): Promise<string>;
 
-  findByUserId(userId: string): Promise<Friendship>;
+  findByUserId(userId: string): Promise<Friendship[]>;
+
+  removeFriendship(id: string): Promise<void>;
 }
