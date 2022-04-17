@@ -1,11 +1,11 @@
 import { Projects } from '../../domain/project/projects.interface';
-import { Project } from '../../domain/project/project';
 import { ProjectInitialiserApi } from '../../infrastructure/project-initialiser/project-initialiser.abstract';
 import { Inject, Logger } from '@nestjs/common';
 import { UseCaseProxy } from '../../infrastructure/usecases-proxy/usecases-proxy';
 import { UseCasesProxyGroupModule } from '../../infrastructure/usecases-proxy/group/use-cases-proxy-group.module';
 import { CreateGroupUseCase } from '../group/create-group.usecase';
 import { Group } from '../../domain/group/group';
+import { CreateProjectCandidate } from '../../infrastructure/repositories/candidates/project/create-project.candidate';
 
 export class CreateProjectUseCase {
   constructor(
@@ -15,24 +15,28 @@ export class CreateProjectUseCase {
     private readonly createGroup: UseCaseProxy<CreateGroupUseCase>,
   ) {}
 
-  async createProject(project: Project): Promise<Project> {
-    if (!project.groupId) {
-      Logger.log(`Creating a new group for the project ${project.name}`);
-      project.groupId = await this.groupCreation(
-        project.name,
-        project.creatorId,
+  async createProject(
+    projectCandidate: CreateProjectCandidate,
+  ): Promise<string> {
+    if (!projectCandidate.groupId) {
+      Logger.log(
+        `Creating a new group for the project ${projectCandidate.name}`,
+      );
+      projectCandidate.groupId = await this.groupCreation(
+        projectCandidate.name,
+        projectCandidate.creatorId,
       );
     }
-    await this.projects.createProject(project);
+    const projectId = await this.projects.createProject(projectCandidate);
     const subscription = this.projectInitialiserApi
-      .initialiseProject(project.id, project.language)
+      .initialiseProject(projectId, projectCandidate.language)
       .subscribe({
         next: () =>
-          Logger.log(`Project {${project.id}} repository has been created`),
+          Logger.log(`Project {${projectId}} repository has been created`),
         error: (error) => Logger.error(error),
         complete: () => subscription.unsubscribe(),
       });
-    return project;
+    return projectId;
   }
 
   private async groupCreation(

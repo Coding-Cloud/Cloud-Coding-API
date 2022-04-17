@@ -1,7 +1,8 @@
 import { Project } from './project';
+import { CreateProjectCandidate } from '../../infrastructure/repositories/candidates/project/create-project.candidate';
 
 export interface Projects {
-  createProject(project: Project): Promise<Project>;
+  createProject(projectCandidate: CreateProjectCandidate): Promise<string>;
 
   updateProjectById(id: string, project: Project): Promise<void>;
 

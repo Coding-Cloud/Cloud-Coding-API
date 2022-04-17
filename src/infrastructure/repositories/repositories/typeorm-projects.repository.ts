@@ -11,6 +11,7 @@ import { Project } from '../../../domain/project/project';
 import ProjectAdapter from '../entities/project/project.adapter';
 import { ProjectEntity } from '../entities/project/project.entity';
 import { ProjectStatus } from '../../../domain/project/project-status.enum';
+import { CreateProjectCandidate } from '../candidates/project/create-project.candidate';
 
 export class TypeormProjectsRepository implements Projects {
   constructor(
@@ -18,18 +19,21 @@ export class TypeormProjectsRepository implements Projects {
     private readonly projectEntityRepository: Repository<ProjectEntity>,
   ) {}
 
-  async createProject(project: Project): Promise<Project> {
+  async createProject(
+    projectCandidate: CreateProjectCandidate,
+  ): Promise<string> {
     try {
-      const createdProject = ProjectAdapter.toProjectEntity(project);
       const creationProject = this.projectEntityRepository.create({
-        ...createdProject,
+        ...projectCandidate,
         status: ProjectStatus.INITIALISING,
       });
+      const creationProjectEntity =
+        ProjectAdapter.toProjectEntity(creationProject);
 
       const projectEntity = await this.projectEntityRepository.save(
-        creationProject,
+        creationProjectEntity,
       );
-      return ProjectAdapter.toProject(projectEntity);
+      return projectEntity.id;
     } catch (error) {
       Logger.error(error);
       if (error.code === '23505') {

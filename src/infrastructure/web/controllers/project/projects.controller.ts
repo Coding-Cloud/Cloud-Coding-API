@@ -21,6 +21,8 @@ import { DeleteProjectUseCase } from '../../../../usecases/project/delete-projec
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
 import { AuthGuard } from '../auth/auth.guards';
+import { CreateProjectCandidate } from '../../../repositories/candidates/project/create-project.candidate';
+import { ProjectStatus } from '../../../../domain/project/project-status.enum';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -41,15 +43,17 @@ export class ProjectsController {
   create(
     @Body() createProjectDTO: CreateProjectDTO,
     @GetUser() user: User,
-  ): Promise<Project> {
-    const project: Project = new Project();
-    project.creatorId = user.id;
-    project.groupId = createProjectDTO.groupId;
-    project.globalVisibility = createProjectDTO.globalVisibility;
-    project.name = createProjectDTO.name;
-    project.language = createProjectDTO.language;
+  ): Promise<string> {
+    const projectCandidate: CreateProjectCandidate = {
+      creatorId: user.id,
+      groupId: createProjectDTO.groupId,
+      globalVisibility: createProjectDTO.globalVisibility,
+      name: createProjectDTO.name,
+      language: createProjectDTO.language,
+      status: ProjectStatus.INITIALISING,
+    };
 
-    return this.createProject.getInstance().createProject(project);
+    return this.createProject.getInstance().createProject(projectCandidate);
   }
 
   @Delete('/:id')
@@ -68,7 +72,6 @@ export class ProjectsController {
     @Body() updateProjectDTO: UpdateProjectDTO,
   ): Promise<void> {
     const project: Project = new Project();
-    project.id = id;
     project.name = updateProjectDTO.name;
     project.globalVisibility = updateProjectDTO.globalVisibility;
 
