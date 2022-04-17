@@ -12,6 +12,7 @@ import ProjectAdapter from '../entities/project/project.adapter';
 import { ProjectEntity } from '../entities/project/project.entity';
 import { ProjectStatus } from '../../../domain/project/project-status.enum';
 import { CreateProjectCandidate } from '../candidates/project/create-project.candidate';
+import { UpdateProjectCandidate } from '../candidates/project/update-project.candidate';
 
 export class TypeormProjectsRepository implements Projects {
   constructor(
@@ -48,10 +49,16 @@ export class TypeormProjectsRepository implements Projects {
     await this.projectEntityRepository.delete(id);
   }
 
-  async updateProjectById(id: string, project: Project): Promise<void> {
-    const updatedProject = ProjectAdapter.toProjectEntity(project);
+  async updateProjectById(
+    id: string,
+    projectCandidate: UpdateProjectCandidate,
+  ): Promise<void> {
+    const updatedProject = this.projectEntityRepository.create({
+      ...projectCandidate,
+    });
+    const updatedProjectEntity = ProjectAdapter.toProjectEntity(updatedProject);
     try {
-      await this.projectEntityRepository.update(id, updatedProject);
+      await this.projectEntityRepository.update(id, updatedProjectEntity);
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();
@@ -65,11 +72,7 @@ export class TypeormProjectsRepository implements Projects {
       });
     } catch (error) {
       Logger.error(error);
-      if (error.code === '23505') {
-        throw new ConflictException('Name already exists');
-      } else {
-        throw new InternalServerErrorException();
-      }
+      throw new BadRequestException();
     }
   }
 

@@ -14,7 +14,6 @@ import { UseCasesProxyProjectModule } from '../../../usecases-proxy/project/use-
 import { CreateProjectUseCase } from '../../../../usecases/project/create-project.usecase';
 import { UpdateProjectUseCase } from '../../../../usecases/project/update-project.usecase';
 import { CreateProjectDTO } from './dto/create-project.dto';
-import { Project } from '../../../../domain/project/project';
 import { UpdateProjectDTO } from './dto/update-project.dto';
 import { InitialisedProjectUseCase } from '../../../../usecases/project/initialised-project.usecase';
 import { DeleteProjectUseCase } from '../../../../usecases/project/delete-project.usecase';
@@ -23,6 +22,7 @@ import { User } from '../../../../domain/user/user';
 import { AuthGuard } from '../auth/auth.guards';
 import { CreateProjectCandidate } from '../../../repositories/candidates/project/create-project.candidate';
 import { ProjectStatus } from '../../../../domain/project/project-status.enum';
+import { UpdateProjectCandidate } from '../../../repositories/candidates/project/update-project.candidate';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -71,10 +71,13 @@ export class ProjectsController {
     @Param('id') id: string,
     @Body() updateProjectDTO: UpdateProjectDTO,
   ): Promise<void> {
-    const project: Project = new Project();
-    project.name = updateProjectDTO.name;
-    project.globalVisibility = updateProjectDTO.globalVisibility;
+    const projectCandidate: UpdateProjectCandidate = {
+      name: updateProjectDTO.name,
+      globalVisibility: updateProjectDTO.globalVisibility,
+    };
 
-    return this.update.getInstance().updateProjectStatusById(id, project);
+    return this.update
+      .getInstance()
+      .updateProjectStatusById(id, projectCandidate);
   }
 }
