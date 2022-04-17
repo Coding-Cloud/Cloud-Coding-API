@@ -19,12 +19,12 @@ export class TypeormFollowersRepository implements Followers {
 
   async findFollowersById(followedId: string): Promise<Follower[]> {
     try {
-      const groupEntities = await this.followerEntityRepository
+      const followerEntities = await this.followerEntityRepository
         .createQueryBuilder()
         .where('FollowerEntity.followedId=:followedId', { followedId })
         .getMany();
-      return groupEntities.map((groupEntity) =>
-        FollowerAdapter.toFollower(groupEntity),
+      return followerEntities.map((followerEntity) =>
+        FollowerAdapter.toFollower(followerEntity),
       );
     } catch (error) {
       Logger.error(error);
@@ -34,12 +34,12 @@ export class TypeormFollowersRepository implements Followers {
 
   async findFollowsById(followerId: string): Promise<Follower[]> {
     try {
-      const groupEntities = await this.followerEntityRepository
+      const followerEntities = await this.followerEntityRepository
         .createQueryBuilder()
         .where('FollowerEntity.followerId=:followerId', { followerId })
         .getMany();
-      return groupEntities.map((groupEntity) =>
-        FollowerAdapter.toFollower(groupEntity),
+      return followerEntities.map((followerEntity) =>
+        FollowerAdapter.toFollower(followerEntity),
       );
     } catch (error) {
       Logger.error(error);
@@ -49,12 +49,12 @@ export class TypeormFollowersRepository implements Followers {
 
   async followUser(followerId: string, followedId: string): Promise<void> {
     try {
-      const groupMembership = this.followerEntityRepository.create({
+      const followerEntity = this.followerEntityRepository.create({
         followerId,
         followedId,
       });
 
-      await this.followerEntityRepository.save(groupMembership);
+      await this.followerEntityRepository.save(followerEntity);
     } catch (error) {
       Logger.error(error);
       if (error.code === '23505') {

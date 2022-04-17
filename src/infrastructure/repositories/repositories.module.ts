@@ -23,6 +23,7 @@ import { ConversationEntity } from './entities/conversation/conversation.entity'
 import { CommentEntity } from './entities/comment/comment.entity';
 import { TypeormGroupMembershipsRepository } from './repositories/typeorm-group-memberships.repository';
 import { TypeormFollowersRepository } from './repositories/typeorm-followers.repository';
+import { TypeormFriendRequestsRepository } from './repositories/typeorm-friend-requests.repository';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { TypeormFollowersRepository } from './repositories/typeorm-followers.rep
     TypeormGroupsRepository,
     TypeormGroupMembershipsRepository,
     TypeormFollowersRepository,
+    TypeormFriendRequestsRepository,
   ],
   exports: [
     TypeormUsersRepository,
@@ -62,6 +64,7 @@ import { TypeormFollowersRepository } from './repositories/typeorm-followers.rep
     TypeormGroupsRepository,
     TypeormGroupMembershipsRepository,
     TypeormFollowersRepository,
+    TypeormFriendRequestsRepository,
   ],
 })
 export class RepositoriesModule {}

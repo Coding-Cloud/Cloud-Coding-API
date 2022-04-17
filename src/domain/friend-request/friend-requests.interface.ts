@@ -1,8 +1,17 @@
-import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/create-user.dto';
 import { FriendRequest } from './friend-request';
 
 export interface FriendRequests {
-  createUser(createUserDTO: CreateUserDTO): Promise<void>;
+  deleteFriendRequest(
+    requesterUserId: string,
+    requestedUserId: string,
+  ): Promise<void>;
 
-  findById(id: string): Promise<FriendRequest>;
+  createFriendRequest(
+    requesterUserId: string,
+    requestedUserId: string,
+  ): Promise<FriendRequest>;
+
+  findSentFriendRequests(requesterUserId: string): Promise<FriendRequest[]>;
+
+  findReceivedFriendRequests(requestedUserId: string): Promise<FriendRequest[]>;
 }

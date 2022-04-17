@@ -14,6 +14,8 @@ import { GroupMembershipsController } from './group-membership/group-memberships
 import { UseCasesProxyGroupMembershipModule } from '../../usecases-proxy/group-membership/use-cases-proxy-group-membership.module';
 import { FollowersController } from './follower/followers.controller';
 import { UseCasesProxyFollowerModule } from '../../usecases-proxy/follower/use-cases-proxy-follower.module';
+import { FriendRequestsController } from './friend-request/friend-requests.controller';
+import { UseCasesProxyFriendRequestModule } from '../../usecases-proxy/friend-request/use-cases-proxy-friend-request.module';
 
 @Module({
   imports: [
@@ -25,10 +27,12 @@ import { UseCasesProxyFollowerModule } from '../../usecases-proxy/follower/use-c
     UseCasesProxyGroupModule.register(),
     UseCasesProxyGroupMembershipModule.register(),
     UseCasesProxyFollowerModule.register(),
+    UseCasesProxyFriendRequestModule.register(),
   ],
   controllers: [
     AuthController,
     FollowersController,
+    FriendRequestsController,
     GroupsController,
     GroupMembershipsController,
     PasswordResetController,
