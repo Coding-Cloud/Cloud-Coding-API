@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
@@ -19,10 +20,11 @@ import { InitialisedProjectUseCase } from '../../../../usecases/project/initiali
 import { DeleteProjectUseCase } from '../../../../usecases/project/delete-project.usecase';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
+import { AuthGuard } from '../auth/auth.guards';
 
 @Controller('projects')
 @ApiTags('projects')
-//@UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class ProjectsController {
   constructor(
     @Inject(UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY)

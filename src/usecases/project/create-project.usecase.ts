@@ -18,7 +18,10 @@ export class CreateProjectUseCase {
   async createProject(project: Project): Promise<Project> {
     if (!project.groupId) {
       Logger.log(`Creating a new group for the project ${project.name}`);
-      project.groupId = await this.groupCreation(project.name);
+      project.groupId = await this.groupCreation(
+        project.name,
+        project.creatorId,
+      );
     }
     await this.projects.createProject(project);
     const subscription = this.projectInitialiserApi
@@ -32,10 +35,14 @@ export class CreateProjectUseCase {
     return project;
   }
 
-  private async groupCreation(name: string): Promise<string> {
+  private async groupCreation(
+    name: string,
+    creatorId: string,
+  ): Promise<string> {
     const group = new Group();
     group.createdWithProject = true;
     group.name = name;
+    group.ownerId = creatorId;
     return (await this.createGroup.getInstance().createGroup(group)).id;
   }
 }

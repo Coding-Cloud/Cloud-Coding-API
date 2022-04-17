@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   MaxLength,
@@ -28,6 +29,7 @@ export class CreateProjectDTO {
   globalVisibility: ProjectVisibility;
 
   @IsUUID()
+  @IsOptional()
   @ApiProperty()
   groupId?: string;
 }

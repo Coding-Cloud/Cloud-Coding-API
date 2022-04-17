@@ -21,8 +21,10 @@ export class TypeormProjectsRepository implements Projects {
   async createProject(project: Project): Promise<Project> {
     try {
       const createdProject = ProjectAdapter.toProjectEntity(project);
-      const creationProject =
-        this.projectEntityRepository.create(createdProject);
+      const creationProject = this.projectEntityRepository.create({
+        ...createdProject,
+        status: ProjectStatus.INITIALISING,
+      });
 
       const projectEntity = await this.projectEntityRepository.save(
         creationProject,
