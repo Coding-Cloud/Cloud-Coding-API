@@ -1,8 +1,11 @@
-import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/create-user.dto';
 import { Follower } from './follower';
 
 export interface Followers {
-  createUser(createUserDTO: CreateUserDTO): Promise<void>;
+  followUser(followerId: string, followedId: string): Promise<void>;
 
-  findById(id: string): Promise<Follower>;
+  unfollowUser(followerId: string, followedId: string): Promise<void>;
+
+  findFollowsById(followerId: string): Promise<Follower[]>;
+
+  findFollowersById(followedId: string): Promise<Follower[]>;
 }

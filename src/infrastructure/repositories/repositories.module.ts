@@ -22,6 +22,7 @@ import { PostEntity } from './entities/post/post.entity';
 import { ConversationEntity } from './entities/conversation/conversation.entity';
 import { CommentEntity } from './entities/comment/comment.entity';
 import { TypeormGroupMembershipsRepository } from './repositories/typeorm-group-memberships.repository';
+import { TypeormFollowersRepository } from './repositories/typeorm-followers.repository';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { TypeormGroupMembershipsRepository } from './repositories/typeorm-group-
     TypeormProjectsRepository,
     TypeormGroupsRepository,
     TypeormGroupMembershipsRepository,
+    TypeormFollowersRepository,
   ],
   exports: [
     TypeormUsersRepository,
@@ -59,6 +61,7 @@ import { TypeormGroupMembershipsRepository } from './repositories/typeorm-group-
     TypeormProjectsRepository,
     TypeormGroupsRepository,
     TypeormGroupMembershipsRepository,
+    TypeormFollowersRepository,
   ],
 })
 export class RepositoriesModule {}

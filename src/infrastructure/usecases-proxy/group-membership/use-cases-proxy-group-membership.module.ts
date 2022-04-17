@@ -5,7 +5,7 @@ import { TypeormGroupMembershipsRepository } from '../../repositories/repositori
 import { JoinGroupUseCase } from '../../../usecases/group-membership/join-group.usecase';
 import { LeaveGroupUseCase } from '../../../usecases/group-membership/leave-project.usecase';
 import { FindUserGroupsUseCase } from '../../../usecases/group-membership/find-user-groups.usecase';
-import { FindGroupMembersUseCase } from '../../../usecases/group-membership/find-group-members-use.case';
+import { FindGroupMembersUseCase } from '../../../usecases/group-membership/find-group-members.usecase';
 
 @Module({
   imports: [RepositoriesModule],

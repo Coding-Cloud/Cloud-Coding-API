@@ -12,6 +12,8 @@ import { UseCasesProxyGroupModule } from '../../usecases-proxy/group/use-cases-p
 import { GroupsController } from './group/groups.controller';
 import { GroupMembershipsController } from './group-membership/group-memberships.controller';
 import { UseCasesProxyGroupMembershipModule } from '../../usecases-proxy/group-membership/use-cases-proxy-group-membership.module';
+import { FollowersController } from './follower/followers.controller';
+import { UseCasesProxyFollowerModule } from '../../usecases-proxy/follower/use-cases-proxy-follower.module';
 
 @Module({
   imports: [
@@ -22,14 +24,16 @@ import { UseCasesProxyGroupMembershipModule } from '../../usecases-proxy/group-m
     UseCasesProxyProjectVersioningModule.register(),
     UseCasesProxyGroupModule.register(),
     UseCasesProxyGroupMembershipModule.register(),
+    UseCasesProxyFollowerModule.register(),
   ],
   controllers: [
     AuthController,
+    FollowersController,
+    GroupsController,
+    GroupMembershipsController,
     PasswordResetController,
     ProjectsController,
     ProjectVersionsController,
-    GroupsController,
-    GroupMembershipsController,
   ],
 })
 export class ControllersModule {}

@@ -15,7 +15,7 @@ import { AuthGuard } from '../auth/auth.guards';
 import { UseCasesProxyGroupMembershipModule } from '../../../usecases-proxy/group-membership/use-cases-proxy-group-membership.module';
 import { JoinGroupUseCase } from '../../../../usecases/group-membership/join-group.usecase';
 import { LeaveGroupUseCase } from '../../../../usecases/group-membership/leave-project.usecase';
-import { FindGroupMembersUseCase } from '../../../../usecases/group-membership/find-group-members-use.case';
+import { FindGroupMembersUseCase } from '../../../../usecases/group-membership/find-group-members.usecase';
 import { FindUserGroupsUseCase } from '../../../../usecases/group-membership/find-user-groups.usecase';
 import { GroupMembership } from '../../../../domain/group-membership/group-membership';
 

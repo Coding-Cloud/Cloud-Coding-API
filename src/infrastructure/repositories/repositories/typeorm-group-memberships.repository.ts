@@ -47,7 +47,7 @@ export class TypeormGroupMembershipsRepository implements GroupMemberships {
     }
   }
 
-  async joinGroup(userId: string, groupId): Promise<void> {
+  async joinGroup(userId: string, groupId: string): Promise<void> {
     try {
       const groupMembership = this.groupMembershipEntityRepository.create({
         userId,
@@ -66,7 +66,7 @@ export class TypeormGroupMembershipsRepository implements GroupMemberships {
     }
   }
 
-  async leaveGroup(userId: string, groupId): Promise<void> {
+  async leaveGroup(userId: string, groupId: string): Promise<void> {
     await this.groupMembershipEntityRepository.delete({ userId, groupId });
   }
 }
