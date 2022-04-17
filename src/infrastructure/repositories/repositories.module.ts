@@ -25,6 +25,7 @@ import { TypeormGroupMembershipsRepository } from './repositories/typeorm-group-
 import { TypeormFollowersRepository } from './repositories/typeorm-followers.repository';
 import { TypeormFriendRequestsRepository } from './repositories/typeorm-friend-requests.repository';
 import { TypeormFriendshipsRepository } from './repositories/typeorm-friendships.repository';
+import { TypeormConversationsRepository } from './repositories/typeorm-conversations.repository';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { TypeormFriendshipsRepository } from './repositories/typeorm-friendships
     TypeormFollowersRepository,
     TypeormFriendRequestsRepository,
     TypeormFriendshipsRepository,
+    TypeormConversationsRepository,
   ],
   exports: [
     TypeormUsersRepository,
@@ -68,6 +70,7 @@ import { TypeormFriendshipsRepository } from './repositories/typeorm-friendships
     TypeormFollowersRepository,
     TypeormFriendRequestsRepository,
     TypeormFriendshipsRepository,
+    TypeormConversationsRepository,
   ],
 })
 export class RepositoriesModule {}

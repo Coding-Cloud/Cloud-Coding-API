@@ -1,9 +1,11 @@
 import { Friendship } from './friendship';
 
 export interface Friendships {
-  createFriendship(user1Id: string, user2Id: string): Promise<string>;
+  createFriendship(friendship: Friendship): Promise<string>;
 
   findByUserId(userId: string): Promise<Friendship[]>;
+
+  findById(id: string): Promise<Friendship>;
 
   removeFriendship(id: string): Promise<void>;
 }

@@ -6,9 +6,12 @@ import { TypeormGroupsRepository } from '../../repositories/repositories/typeorm
 import { UpdateGroupUseCase } from '../../../usecases/group/update-group.usecase';
 import { DeleteGroupUseCase } from '../../../usecases/group/delete-group.usecase';
 import { GetGroupUseCase } from '../../../usecases/group/get-group.usecase';
+import { UseCasesProxyConversationModule } from '../conversation/use-cases-proxy-conversation.module';
+import { CreateConversationUseCase } from '../../../usecases/conversation/create-conversation.usecase';
+import { RemoveConversationUseCase } from '../../../usecases/conversation/remove-conversation.usecase';
 
 @Module({
-  imports: [RepositoriesModule],
+  imports: [RepositoriesModule, UseCasesProxyConversationModule.register()],
 })
 export class UseCasesProxyGroupModule {
   static CREATE_GROUP_USE_CASES_PROXY = 'createGroupUseCaseProxy';
@@ -21,10 +24,18 @@ export class UseCasesProxyGroupModule {
       module: UseCasesProxyGroupModule,
       providers: [
         {
-          inject: [TypeormGroupsRepository],
+          inject: [
+            TypeormGroupsRepository,
+            UseCasesProxyConversationModule.CREATE_CONVERSATION_USE_CASES_PROXY,
+          ],
           provide: UseCasesProxyGroupModule.CREATE_GROUP_USE_CASES_PROXY,
-          useFactory: (groups: TypeormGroupsRepository) =>
-            new UseCaseProxy(new CreateGroupUseCase(groups)),
+          useFactory: (
+            groups: TypeormGroupsRepository,
+            createConversation: UseCaseProxy<CreateConversationUseCase>,
+          ) =>
+            new UseCaseProxy(
+              new CreateGroupUseCase(groups, createConversation),
+            ),
         },
         {
           inject: [TypeormGroupsRepository],
@@ -33,10 +44,18 @@ export class UseCasesProxyGroupModule {
             new UseCaseProxy(new GetGroupUseCase(groups)),
         },
         {
-          inject: [TypeormGroupsRepository],
+          inject: [
+            TypeormGroupsRepository,
+            UseCasesProxyConversationModule.REMOVE_CONVERSATION_USE_CASES_PROXY,
+          ],
           provide: UseCasesProxyGroupModule.DELETE_GROUP_USE_CASES_PROXY,
-          useFactory: (groups: TypeormGroupsRepository) =>
-            new UseCaseProxy(new DeleteGroupUseCase(groups)),
+          useFactory: (
+            groups: TypeormGroupsRepository,
+            removeConversation: UseCaseProxy<RemoveConversationUseCase>,
+          ) =>
+            new UseCaseProxy(
+              new DeleteGroupUseCase(groups, removeConversation),
+            ),
         },
         {
           inject: [TypeormGroupsRepository],

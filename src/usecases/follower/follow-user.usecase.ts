@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common';
-import { TypeormFollowersRepository } from '../../infrastructure/repositories/repositories/typeorm-followers.repository';
+import { Followers } from '../../domain/follower/followers.interface';
 
 export class FollowUserUseCase {
-  constructor(private readonly followers: TypeormFollowersRepository) {}
+  constructor(private readonly followers: Followers) {}
 
   async followUser(followerId: string, followedId: string): Promise<void> {
     await this.followers.followUser(followerId, followedId);

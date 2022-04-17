@@ -1,8 +1,9 @@
-import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/create-user.dto';
 import { Conversation } from './conversation';
 
 export interface Conversations {
-  createUser(createUserDTO: CreateUserDTO): Promise<void>;
+  createConversation(): Promise<string>;
 
-  findByUserId(userId: string): Promise<Conversation>;
+  findConversationById(id: string): Promise<Conversation>;
+
+  removeConversation(id: string): Promise<void>;
 }

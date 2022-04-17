@@ -18,6 +18,8 @@ import { FriendRequestsController } from './friend-request/friend-requests.contr
 import { UseCasesProxyFriendRequestModule } from '../../usecases-proxy/friend-request/use-cases-proxy-friend-request.module';
 import { UseCasesProxyFriendshipModule } from '../../usecases-proxy/friendship/use-cases-proxy-friendship.module';
 import { FriendshipsController } from './friendship/friendships.controller';
+import { UseCasesProxyConversationModule } from '../../usecases-proxy/conversation/use-cases-proxy-conversation.module';
+import { ConversationsController } from './conversation/conversations.controller';
 
 @Module({
   imports: [
@@ -31,17 +33,19 @@ import { FriendshipsController } from './friendship/friendships.controller';
     UseCasesProxyFollowerModule.register(),
     UseCasesProxyFriendRequestModule.register(),
     UseCasesProxyFriendshipModule.register(),
+    UseCasesProxyConversationModule.register(),
   ],
   controllers: [
     AuthController,
+    ConversationsController,
     FollowersController,
     FriendRequestsController,
+    FriendshipsController,
     GroupsController,
     GroupMembershipsController,
     PasswordResetController,
     ProjectsController,
     ProjectVersionsController,
-    FriendshipsController,
   ],
 })
 export class ControllersModule {}

@@ -1,11 +1,22 @@
-import { Logger } from '@nestjs/common';
-import { TypeormFriendshipsRepository } from '../../infrastructure/repositories/repositories/typeorm-friendships.repository';
+import { Inject, Logger } from '@nestjs/common';
+import { Friendships } from '../../domain/friendship/friendships.interface';
+import { UseCasesProxyConversationModule } from '../../infrastructure/usecases-proxy/conversation/use-cases-proxy-conversation.module';
+import { UseCaseProxy } from '../../infrastructure/usecases-proxy/usecases-proxy';
+import { RemoveConversationUseCase } from '../conversation/remove-conversation.usecase';
 
 export class RemoveFriendshipUseCase {
-  constructor(private readonly friendRequests: TypeormFriendshipsRepository) {}
+  constructor(
+    private readonly friendships: Friendships,
+    @Inject(UseCasesProxyConversationModule.REMOVE_CONVERSATION_USE_CASES_PROXY)
+    private readonly removeConversation: UseCaseProxy<RemoveConversationUseCase>,
+  ) {}
 
   async removeFriendship(id: string): Promise<void> {
-    await this.friendRequests.removeFriendship(id);
+    const friendship = await this.friendships.findById(id);
+    await this.removeConversation
+      .getInstance()
+      .removeConversation(friendship.conversationId);
+    await this.friendships.removeFriendship(id);
     Logger.log(`Deleted friendship ${id}`);
   }
 }

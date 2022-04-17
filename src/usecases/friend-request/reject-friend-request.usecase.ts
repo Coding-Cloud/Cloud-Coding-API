@@ -1,10 +1,8 @@
-import { TypeormFriendRequestsRepository } from '../../infrastructure/repositories/repositories/typeorm-friend-requests.repository';
 import { Logger } from '@nestjs/common';
+import { FriendRequests } from '../../domain/friend-request/friend-requests.interface';
 
 export class RejectFriendRequestUseCase {
-  constructor(
-    private readonly friendRequests: TypeormFriendRequestsRepository,
-  ) {}
+  constructor(private readonly friendRequests: FriendRequests) {}
 
   async rejectFriendRequest(
     requesterUserId: string,

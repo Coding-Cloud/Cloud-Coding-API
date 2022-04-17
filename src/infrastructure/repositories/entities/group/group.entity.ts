@@ -20,6 +20,9 @@ export class GroupEntity {
   @Column({ nullable: false, default: true })
   createdWithProject: boolean;
 
+  @Column({ nullable: false })
+  conversationId: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

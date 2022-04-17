@@ -17,17 +17,16 @@ export class TypeormFriendshipsRepository implements Friendships {
     private readonly friendshipEntityRepository: Repository<FriendshipEntity>,
   ) {}
 
-  async createFriendship(user1Id: string, user2Id: string): Promise<string> {
+  async createFriendship(friendship: Friendship): Promise<string> {
     try {
-      const friendshipEntity = this.friendshipEntityRepository.create({
-        user1Id,
-        user2Id,
+      const friendshipCreationEntity = this.friendshipEntityRepository.create({
+        ...friendship,
       });
 
-      const friendship = await this.friendshipEntityRepository.save(
-        friendshipEntity,
+      const friendshipEntity = await this.friendshipEntityRepository.save(
+        friendshipCreationEntity,
       );
-      return friendship.id;
+      return friendshipEntity.id;
     } catch (error) {
       Logger.error(error);
       if (error.code === '23505') {
@@ -52,6 +51,10 @@ export class TypeormFriendshipsRepository implements Friendships {
       Logger.error(error);
       throw new BadRequestException();
     }
+  }
+
+  async findById(id: string): Promise<Friendship> {
+    return await this.friendshipEntityRepository.findOne(id);
   }
 
   async removeFriendship(id: string): Promise<void> {

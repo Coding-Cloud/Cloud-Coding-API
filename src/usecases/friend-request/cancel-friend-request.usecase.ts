@@ -1,10 +1,8 @@
 import { Logger } from '@nestjs/common';
-import { TypeormFriendRequestsRepository } from '../../infrastructure/repositories/repositories/typeorm-friend-requests.repository';
+import { FriendRequests } from '../../domain/friend-request/friend-requests.interface';
 
 export class CancelFriendRequestUseCase {
-  constructor(
-    private readonly friendRequests: TypeormFriendRequestsRepository,
-  ) {}
+  constructor(private readonly friendRequests: FriendRequests) {}
 
   async cancelFriendRequest(
     requesterUserId: string,

@@ -1,8 +1,8 @@
-import { TypeormFollowersRepository } from '../../infrastructure/repositories/repositories/typeorm-followers.repository';
 import { Follower } from '../../domain/follower/follower';
+import { Followers } from '../../domain/follower/followers.interface';
 
 export class FindUserFollowingsUseCase {
-  constructor(private readonly followers: TypeormFollowersRepository) {}
+  constructor(private readonly followers: Followers) {}
 
   async findFollows(userId: string): Promise<Follower[]> {
     return await this.followers.findFollowsById(userId);

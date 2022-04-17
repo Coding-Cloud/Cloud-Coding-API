@@ -1,10 +1,8 @@
-import { TypeormFriendRequestsRepository } from '../../infrastructure/repositories/repositories/typeorm-friend-requests.repository';
 import { FriendRequest } from '../../domain/friend-request/friend-request';
+import { FriendRequests } from '../../domain/friend-request/friend-requests.interface';
 
 export class FindReceivedFriendRequestsUseCase {
-  constructor(
-    private readonly friendRequests: TypeormFriendRequestsRepository,
-  ) {}
+  constructor(private readonly friendRequests: FriendRequests) {}
 
   async findReceivedFriendRequests(userId: string): Promise<FriendRequest[]> {
     return this.friendRequests.findReceivedFriendRequests(userId);
