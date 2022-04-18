@@ -12,6 +12,7 @@ export class FileCodeWriter implements CodeWriter {
     path: string,
     modifications: { content: string; lineNumber: number }[],
   ): Promise<void> {
+    if(modifications.length === 0) return;
     const fileContent = await fs.readFile(path, { encoding: 'utf-8' });
     const fileArray = fileContent.split('\n');
     modifications.forEach((modification) => {
@@ -34,5 +35,8 @@ export class FileCodeWriter implements CodeWriter {
   }
   async overwriteAFile(content: string, path: string): Promise<void> {
     await fs.writeFile(path, content);
+  }
+  async renameFile(oldPath: string, newPath: string): Promise<void> {
+    await fs.rename(oldPath, newPath);
   }
 }

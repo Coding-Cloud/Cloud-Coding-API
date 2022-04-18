@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import { CodeWriter } from 'src/domain/code-writer.abstract';
 import { FolderStatus } from 'src/domain/folder/folder-status.enum';
-import { EditProject2 } from './edit-project';
+import { EditProject } from './types/edit-project';
 
 export class EditProjectRunnerUseCase {
   constructor(private readonly codeWriter: CodeWriter) {}
 
-  async editProject(editsProject: EditProject2[]): Promise<void> {
+  async editProject(editsProject: EditProject[]): Promise<void> {
     editsProject.forEach(async (editProject) => {
       console.log(editProject);
       if (
@@ -46,8 +46,10 @@ export class EditProjectRunnerUseCase {
     });
   }
 
-  private async createProjectElement(editProject: EditProject2) {
+  private async createProjectElement(editProject: EditProject) {
     if (editProject.type === 'file') {
+      console.log(editProject.fullPath);
+      console.log("created");
       await this.codeWriter.createFile('', editProject.fullPath);
     } else if (editProject.type === 'folder') {
       await this.codeWriter.createDir(editProject.fullPath);
