@@ -26,6 +26,8 @@ import { TypeormFollowersRepository } from './repositories/typeorm-followers.rep
 import { TypeormFriendRequestsRepository } from './repositories/typeorm-friend-requests.repository';
 import { TypeormFriendshipsRepository } from './repositories/typeorm-friendships.repository';
 import { TypeormConversationsRepository } from './repositories/typeorm-conversations.repository';
+import { TypeormMessagesRepository } from './repositories/typeorm-messages.repository';
+import { MessageEntity } from './entities/message/message.entity';
 
 @Module({
   imports: [
@@ -45,6 +47,7 @@ import { TypeormConversationsRepository } from './repositories/typeorm-conversat
       GroupEntity,
       GroupMembershipEntity,
       PostEntity,
+      MessageEntity,
     ]),
     EncryptModule,
   ],
@@ -59,6 +62,7 @@ import { TypeormConversationsRepository } from './repositories/typeorm-conversat
     TypeormFriendRequestsRepository,
     TypeormFriendshipsRepository,
     TypeormConversationsRepository,
+    TypeormMessagesRepository,
   ],
   exports: [
     TypeormUsersRepository,
@@ -71,6 +75,7 @@ import { TypeormConversationsRepository } from './repositories/typeorm-conversat
     TypeormFriendRequestsRepository,
     TypeormFriendshipsRepository,
     TypeormConversationsRepository,
+    TypeormMessagesRepository,
   ],
 })
 export class RepositoriesModule {}

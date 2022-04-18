@@ -20,6 +20,8 @@ import { UseCasesProxyFriendshipModule } from '../../usecases-proxy/friendship/u
 import { FriendshipsController } from './friendship/friendships.controller';
 import { UseCasesProxyConversationModule } from '../../usecases-proxy/conversation/use-cases-proxy-conversation.module';
 import { ConversationsController } from './conversation/conversations.controller';
+import { UseCasesProxyMessageModule } from '../../usecases-proxy/message/use-cases-proxy-message.module';
+import { MessagesController } from './message/messages.controller';
 
 @Module({
   imports: [
@@ -34,6 +36,7 @@ import { ConversationsController } from './conversation/conversations.controller
     UseCasesProxyFriendRequestModule.register(),
     UseCasesProxyFriendshipModule.register(),
     UseCasesProxyConversationModule.register(),
+    UseCasesProxyMessageModule.register(),
   ],
   controllers: [
     AuthController,
@@ -43,6 +46,7 @@ import { ConversationsController } from './conversation/conversations.controller
     FriendshipsController,
     GroupsController,
     GroupMembershipsController,
+    MessagesController,
     PasswordResetController,
     ProjectsController,
     ProjectVersionsController,
