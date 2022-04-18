@@ -20,6 +20,10 @@ import { EditProject } from 'src/usecases/project-edition/types/edit-project';
 import { RenameFolder } from 'src/usecases/project-edition/types/rename-folder';
 import { RenameProjectRunnerUseCase } from 'src/usecases/project-edition/rename-project-folder-runner.usecase';
 import { RenameFolderResource } from './resource/rename-folder-resource';
+import { DeleteProjectFolderRunnerUseCase } from 'src/usecases/project-edition/delete-project-folder.usecase';
+import { DeleteFolder } from 'src/usecases/project-edition/types/delete-folder';
+import { DeleteFolderDTO } from './dto/delete-folder.dto';
+import { DeleteFolderResource } from './resource/delete-folder.dto';
 
 @WebSocketGateway()
 export class ProjectEditionGateway implements OnGatewayConnection {
@@ -43,6 +47,10 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       UseCasesProxyProjectEditionModule.RENAME_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY,
     )
     private readonly renameFolderProject: UseCaseProxy<RenameProjectRunnerUseCase>,
+    @Inject(
+      UseCasesProxyProjectEditionModule.DELETE_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY,
+    )
+    private readonly deleteFolderProject: UseCaseProxy<DeleteProjectFolderRunnerUseCase>,
   ) {}
 
   async handleConnection(client: Socket): Promise<void> {
@@ -108,6 +116,23 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     );
   }
 
+  @SubscribeMessage('deleteFolder')
+  async deleteFolderEvent(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() deleteFolderDTO: DeleteFolderDTO,
+  ): Promise<void> {
+    const basePath = '/Users/remy/Documents/ESGI/annee_4/projet_annuel/angular-copy-file/';
+    console.log(deleteFolderDTO);
+    
+    const deleteFolder: DeleteFolder = {...deleteFolderDTO}
+    await this.deleteFolderProject.getInstance().deleteProjectFolder(deleteFolder);
+    this.broadcastDeleteFolderProject(
+      'deleteProjectFolder',
+      {...deleteFolder, basePath},
+      client,
+    );
+  }
+
   private broadcastEditProject(
     event: string,
     editPorjectDTO: EditProjectDTO[],
@@ -128,6 +153,16 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   ) {
     client.rooms.forEach(async (room) => {
       client.broadcast.to(room).emit(event, renameFolderResource);
+    });
+  }
+
+  private broadcastDeleteFolderProject(
+    event: string,
+    deleteFolderResource: DeleteFolderResource,
+    client: Socket,
+  ) {
+    client.rooms.forEach(async (room) => {
+      client.broadcast.to(room).emit(event, deleteFolderResource);
     });
   }
 }
