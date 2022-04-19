@@ -138,8 +138,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     editPorjectDTO: EditProjectDTO[],
     client: Socket,
   ) {
-    console.log('room');
-    console.log('fin room');
     //2 rooms ici
     client.rooms.forEach(async (room) => {
       client.broadcast.to(room).emit(event, editPorjectDTO);

@@ -1,6 +1,6 @@
 import { CodeWriter } from 'src/domain/code-writer.abstract';
 import * as fs from 'fs/promises';
-import rimraf from 'rimraf';
+import * as rimraf from 'rimraf';
 
 export class FileCodeWriter implements CodeWriter {
   async readFile(path: string): Promise<string> {
