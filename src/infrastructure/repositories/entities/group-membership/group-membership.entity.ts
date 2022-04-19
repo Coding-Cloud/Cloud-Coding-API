@@ -1,4 +1,5 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { GroupEntity } from '../group/group.entity';
 
 @Entity('group_membership')
 export class GroupMembershipEntity {
@@ -7,6 +8,12 @@ export class GroupMembershipEntity {
 
   @Column({ primary: true })
   groupId: string;
+
+  @ManyToOne(() => GroupEntity, (group) => group.members, {
+    primary: true,
+    lazy: true,
+  })
+  group?: GroupEntity;
 
   @Column({ nullable: false })
   canEdit: boolean;

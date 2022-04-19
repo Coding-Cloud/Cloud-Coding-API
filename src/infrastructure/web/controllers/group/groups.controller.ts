@@ -24,6 +24,7 @@ import { CreateGroupUseCase } from '../../../../usecases/group/create-group.usec
 import { AuthGuard } from '../auth/auth.guards';
 import { CreateGroupCandidate } from '../../../../usecases/group/candidates/create-group.candidate';
 import { UpdateGroupCandidate } from '../../../../usecases/group/candidates/update-group.candidate';
+import { FindOwnedGroupsUseCase } from '../../../../usecases/group/find-owned-groups.usecase';
 
 @Controller('groups')
 @ApiTags('groups')
@@ -34,6 +35,8 @@ export class GroupsController {
     private readonly createGroup: UseCaseProxy<CreateGroupUseCase>,
     @Inject(UseCasesProxyGroupModule.GET_GROUP_USE_CASES_PROXY)
     private readonly getGroup: UseCaseProxy<GetGroupUseCase>,
+    @Inject(UseCasesProxyGroupModule.FIND_OWNED_GROUPS_USE_CASES_PROXY)
+    private readonly findOwnedGroups: UseCaseProxy<FindOwnedGroupsUseCase>,
     @Inject(UseCasesProxyGroupModule.DELETE_GROUP_USE_CASES_PROXY)
     private readonly deleteGroup: UseCaseProxy<DeleteGroupUseCase>,
     @Inject(UseCasesProxyGroupModule.UPDATE_GROUP_USE_CASES_PROXY)
@@ -56,6 +59,11 @@ export class GroupsController {
   @Get('/:id')
   findById(@Param('id') id: string): Promise<Group> {
     return this.getGroup.getInstance().getGroup(id);
+  }
+
+  @Get('/')
+  findOwnedUsers(@GetUser() user: User): Promise<Group[]> {
+    return this.findOwnedGroups.getInstance().findOwnedGroups(user.id);
   }
 
   @Patch('/:id')

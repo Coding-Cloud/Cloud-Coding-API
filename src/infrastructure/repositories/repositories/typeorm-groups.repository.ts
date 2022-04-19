@@ -13,7 +13,6 @@ import { GroupEntity } from '../entities/group/group.entity';
 import { CreateGroupCandidate } from '../../../usecases/group/candidates/create-group.candidate';
 import { UpdateGroupCandidate } from '../../../usecases/group/candidates/update-group.candidate';
 
-// Get groups without createdWithProject == true
 export class TypeormGroupsRepository implements Groups {
   constructor(
     @InjectRepository(GroupEntity)
@@ -27,9 +26,8 @@ export class TypeormGroupsRepository implements Groups {
       const createdGroup = this.groupEntityRepository.create({
         ...createGroupCandidate,
       });
-      const creationGroup = GroupAdapter.toGroupEntity(createdGroup);
 
-      const groupEntity = await this.groupEntityRepository.save(creationGroup);
+      const groupEntity = await this.groupEntityRepository.save(createdGroup);
       return GroupAdapter.toGroup(groupEntity);
     } catch (error) {
       Logger.error(error);
@@ -52,9 +50,8 @@ export class TypeormGroupsRepository implements Groups {
     const updatedGroup = this.groupEntityRepository.create({
       ...updateGroupCandidate,
     });
-    const updatingGroup = GroupAdapter.toGroupEntity(updatedGroup);
     try {
-      await this.groupEntityRepository.update(id, updatingGroup);
+      await this.groupEntityRepository.update(id, updatedGroup);
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();
@@ -66,7 +63,7 @@ export class TypeormGroupsRepository implements Groups {
     try {
       const groupEntity = await this.groupEntityRepository
         .createQueryBuilder()
-        .where('id=:id', { id })
+        .where('GroupEntity.id=:id', { id })
         .orWhere('name=:name', { name })
         .getOne();
       return GroupAdapter.toGroup(groupEntity);
@@ -102,7 +99,8 @@ export class TypeormGroupsRepository implements Groups {
     try {
       const groupEntities = await this.groupEntityRepository
         .createQueryBuilder()
-        .where('userId=:userId', { userId })
+        .where('GroupEntity.userId=:userId', { userId })
+        .andWhere('')
         .getMany();
       return groupEntities.map((groupEntity) =>
         GroupAdapter.toGroup(groupEntity),

@@ -3,8 +3,10 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { GroupMembershipEntity } from '../group-membership/group-membership.entity';
 
 @Entity('group')
 export class GroupEntity {
@@ -22,6 +24,9 @@ export class GroupEntity {
 
   @Column({ nullable: false })
   conversationId: string;
+
+  @OneToMany(() => GroupMembershipEntity, (members) => members.group)
+  members?: GroupMembershipEntity[];
 
   @CreateDateColumn()
   createdAt: Date;
