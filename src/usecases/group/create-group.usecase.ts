@@ -4,6 +4,7 @@ import { Inject } from '@nestjs/common';
 import { UseCaseProxy } from '../../infrastructure/usecases-proxy/usecases-proxy';
 import { UseCasesProxyConversationModule } from '../../infrastructure/usecases-proxy/conversation/use-cases-proxy-conversation.module';
 import { CreateConversationUseCase } from '../conversation/create-conversation.usecase';
+import { CreateGroupCandidate } from './candidates/create-group.candidate';
 
 export class CreateGroupUseCase {
   constructor(
@@ -12,10 +13,12 @@ export class CreateGroupUseCase {
     private readonly createConversation: UseCaseProxy<CreateConversationUseCase>,
   ) {}
 
-  async createGroup(group: Group): Promise<Group> {
-    group.conversationId = await this.createConversation
+  async createGroup(
+    createGroupCandidate: CreateGroupCandidate,
+  ): Promise<Group> {
+    createGroupCandidate.conversationId = await this.createConversation
       .getInstance()
       .createConversation();
-    return await this.groups.createGroup(group);
+    return await this.groups.createGroup(createGroupCandidate);
   }
 }

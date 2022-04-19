@@ -1,12 +1,15 @@
 import { Logger } from '@nestjs/common';
-import { Group } from '../../domain/group/group';
 import { Groups } from '../../domain/group/groups.interface';
+import { UpdateGroupCandidate } from './candidates/update-group.candidate';
 
 export class UpdateGroupUseCase {
   constructor(private readonly groups: Groups) {}
 
-  async updateGroupById(id: string, group: Group): Promise<void> {
-    Logger.log(`Group {${id}} updated with values {${group}}`);
-    return this.groups.updateGroupById(id, group);
+  async updateGroupById(
+    id: string,
+    updateGroupCandidate: UpdateGroupCandidate,
+  ): Promise<void> {
+    Logger.log(`Group {${id}} updated with values {${updateGroupCandidate}}`);
+    return this.groups.updateGroupById(id, updateGroupCandidate);
   }
 }

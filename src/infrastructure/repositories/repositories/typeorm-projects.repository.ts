@@ -11,8 +11,8 @@ import { Project } from '../../../domain/project/project';
 import ProjectAdapter from '../entities/project/project.adapter';
 import { ProjectEntity } from '../entities/project/project.entity';
 import { ProjectStatus } from '../../../domain/project/project-status.enum';
-import { CreateProjectCandidate } from '../candidates/project/create-project.candidate';
-import { UpdateProjectCandidate } from '../candidates/project/update-project.candidate';
+import { CreateProjectCandidate } from '../../../usecases/project/candidates/create-project.candidate';
+import { UpdateProjectCandidate } from '../../../usecases/project/candidates/update-project.candidate';
 
 export class TypeormProjectsRepository implements Projects {
   constructor(

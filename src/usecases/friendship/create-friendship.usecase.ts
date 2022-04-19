@@ -3,7 +3,7 @@ import { Inject } from '@nestjs/common';
 import { UseCasesProxyConversationModule } from '../../infrastructure/usecases-proxy/conversation/use-cases-proxy-conversation.module';
 import { UseCaseProxy } from '../../infrastructure/usecases-proxy/usecases-proxy';
 import { CreateConversationUseCase } from '../conversation/create-conversation.usecase';
-import { Friendship } from '../../domain/friendship/friendship';
+import { CreateFriendshipCandidate } from './candidates/create-friendship.candidate';
 
 export class CreateFriendshipUseCase {
   constructor(
@@ -12,10 +12,15 @@ export class CreateFriendshipUseCase {
     private readonly createConversation: UseCaseProxy<CreateConversationUseCase>,
   ) {}
 
-  async createFriendship(friendship: Friendship): Promise<string> {
-    friendship.conversationId = await this.createConversation
+  async createFriendship(user1Id: string, user2Id: string): Promise<string> {
+    const conversationId = await this.createConversation
       .getInstance()
       .createConversation();
-    return await this.friendRequests.createFriendship(friendship);
+    const friendshipCandidate: CreateFriendshipCandidate = {
+      user1Id,
+      user2Id,
+      conversationId,
+    };
+    return await this.friendRequests.createFriendship(friendshipCandidate);
   }
 }

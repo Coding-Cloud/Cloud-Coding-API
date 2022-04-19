@@ -4,8 +4,8 @@ import { Inject, Logger } from '@nestjs/common';
 import { UseCaseProxy } from '../../infrastructure/usecases-proxy/usecases-proxy';
 import { UseCasesProxyGroupModule } from '../../infrastructure/usecases-proxy/group/use-cases-proxy-group.module';
 import { CreateGroupUseCase } from '../group/create-group.usecase';
-import { Group } from '../../domain/group/group';
-import { CreateProjectCandidate } from '../../infrastructure/repositories/candidates/project/create-project.candidate';
+import { CreateProjectCandidate } from './candidates/create-project.candidate';
+import { CreateGroupCandidate } from '../group/candidates/create-group.candidate';
 
 export class CreateProjectUseCase {
   constructor(
@@ -39,14 +39,13 @@ export class CreateProjectUseCase {
     return projectId;
   }
 
-  private async groupCreation(
-    name: string,
-    creatorId: string,
-  ): Promise<string> {
-    const group = new Group();
-    group.createdWithProject = true;
-    group.name = name;
-    group.ownerId = creatorId;
+  private async groupCreation(name: string, ownerId: string): Promise<string> {
+    const group: CreateGroupCandidate = {
+      createdWithProject: true,
+      name,
+      ownerId,
+    };
+
     return (await this.createGroup.getInstance().createGroup(group)).id;
   }
 }

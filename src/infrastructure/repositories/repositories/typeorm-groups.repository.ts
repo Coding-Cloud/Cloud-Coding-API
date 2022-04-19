@@ -10,17 +10,24 @@ import { Groups } from '../../../domain/group/groups.interface';
 import { Group } from '../../../domain/group/group';
 import GroupAdapter from '../entities/group/group.adapter';
 import { GroupEntity } from '../entities/group/group.entity';
+import { CreateGroupCandidate } from '../../../usecases/group/candidates/create-group.candidate';
+import { UpdateGroupCandidate } from '../../../usecases/group/candidates/update-group.candidate';
 
+// Get groups without createdWithProject == true
 export class TypeormGroupsRepository implements Groups {
   constructor(
     @InjectRepository(GroupEntity)
     private readonly groupEntityRepository: Repository<GroupEntity>,
   ) {}
 
-  async createGroup(group: Group): Promise<Group> {
+  async createGroup(
+    createGroupCandidate: CreateGroupCandidate,
+  ): Promise<Group> {
     try {
-      const createdGroup = GroupAdapter.toGroupEntity(group);
-      const creationGroup = this.groupEntityRepository.create(createdGroup);
+      const createdGroup = this.groupEntityRepository.create({
+        ...createGroupCandidate,
+      });
+      const creationGroup = GroupAdapter.toGroupEntity(createdGroup);
 
       const groupEntity = await this.groupEntityRepository.save(creationGroup);
       return GroupAdapter.toGroup(groupEntity);
@@ -38,10 +45,16 @@ export class TypeormGroupsRepository implements Groups {
     await this.groupEntityRepository.delete(id);
   }
 
-  async updateGroupById(id: string, group: Group): Promise<void> {
-    const updatedGroup = GroupAdapter.toGroupEntity(group);
+  async updateGroupById(
+    id: string,
+    updateGroupCandidate: UpdateGroupCandidate,
+  ): Promise<void> {
+    const updatedGroup = this.groupEntityRepository.create({
+      ...updateGroupCandidate,
+    });
+    const updatingGroup = GroupAdapter.toGroupEntity(updatedGroup);
     try {
-      await this.groupEntityRepository.update(id, updatedGroup);
+      await this.groupEntityRepository.update(id, updatingGroup);
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();

@@ -1,6 +1,6 @@
 import { Project } from './project';
-import { CreateProjectCandidate } from '../../infrastructure/repositories/candidates/project/create-project.candidate';
-import { UpdateProjectCandidate } from '../../infrastructure/repositories/candidates/project/update-project.candidate';
+import { CreateProjectCandidate } from '../../usecases/project/candidates/create-project.candidate';
+import { UpdateProjectCandidate } from '../../usecases/project/candidates/update-project.candidate';
 
 export interface Projects {
   createProject(projectCandidate: CreateProjectCandidate): Promise<string>;

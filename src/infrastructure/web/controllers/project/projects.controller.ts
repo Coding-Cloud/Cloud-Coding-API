@@ -20,9 +20,9 @@ import { DeleteProjectUseCase } from '../../../../usecases/project/delete-projec
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
 import { AuthGuard } from '../auth/auth.guards';
-import { CreateProjectCandidate } from '../../../repositories/candidates/project/create-project.candidate';
+import { CreateProjectCandidate } from '../../../../usecases/project/candidates/create-project.candidate';
 import { ProjectStatus } from '../../../../domain/project/project-status.enum';
-import { UpdateProjectCandidate } from '../../../repositories/candidates/project/update-project.candidate';
+import { UpdateProjectCandidate } from '../../../../usecases/project/candidates/update-project.candidate';
 
 @Controller('projects')
 @ApiTags('projects')

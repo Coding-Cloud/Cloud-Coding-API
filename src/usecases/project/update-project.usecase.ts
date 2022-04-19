@@ -1,6 +1,6 @@
 import { Projects } from '../../domain/project/projects.interface';
 import { Logger } from '@nestjs/common';
-import { UpdateProjectCandidate } from '../../infrastructure/repositories/candidates/project/update-project.candidate';
+import { UpdateProjectCandidate } from './candidates/update-project.candidate';
 
 export class UpdateProjectUseCase {
   constructor(private readonly projects: Projects) {}

@@ -1,4 +1,4 @@
-import { ProjectVisibility } from '../../../../domain/project/project-visibility.enum';
+import { ProjectVisibility } from '../../../domain/project/project-visibility.enum';
 
 export class UpdateProjectCandidate {
   name: string;

@@ -22,6 +22,8 @@ import { UpdateGroupUseCase } from '../../../../usecases/group/update-group.usec
 import { DeleteGroupUseCase } from '../../../../usecases/group/delete-group.usecase';
 import { CreateGroupUseCase } from '../../../../usecases/group/create-group.usecase';
 import { AuthGuard } from '../auth/auth.guards';
+import { CreateGroupCandidate } from '../../../../usecases/group/candidates/create-group.candidate';
+import { UpdateGroupCandidate } from '../../../../usecases/group/candidates/update-group.candidate';
 
 @Controller('groups')
 @ApiTags('groups')
@@ -43,11 +45,12 @@ export class GroupsController {
     @Body() createGroupDTO: CreateGroupDTO,
     @GetUser() user: User,
   ): Promise<Group> {
-    const group: Group = new Group();
-    group.ownerId = user.id;
-    group.name = createGroupDTO.name;
+    const groupCandidate: CreateGroupCandidate = {
+      ownerId: user.id,
+      name: createGroupDTO.name,
+    };
 
-    return this.createGroup.getInstance().createGroup(group);
+    return this.createGroup.getInstance().createGroup(groupCandidate);
   }
 
   @Get('/:id')
@@ -60,9 +63,9 @@ export class GroupsController {
     @Param('id') id: string,
     @Body() updateGroupDTO: UpdateGroupDTO,
   ): Promise<void> {
-    const group: Group = new Group();
-    group.id = id;
-    group.name = updateGroupDTO.name;
+    const group: UpdateGroupCandidate = {
+      name: updateGroupDTO.name,
+    };
 
     return this.updateGroup.getInstance().updateGroupById(id, group);
   }

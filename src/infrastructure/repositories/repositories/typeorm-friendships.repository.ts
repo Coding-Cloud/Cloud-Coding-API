@@ -10,6 +10,7 @@ import { Friendships } from '../../../domain/friendship/friendships.interface';
 import { FriendshipEntity } from '../entities/friendship/friendship.entity';
 import { Friendship } from '../../../domain/friendship/friendship';
 import FriendshipAdapter from '../entities/friendship/friendship.adapter';
+import { CreateFriendshipCandidate } from '../../../usecases/friendship/candidates/create-friendship.candidate';
 
 export class TypeormFriendshipsRepository implements Friendships {
   constructor(
@@ -17,10 +18,12 @@ export class TypeormFriendshipsRepository implements Friendships {
     private readonly friendshipEntityRepository: Repository<FriendshipEntity>,
   ) {}
 
-  async createFriendship(friendship: Friendship): Promise<string> {
+  async createFriendship(
+    friendshipCandidate: CreateFriendshipCandidate,
+  ): Promise<string> {
     try {
       const friendshipCreationEntity = this.friendshipEntityRepository.create({
-        ...friendship,
+        ...friendshipCandidate,
       });
 
       const friendshipEntity = await this.friendshipEntityRepository.save(

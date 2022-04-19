@@ -1,7 +1,10 @@
 import { Friendship } from './friendship';
+import { CreateFriendshipCandidate } from '../../usecases/friendship/candidates/create-friendship.candidate';
 
 export interface Friendships {
-  createFriendship(friendship: Friendship): Promise<string>;
+  createFriendship(
+    friendshipCandidate: CreateFriendshipCandidate,
+  ): Promise<string>;
 
   findByUserId(userId: string): Promise<Friendship[]>;
 
