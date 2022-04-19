@@ -3,7 +3,7 @@ import { Encrypt } from 'src/domain/encrypt.interface';
 import { TypeormSessionsRespository } from 'src/infrastructure/repositories/repositories/typeorm-session.repository';
 import { SignInUseCases } from 'src/usecases/auth/signin.usecase';
 import { SignUpUseCases } from 'src/usecases/auth/signup.usecase';
-import { getUserUseCases } from 'src/usecases/user/get-user.usecase';
+import { GetUserUseCases } from 'src/usecases/user/get-user.usecase';
 import { EncryptModule } from '../../encrypt/encrypt.module';
 import { JwtEncrypt } from '../../web/jwt/jwt-encrypt.abstract';
 import { JwtEncryptModule } from '../../web/jwt/jwt-encrypt.module';
@@ -51,7 +51,7 @@ export class UsecasesProxyUserModule {
           inject: [TypeormUsersRepository],
           provide: UsecasesProxyUserModule.GET_USER_USECASES_PROXY,
           useFactory: (users: TypeormUsersRepository) =>
-            new UseCaseProxy(new getUserUseCases(users)),
+            new UseCaseProxy(new GetUserUseCases(users)),
         },
       ],
       exports: [
