@@ -3,10 +3,14 @@ import { UserEntity } from './user.entity';
 
 export default class UserAdapter {
   static toUser(user: UserEntity): User {
-    const { id, username, email, password } = user;
+    const { id, username, firstname, lastname, birthdate, email, password } =
+      user;
     return {
       id,
       username,
+      firstname,
+      lastname,
+      birthdate,
       email,
       password,
     };
@@ -15,7 +19,7 @@ export default class UserAdapter {
   static toUserEntity(user: User): UserEntity {
     return {
       ...user,
-      passworsdResets: [],
+      passwordResets: [],
     };
   }
 }

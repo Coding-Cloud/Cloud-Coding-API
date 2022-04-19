@@ -1,4 +1,4 @@
-export enum ProjectLanguageEnum {
+export enum ProjectLanguage {
   ANGULAR = 'ANGULAR',
   REACT = 'REACT',
 }

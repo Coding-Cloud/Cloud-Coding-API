@@ -2,11 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
+  IsUUID,
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { ProjectLanguageEnum } from '../../../../../domain/project/project-language.enum';
+import { ProjectLanguage } from '../../../../../domain/project/project-language.enum';
+import { ProjectVisibility } from '../../../../../domain/project/project-visibility.enum';
 
 export class CreateProjectDTO {
   @IsString()
@@ -15,8 +18,18 @@ export class CreateProjectDTO {
   @ApiProperty()
   name: string;
 
-  @IsEnum(ProjectLanguageEnum)
+  @IsEnum(ProjectLanguage)
   @IsNotEmpty()
   @ApiProperty()
-  language: ProjectLanguageEnum;
+  language: ProjectLanguage;
+
+  @IsEnum(ProjectVisibility)
+  @IsNotEmpty()
+  @ApiProperty()
+  globalVisibility: ProjectVisibility;
+
+  @IsUUID()
+  @IsOptional()
+  @ApiProperty()
+  groupId?: string;
 }

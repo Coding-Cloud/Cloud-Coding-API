@@ -1,16 +1,18 @@
-import { CreateProjectDTO } from '../../infrastructure/web/controllers/project/dto/create-project.dto';
-import { UpdateProjectDTO } from '../../infrastructure/web/controllers/project/dto/update-project.dto';
 import { Project } from './project';
+import { CreateProjectCandidate } from '../../usecases/project/candidates/create-project.candidate';
+import { UpdateProjectCandidate } from '../../usecases/project/candidates/update-project.candidate';
 
 export interface Projects {
-  createProject(createProjectDTO: CreateProjectDTO): Promise<Project>;
+  createProject(projectCandidate: CreateProjectCandidate): Promise<string>;
 
   updateProjectById(
     id: string,
-    updateProjectDTO: UpdateProjectDTO,
+    projectCandidate: UpdateProjectCandidate,
   ): Promise<void>;
 
   findBy(props: { id?: string; name?: string }): Promise<Project>;
 
   initialisedProjectById(id: string): Promise<void>;
+
+  deleteProject(id: string): Promise<void>;
 }

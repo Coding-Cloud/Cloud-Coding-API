@@ -8,7 +8,7 @@ import { EncryptModule } from '../../encrypt/encrypt.module';
 import { JwtEncrypt } from '../../web/jwt/jwt-encrypt.abstract';
 import { JwtEncryptModule } from '../../web/jwt/jwt-encrypt.module';
 import { RepositoriesModule } from '../../repositories/repositories.module';
-import { TypeormUsersRespository } from '../../repositories/repositories/typeorm-users.repository';
+import { TypeormUsersRepository } from '../../repositories/repositories/typeorm-users.repository';
 import { UseCaseProxy } from '../usecases-proxy';
 
 @Module({
@@ -25,14 +25,14 @@ export class UsecasesProxyUserModule {
       providers: [
         {
           inject: [
-            TypeormUsersRespository,
+            TypeormUsersRepository,
             Encrypt,
             JwtEncrypt,
             TypeormSessionsRespository,
           ],
           provide: UsecasesProxyUserModule.SIGNIN_USECASES_PROXY,
           useFactory: (
-            users: TypeormUsersRespository,
+            users: TypeormUsersRepository,
             encrypt: Encrypt,
             jwtEncrypt: JwtEncrypt,
             session: TypeormSessionsRespository,
@@ -42,15 +42,15 @@ export class UsecasesProxyUserModule {
             ),
         },
         {
-          inject: [TypeormUsersRespository],
+          inject: [TypeormUsersRepository],
           provide: UsecasesProxyUserModule.SIGNUP_USECASES_PROXY,
-          useFactory: (users: TypeormUsersRespository) =>
+          useFactory: (users: TypeormUsersRepository) =>
             new UseCaseProxy(new SignUpUseCases(users)),
         },
         {
-          inject: [TypeormUsersRespository],
+          inject: [TypeormUsersRepository],
           provide: UsecasesProxyUserModule.GET_USER_USECASES_PROXY,
-          useFactory: (users: TypeormUsersRespository) =>
+          useFactory: (users: TypeormUsersRepository) =>
             new UseCaseProxy(new getUserUseCases(users)),
         },
       ],

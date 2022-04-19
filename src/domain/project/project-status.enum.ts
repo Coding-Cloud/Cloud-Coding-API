@@ -1,4 +1,4 @@
-export enum ProjectStatusEnum {
+export enum ProjectStatus {
   INITIALISING = 'INITIALISING',
   INACTIVE = 'INACTIVE',
   RUNNING = 'RUNNING',
