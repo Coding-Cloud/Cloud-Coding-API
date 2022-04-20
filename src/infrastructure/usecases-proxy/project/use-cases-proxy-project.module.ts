@@ -13,6 +13,7 @@ import { HttpModule } from '@nestjs/axios';
 import { ProjectVersioningModule } from '../../project-versioning/project-versioning.module';
 import { UseCasesProxyGroupModule } from '../group/use-cases-proxy-group.module';
 import { CreateGroupUseCase } from '../../../usecases/group/create-group.usecase';
+import { FindProjectUseCase } from '../../../usecases/project/find-project.usecase';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { CreateGroupUseCase } from '../../../usecases/group/create-group.usecase
 })
 export class UseCasesProxyProjectModule {
   static CREATE_PROJECT_USE_CASES_PROXY = 'createProjectUseCaseProxy';
+  static FIND_PROJECT_USE_CASES_PROXY = 'findProjectUseCaseProxy';
   static DELETE_PROJECT_USE_CASES_PROXY = 'deleteProjectUseCaseProxy';
   static UPDATE_PROJECT_USE_CASES_PROXY = 'updateProjectUseCaseProxy';
   static INITIALISED_PROJECT_USE_CASES_PROXY = 'initialisedProjectUseCaseProxy';
@@ -55,6 +57,12 @@ export class UseCasesProxyProjectModule {
             ),
         },
         {
+          inject: [TypeormProjectsRepository],
+          provide: UseCasesProxyProjectModule.FIND_PROJECT_USE_CASES_PROXY,
+          useFactory: (projects: TypeormProjectsRepository) =>
+            new UseCaseProxy(new FindProjectUseCase(projects)),
+        },
+        {
           inject: [TypeormProjectsRepository, ProjectInitialiserApi],
           provide: UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
           useFactory: (
@@ -81,6 +89,7 @@ export class UseCasesProxyProjectModule {
       ],
       exports: [
         UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.FIND_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY,

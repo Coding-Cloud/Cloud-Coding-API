@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Inject,
   Param,
   Patch,
@@ -23,6 +24,8 @@ import { AuthGuard } from '../auth/auth.guards';
 import { CreateProjectCandidate } from '../../../../usecases/project/candidates/create-project.candidate';
 import { ProjectStatus } from '../../../../domain/project/project-status.enum';
 import { UpdateProjectCandidate } from '../../../../usecases/project/candidates/update-project.candidate';
+import { FindProjectUseCase } from '../../../../usecases/project/find-project.usecase';
+import { Project } from '../../../../domain/project/project';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -31,6 +34,8 @@ export class ProjectsController {
   constructor(
     @Inject(UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY)
     private readonly createProject: UseCaseProxy<CreateProjectUseCase>,
+    @Inject(UseCasesProxyProjectModule.FIND_PROJECT_USE_CASES_PROXY)
+    private readonly findProject: UseCaseProxy<FindProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY)
     private readonly deleteProject: UseCaseProxy<DeleteProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY)
@@ -54,6 +59,11 @@ export class ProjectsController {
     };
 
     return this.createProject.getInstance().createProject(projectCandidate);
+  }
+
+  @Get('/:id')
+  findProjectById(@Param('id') id: string): Promise<Project> {
+    return this.findProject.getInstance().findProjectById(id);
   }
 
   @Delete('/:id')
