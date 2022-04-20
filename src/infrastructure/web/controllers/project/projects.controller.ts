@@ -26,6 +26,7 @@ import { ProjectStatus } from '../../../../domain/project/project-status.enum';
 import { UpdateProjectCandidate } from '../../../../usecases/project/candidates/update-project.candidate';
 import { FindProjectUseCase } from '../../../../usecases/project/find-project.usecase';
 import { Project } from '../../../../domain/project/project';
+import { FindOwnedProjectsUseCase } from '../../../../usecases/project/find-owned-projects.usecase';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -36,6 +37,8 @@ export class ProjectsController {
     private readonly createProject: UseCaseProxy<CreateProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.FIND_PROJECT_USE_CASES_PROXY)
     private readonly findProject: UseCaseProxy<FindProjectUseCase>,
+    @Inject(UseCasesProxyProjectModule.FIND_OWNED_PROJECTS_USE_CASES_PROXY)
+    private readonly findOwnedProjects: UseCaseProxy<FindOwnedProjectsUseCase>,
     @Inject(UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY)
     private readonly deleteProject: UseCaseProxy<DeleteProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY)
@@ -59,6 +62,11 @@ export class ProjectsController {
     };
 
     return this.createProject.getInstance().createProject(projectCandidate);
+  }
+
+  @Get('/owned')
+  findProjectByCreatorId(@GetUser() user: User): Promise<Project[]> {
+    return this.findOwnedProjects.getInstance().findProjectByCreatorId(user.id);
   }
 
   @Get('/:id')

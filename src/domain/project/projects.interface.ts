@@ -10,7 +10,13 @@ export interface Projects {
     projectCandidate: UpdateProjectCandidate,
   ): Promise<void>;
 
-  findBy(props: { id?: string; name?: string }): Promise<Project>;
+  findByCreatorId(creatorId: string): Promise<Project[]>;
+
+  findBy(props: {
+    id?: string;
+    userId?: string;
+    name?: string;
+  }): Promise<Project>;
 
   initialisedProjectById(id: string): Promise<void>;
 

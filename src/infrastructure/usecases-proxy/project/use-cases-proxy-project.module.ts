@@ -14,6 +14,7 @@ import { ProjectVersioningModule } from '../../project-versioning/project-versio
 import { UseCasesProxyGroupModule } from '../group/use-cases-proxy-group.module';
 import { CreateGroupUseCase } from '../../../usecases/group/create-group.usecase';
 import { FindProjectUseCase } from '../../../usecases/project/find-project.usecase';
+import { FindOwnedProjectsUseCase } from '../../../usecases/project/find-owned-projects.usecase';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { FindProjectUseCase } from '../../../usecases/project/find-project.useca
 export class UseCasesProxyProjectModule {
   static CREATE_PROJECT_USE_CASES_PROXY = 'createProjectUseCaseProxy';
   static FIND_PROJECT_USE_CASES_PROXY = 'findProjectUseCaseProxy';
+  static FIND_OWNED_PROJECTS_USE_CASES_PROXY = 'findOwnedProjectsUseCaseProxy';
   static DELETE_PROJECT_USE_CASES_PROXY = 'deleteProjectUseCaseProxy';
   static UPDATE_PROJECT_USE_CASES_PROXY = 'updateProjectUseCaseProxy';
   static INITIALISED_PROJECT_USE_CASES_PROXY = 'initialisedProjectUseCaseProxy';
@@ -63,6 +65,13 @@ export class UseCasesProxyProjectModule {
             new UseCaseProxy(new FindProjectUseCase(projects)),
         },
         {
+          inject: [TypeormProjectsRepository],
+          provide:
+            UseCasesProxyProjectModule.FIND_OWNED_PROJECTS_USE_CASES_PROXY,
+          useFactory: (projects: TypeormProjectsRepository) =>
+            new UseCaseProxy(new FindOwnedProjectsUseCase(projects)),
+        },
+        {
           inject: [TypeormProjectsRepository, ProjectInitialiserApi],
           provide: UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
           useFactory: (
@@ -90,6 +99,7 @@ export class UseCasesProxyProjectModule {
       exports: [
         UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.FIND_PROJECT_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.FIND_OWNED_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY,
