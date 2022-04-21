@@ -6,7 +6,6 @@ import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { UsecasesProxyUserModule } from '../../../usecases-proxy/user/usecases-proxy-user.module';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { GetUserUseCases } from '../../../../usecases/user/get-user.usecase';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
 import { MeUserDto } from './dto/me-user.dto';
@@ -21,8 +20,6 @@ export class AuthController {
     private readonly signInUseCaseProxy: UseCaseProxy<SignInUseCases>,
     @Inject(UsecasesProxyUserModule.SIGNUP_USECASES_PROXY)
     private readonly signUpUseCaseProxy: UseCaseProxy<SignUpUseCases>,
-    @Inject(UsecasesProxyUserModule.GET_USER_USECASES_PROXY)
-    private readonly getUserUseCaseProxy: UseCaseProxy<GetUserUseCases>,
   ) {}
 
   @Post('/signup')
@@ -49,8 +46,14 @@ export class AuthController {
 
   @UseGuards(AuthGuard)
   @Get('/me')
-  getMe(@GetUser() user: User): Promise<MeUserDto> {
-    console.log(user);
-    return this.getUserUseCaseProxy.getInstance().getUserById(user.id);
+  getMe(@GetUser() user: User): MeUserDto {
+    return {
+      id: user.id,
+      username: user.username,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      birthdate: user.birthdate,
+      email: user.email,
+    };
   }
 }
