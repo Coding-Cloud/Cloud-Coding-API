@@ -27,6 +27,7 @@ import { UpdateProjectCandidate } from '../../../../usecases/project/candidates/
 import { FindProjectUseCase } from '../../../../usecases/project/find-project.usecase';
 import { Project } from '../../../../domain/project/project';
 import { FindOwnedProjectsUseCase } from '../../../../usecases/project/find-owned-projects.usecase';
+import { ProjectNameDto } from './dto/project-name.dto';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -72,6 +73,13 @@ export class ProjectsController {
   @Get('/:id')
   findProjectById(@Param('id') id: string): Promise<Project> {
     return this.findProject.getInstance().findProjectById(id);
+  }
+
+  @Get('/:id/name')
+  async findProjectNameById(@Param('id') id: string): Promise<ProjectNameDto> {
+    return {
+      name: (await this.findProject.getInstance().findProjectById(id)).name,
+    };
   }
 
   @Delete('/:id')

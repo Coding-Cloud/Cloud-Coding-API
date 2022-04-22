@@ -5,6 +5,7 @@ import { AuthGuard } from '../auth/auth.guards';
 import { UsecasesProxyUserModule } from '../../../usecases-proxy/user/usecases-proxy-user.module';
 import { GetUserUseCases } from '../../../../usecases/user/get-user.usecase';
 import { UserDto } from './dto/user-dto';
+import { UsernameDto } from './dto/username-dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -31,7 +32,9 @@ export class UserController {
 
   @ApiOperation({ summary: "Get a user's username by id" })
   @Get('/:id/name')
-  async getUsername(@Param('id') id: string): Promise<string> {
-    return (await this.getUserById.getInstance().getUserById(id)).username;
+  async getUsername(@Param('id') id: string): Promise<UsernameDto> {
+    return {
+      username: (await this.getUserById.getInstance().getUserById(id)).username,
+    };
   }
 }
