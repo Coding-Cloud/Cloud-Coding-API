@@ -5,7 +5,7 @@ import SessionAdapter from 'src/infrastructure/repositories/entities/session/ses
 import { SessionEntity } from 'src/infrastructure/repositories/entities/session/session.entity';
 import { Repository } from 'typeorm';
 
-export class TypeormSessionsRespository implements Sessions {
+export class TypeormSessionsRepository implements Sessions {
   constructor(
     @InjectRepository(SessionEntity)
     private readonly sessionEntityRepository: Repository<SessionEntity>,
@@ -33,5 +33,9 @@ export class TypeormSessionsRespository implements Sessions {
       token,
     });
     return SessionAdapter.toSession(sessionEntity);
+  }
+
+  async deleteByToken(token: string): Promise<void> {
+    await this.sessionEntityRepository.delete({ token });
   }
 }
