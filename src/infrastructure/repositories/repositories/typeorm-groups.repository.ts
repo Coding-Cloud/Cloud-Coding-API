@@ -64,7 +64,7 @@ export class TypeormGroupsRepository implements Groups {
       const groupEntity = await this.groupEntityRepository
         .createQueryBuilder()
         .where('GroupEntity.id=:id', { id })
-        .orWhere('name=:name', { name })
+        .orWhere('GroupEntity.name=:name', { name })
         .getOne();
       return GroupAdapter.toGroup(groupEntity);
     } catch (error) {
@@ -95,12 +95,14 @@ export class TypeormGroupsRepository implements Groups {
     }
   }
 
-  async findByUserId(userId: string): Promise<Group[]> {
+  async findByOwnerId(ownerId: string): Promise<Group[]> {
     try {
       const groupEntities = await this.groupEntityRepository
         .createQueryBuilder()
-        .where('GroupEntity.userId=:userId', { userId })
-        .andWhere('')
+        .leftJoin('GroupEntity.members', 'GroupMembership')
+        .where('GroupEntity.ownerId=:ownerId', { ownerId })
+        .andWhere('GroupEntity.createdWithProject=FALSE')
+        .orWhere('COUNT(GroupMembership.id)>1')
         .getMany();
       return groupEntities.map((groupEntity) =>
         GroupAdapter.toGroup(groupEntity),

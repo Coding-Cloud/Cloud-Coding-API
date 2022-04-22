@@ -85,9 +85,9 @@ export class TypeormProjectsRepository implements Projects {
     try {
       const projectEntity = await this.projectEntityRepository
         .createQueryBuilder()
-        .where('id=:id', { id })
-        .orWhere('name=:name', { name })
-        .orWhere('"creatorId"=:userId', { userId })
+        .where('ProjectEntity.id=:id', { id })
+        .orWhere('ProjectEntity.name=:name', { name })
+        .orWhere('ProjectEntity.creatorId=:userId', { userId })
         .getOne();
       return ProjectAdapter.toProject(projectEntity);
     } catch (error) {

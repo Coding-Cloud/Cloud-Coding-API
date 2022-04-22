@@ -9,7 +9,7 @@ export interface Groups {
 
   findAll(): Promise<Group[]>;
 
-  findByUserId(userId: string): Promise<Group[]>;
+  findByOwnerId(userId: string): Promise<Group[]>;
 
   updateGroupById(
     id: string,
