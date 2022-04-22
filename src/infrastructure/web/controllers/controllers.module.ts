@@ -22,6 +22,7 @@ import { UseCasesProxyConversationModule } from '../../usecases-proxy/conversati
 import { ConversationsController } from './conversation/conversations.controller';
 import { UseCasesProxyMessageModule } from '../../usecases-proxy/message/use-cases-proxy-message.module';
 import { MessagesController } from './message/messages.controller';
+import { UserController } from './user/user.controller';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { MessagesController } from './message/messages.controller';
     PasswordResetController,
     ProjectsController,
     ProjectVersionsController,
+    UserController,
   ],
 })
 export class ControllersModule {}
