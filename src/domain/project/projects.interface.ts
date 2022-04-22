@@ -12,6 +12,8 @@ export interface Projects {
 
   findByCreatorId(creatorId: string): Promise<Project[]>;
 
+  findByGroupId(groupId: string): Promise<Project[]>;
+
   findBy(props: {
     id?: string;
     userId?: string;

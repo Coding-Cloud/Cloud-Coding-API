@@ -110,4 +110,19 @@ export class TypeormProjectsRepository implements Projects {
       throw new BadRequestException();
     }
   }
+
+  async findByGroupId(groupId: string): Promise<Project[]> {
+    try {
+      const projectEntities = await this.projectEntityRepository
+        .createQueryBuilder()
+        .where('ProjectEntity.groupId=:groupId', { groupId })
+        .getMany();
+      return projectEntities.map((projectEntity) =>
+        ProjectAdapter.toProject(projectEntity),
+      );
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException();
+    }
+  }
 }
