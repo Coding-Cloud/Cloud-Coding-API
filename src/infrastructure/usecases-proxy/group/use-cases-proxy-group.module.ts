@@ -10,6 +10,7 @@ import { UseCasesProxyConversationModule } from '../conversation/use-cases-proxy
 import { CreateConversationUseCase } from '../../../usecases/conversation/create-conversation.usecase';
 import { RemoveConversationUseCase } from '../../../usecases/conversation/remove-conversation.usecase';
 import { FindOwnedGroupsUseCase } from '../../../usecases/group/find-owned-groups.usecase';
+import { FindUserGroupsUseCase } from '../../../usecases/group/find-user-groups-use.case';
 
 @Module({
   imports: [RepositoriesModule, UseCasesProxyConversationModule.register()],
@@ -18,6 +19,7 @@ export class UseCasesProxyGroupModule {
   static CREATE_GROUP_USE_CASES_PROXY = 'createGroupUseCaseProxy';
   static GET_GROUP_USE_CASES_PROXY = 'getGroupUseCaseProxy';
   static FIND_OWNED_GROUPS_USE_CASES_PROXY = 'findOwnedGroupsUseCaseProxy';
+  static FIND_MEMBER_GROUPS_USE_CASES_PROXY = 'findMemberGroupsUseCaseProxy';
   static DELETE_GROUP_USE_CASES_PROXY = 'deleteGroupUseCaseProxy';
   static UPDATE_GROUP_USE_CASES_PROXY = 'updateGroupUseCaseProxy';
 
@@ -71,11 +73,18 @@ export class UseCasesProxyGroupModule {
           useFactory: (groups: TypeormGroupsRepository) =>
             new UseCaseProxy(new FindOwnedGroupsUseCase(groups)),
         },
+        {
+          inject: [TypeormGroupsRepository],
+          provide: UseCasesProxyGroupModule.FIND_MEMBER_GROUPS_USE_CASES_PROXY,
+          useFactory: (groups: TypeormGroupsRepository) =>
+            new UseCaseProxy(new FindUserGroupsUseCase(groups)),
+        },
       ],
       exports: [
         UseCasesProxyGroupModule.CREATE_GROUP_USE_CASES_PROXY,
         UseCasesProxyGroupModule.GET_GROUP_USE_CASES_PROXY,
         UseCasesProxyGroupModule.FIND_OWNED_GROUPS_USE_CASES_PROXY,
+        UseCasesProxyGroupModule.FIND_MEMBER_GROUPS_USE_CASES_PROXY,
         UseCasesProxyGroupModule.DELETE_GROUP_USE_CASES_PROXY,
         UseCasesProxyGroupModule.UPDATE_GROUP_USE_CASES_PROXY,
       ],

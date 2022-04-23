@@ -99,17 +99,35 @@ export class TypeormGroupsRepository implements Groups {
     try {
       const groupEntities = await this.groupEntityRepository
         .createQueryBuilder()
-        .leftJoin('GroupEntity.members', 'GroupMembership')
-        .where('GroupEntity.ownerId=:ownerId', { ownerId })
-        .andWhere('GroupEntity.createdWithProject=FALSE')
-        .orWhere('COUNT(GroupMembership.id)>1')
+        .where('GroupEntity.createdWithProject=FALSE')
+        .andWhere('GroupEntity.ownerId=:ownerId', { ownerId })
         .getMany();
       return groupEntities.map((groupEntity) =>
         GroupAdapter.toGroup(groupEntity),
       );
     } catch (error) {
+      console.log(error);
+
       Logger.error(error);
-      throw new BadRequestException();
+      throw new BadRequestException(error);
+    }
+  }
+
+  async findByUserId(userId: string): Promise<Group[]> {
+    try {
+      const groupEntities = await this.groupEntityRepository
+        .createQueryBuilder()
+        .leftJoin('GroupEntity.members', 'GroupMembership')
+        .where('GroupEntity.createdWithProject=FALSE')
+        .andWhere('GroupMembership.userId=:userId', { userId })
+        .getMany();
+      return groupEntities.map((groupEntity) =>
+        GroupAdapter.toGroup(groupEntity),
+      );
+    } catch (error) {
+      console.log(error);
+      Logger.error(error);
+      throw new BadRequestException(error);
     }
   }
 }

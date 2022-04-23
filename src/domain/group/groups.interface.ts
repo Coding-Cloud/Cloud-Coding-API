@@ -11,6 +11,8 @@ export interface Groups {
 
   findByOwnerId(userId: string): Promise<Group[]>;
 
+  findByUserId(userId: string): Promise<Group[]>;
+
   updateGroupById(
     id: string,
     updateGroupCandidate: UpdateGroupCandidate,
