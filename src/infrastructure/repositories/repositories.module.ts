@@ -28,6 +28,7 @@ import { TypeormFriendshipsRepository } from './repositories/typeorm-friendships
 import { TypeormConversationsRepository } from './repositories/typeorm-conversations.repository';
 import { TypeormMessagesRepository } from './repositories/typeorm-messages.repository';
 import { MessageEntity } from './entities/message/message.entity';
+import { ProjectUserAccessEntity } from './entities/project-user-access/project-user-access.entity';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { MessageEntity } from './entities/message/message.entity';
       GroupMembershipEntity,
       PostEntity,
       MessageEntity,
+      ProjectUserAccessEntity,
     ]),
     EncryptModule,
   ],
