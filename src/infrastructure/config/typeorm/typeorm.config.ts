@@ -9,7 +9,7 @@ const databaseConfig: ConnectionOptions = {
   database: process.env.DATABASE_NAME as string,
   synchronize: false,
   entities: [__dirname + './../../**/*.entity{.ts,.js}'],
-  migrationsRun: true,
+  migrationsRun: false,
   migrations: [__dirname + '/../migrations/**/*{.ts,.js}'],
   //autoLoadEntities: true,
   cli: {
