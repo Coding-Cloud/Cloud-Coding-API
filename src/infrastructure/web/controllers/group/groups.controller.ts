@@ -51,6 +51,7 @@ export class GroupsController {
     const groupCandidate: CreateGroupCandidate = {
       ownerId: user.id,
       name: createGroupDTO.name,
+      createdWithProject: false,
     };
 
     return this.createGroup.getInstance().createGroup(groupCandidate);

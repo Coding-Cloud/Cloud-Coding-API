@@ -100,9 +100,10 @@ export class TypeormGroupsRepository implements Groups {
       const groupEntities = await this.groupEntityRepository
         .createQueryBuilder()
         .leftJoin('GroupEntity.members', 'GroupMembership')
-        .where('GroupEntity.ownerId=:ownerId', { ownerId })
-        .andWhere('GroupEntity.createdWithProject=FALSE')
-        .orWhere('COUNT(GroupMembership.id)>1')
+        .where('GroupEntity.createdWithProject=FALSE')
+        .groupBy('GroupEntity.id, GroupEntity.ownerId')
+        .having('COUNT(GroupMembership.userId) > 0')
+        .orHaving('GroupEntity.ownerId=:ownerId', { ownerId })
         .getMany();
       return groupEntities.map((groupEntity) =>
         GroupAdapter.toGroup(groupEntity),
