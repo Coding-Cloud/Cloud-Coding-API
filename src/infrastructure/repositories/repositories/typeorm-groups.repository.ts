@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Groups } from '../../../domain/group/groups.interface';
 import { Group } from '../../../domain/group/group';
 import GroupAdapter from '../entities/group/group.adapter';
@@ -100,9 +100,13 @@ export class TypeormGroupsRepository implements Groups {
       const groupEntities = await this.groupEntityRepository
         .createQueryBuilder()
         .leftJoin('GroupEntity.members', 'GroupMembership')
-        .where('GroupEntity.ownerId=:ownerId', { ownerId })
-        .andWhere('GroupEntity.createdWithProject=FALSE')
-        .orWhere('COUNT(GroupMembership.id)>1')
+        .where('GroupEntity.createdWithProject=FALSE')
+        .andWhere((qb) =>
+          qb
+            .where('GroupEntity.ownerId=:ownerId', { ownerId })
+            .orHaving('COUNT(GroupMembership.userId)>0'),
+        )
+        .groupBy('GroupEntity.id')
         .getMany();
       return groupEntities.map((groupEntity) =>
         GroupAdapter.toGroup(groupEntity),
