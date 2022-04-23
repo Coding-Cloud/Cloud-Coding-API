@@ -8,27 +8,44 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { UseCasesProxyProjectModule } from '../../../usecases-proxy/project/use-cases-proxy-project.module';
 import { CreateProjectUseCase } from '../../../../usecases/project/create-project.usecase';
-import { UpdateProjectUseCase } from '../../../../usecases/project/update-project-use.case';
+import { UpdateProjectUseCase } from '../../../../usecases/project/update-project.usecase';
 import { CreateProjectDTO } from './dto/create-project.dto';
-import { Project } from '../../../../domain/project/project';
 import { UpdateProjectDTO } from './dto/update-project.dto';
 import { InitialisedProjectUseCase } from '../../../../usecases/project/initialised-project.usecase';
 import { DeleteProjectUseCase } from '../../../../usecases/project/delete-project.usecase';
 import { Folder } from 'src/domain/folder/folder.interface';
 import { ReadProjectUseCase } from 'src/usecases/project/read-project-file.usecase';
+import { GetUser } from '../decorators/get-user.decorator';
+import { User } from '../../../../domain/user/user';
+import { AuthGuard } from '../auth/auth.guards';
+import { CreateProjectCandidate } from '../../../../usecases/project/candidates/create-project.candidate';
+import { ProjectStatus } from '../../../../domain/project/project-status.enum';
+import { UpdateProjectCandidate } from '../../../../usecases/project/candidates/update-project.candidate';
+import { FindProjectUseCase } from '../../../../usecases/project/find-project.usecase';
+import { Project } from '../../../../domain/project/project';
+import { FindOwnedProjectsUseCase } from '../../../../usecases/project/find-owned-projects.usecase';
+import { ProjectNameDto } from './dto/project-name.dto';
+import { FindGroupProjectsUseCase } from '../../../../usecases/project/find-group-projects.usecase';
 
 @Controller('projects')
 @ApiTags('projects')
-//@UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class ProjectsController {
   constructor(
     @Inject(UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY)
     private readonly createProject: UseCaseProxy<CreateProjectUseCase>,
+    @Inject(UseCasesProxyProjectModule.FIND_PROJECT_USE_CASES_PROXY)
+    private readonly findProject: UseCaseProxy<FindProjectUseCase>,
+    @Inject(UseCasesProxyProjectModule.FIND_OWNED_PROJECTS_USE_CASES_PROXY)
+    private readonly findOwnedProjects: UseCaseProxy<FindOwnedProjectsUseCase>,
+    @Inject(UseCasesProxyProjectModule.FIND_GROUP_PROJECTS_USE_CASES_PROXY)
+    private readonly findGroupProjects: UseCaseProxy<FindGroupProjectsUseCase>,
     @Inject(UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY)
     private readonly deleteProject: UseCaseProxy<DeleteProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY)
@@ -40,8 +57,42 @@ export class ProjectsController {
   ) {}
 
   @Post()
-  create(@Body() createProjectDTO: CreateProjectDTO): Promise<Project> {
-    return this.createProject.getInstance().createProject(createProjectDTO);
+  create(
+    @Body() createProjectDTO: CreateProjectDTO,
+    @GetUser() user: User,
+  ): Promise<string> {
+    const projectCandidate: CreateProjectCandidate = {
+      creatorId: user.id,
+      groupId: createProjectDTO.groupId,
+      globalVisibility: createProjectDTO.globalVisibility,
+      name: createProjectDTO.name,
+      language: createProjectDTO.language,
+      status: ProjectStatus.INITIALISING,
+    };
+
+    return this.createProject.getInstance().createProject(projectCandidate);
+  }
+
+  @Get('/owned')
+  findProjectByCreatorId(@GetUser() user: User): Promise<Project[]> {
+    return this.findOwnedProjects.getInstance().findProjectByCreatorId(user.id);
+  }
+
+  @Get('/group/:groupId')
+  findProjectByGroupId(@Param('groupId') groupId: string): Promise<Project[]> {
+    return this.findGroupProjects.getInstance().findGroupProjects(groupId);
+  }
+
+  @Get('/:id')
+  findProjectById(@Param('id') id: string): Promise<Project> {
+    return this.findProject.getInstance().findProjectById(id);
+  }
+
+  @Get('/:id/name')
+  async findProjectNameById(@Param('id') id: string): Promise<ProjectNameDto> {
+    return {
+      name: (await this.findProject.getInstance().findProjectById(id)).name,
+    };
   }
 
   @Delete('/:id')
@@ -59,9 +110,14 @@ export class ProjectsController {
     @Param('id') id: string,
     @Body() updateProjectDTO: UpdateProjectDTO,
   ): Promise<void> {
+    const projectCandidate: UpdateProjectCandidate = {
+      name: updateProjectDTO.name,
+      globalVisibility: updateProjectDTO.globalVisibility,
+    };
+
     return this.update
       .getInstance()
-      .updateProjectStatusById(id, updateProjectDTO);
+      .updateProjectStatusById(id, projectCandidate);
   }
 
   @Get('/')

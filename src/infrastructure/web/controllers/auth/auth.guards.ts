@@ -4,18 +4,18 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { UsecasesProxySessionModule } from 'src/infrastructure/usecases-proxy/session/usecase-proxy-session.module';
+import { UseCasesProxySessionModule } from 'src/infrastructure/usecases-proxy/session/usecase-proxy-session.module';
 import { UseCaseProxy } from 'src/infrastructure/usecases-proxy/usecases-proxy';
 import { UsecasesProxyUserModule } from 'src/infrastructure/usecases-proxy/user/usecases-proxy-user.module';
 import { GetSessionUseCases } from 'src/usecases/session/get-session.usecase';
-import { getUserUseCases } from 'src/usecases/user/get-user.usecase';
+import { GetUserUseCases } from 'src/usecases/user/get-user.usecase';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     @Inject(UsecasesProxyUserModule.GET_USER_USECASES_PROXY)
-    private readonly getUserUseCaseProxy: UseCaseProxy<getUserUseCases>,
-    @Inject(UsecasesProxySessionModule.GET_SESSION_USECASES_PROXY)
+    private readonly getUserUseCaseProxy: UseCaseProxy<GetUserUseCases>,
+    @Inject(UseCasesProxySessionModule.GET_SESSION_USE_CASES_PROXY)
     private readonly getSessionUseCaseProxy: UseCaseProxy<GetSessionUseCases>,
   ) {}
 

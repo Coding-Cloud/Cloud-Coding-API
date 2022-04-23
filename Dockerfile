@@ -30,6 +30,5 @@ ENV \
   BASE_PATH_PROJECT=/data \
   LOG_PATH_PROJECT=/data
 
-# DB TYPE / NAME / SYNC unused yet
 
 CMD ["node", "dist/main.js"]

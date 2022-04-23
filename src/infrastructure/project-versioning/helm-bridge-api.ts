@@ -3,18 +3,20 @@ import { AxiosResponse } from 'axios';
 import { Observable } from 'rxjs';
 import { Inject } from '@nestjs/common';
 import { ProjectVersioningApi } from './project-versioning.abstract';
-import { AddProjectVersionDTO } from '../web/controllers/project-version/dto/add-project-version.dto';
+import { AddProjectVersionDTO } from './types/add-project-version-dto';
 
 export class HelmBridgeApi implements ProjectVersioningApi {
   constructor(@Inject() private httpService: HttpService) {}
 
   addProjectVersion(
-    id: string,
     addProjectVersionDTO: AddProjectVersionDTO,
   ): Observable<AxiosResponse<void>> {
     return this.httpService.post(
-      `${process.env.HELM_BRIDGE_URL}/versions/${id}`,
-      addProjectVersionDTO,
+      `${process.env.HELM_BRIDGE_URL}/versions/${addProjectVersionDTO.id}`,
+      {
+        title: addProjectVersionDTO.title,
+        version: addProjectVersionDTO.version,
+      },
     );
   }
 

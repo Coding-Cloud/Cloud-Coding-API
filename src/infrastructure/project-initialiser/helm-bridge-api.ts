@@ -1,5 +1,5 @@
 import { ProjectInitialiserApi } from './project-initialiser.abstract';
-import { ProjectLanguageEnum } from '../../domain/project/project-language.enum';
+import { ProjectLanguage } from '../../domain/project/project-language.enum';
 import { HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
 import { Observable } from 'rxjs';
@@ -10,7 +10,7 @@ export class HelmBridgeApi implements ProjectInitialiserApi {
 
   initialiseProject(
     id: string,
-    language: ProjectLanguageEnum,
+    language: ProjectLanguage,
   ): Observable<AxiosResponse<void>> {
     return this.httpService.post(
       `${process.env.HELM_BRIDGE_URL}/projects/${id}/${language}`,

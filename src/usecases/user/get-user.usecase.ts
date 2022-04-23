@@ -1,7 +1,7 @@
 import { User } from 'src/domain/user/user';
 import { Users } from 'src/domain/user/users.interface';
 
-export class getUserUseCases {
+export class GetUserUseCases {
   constructor(private readonly users: Users) {}
 
   async getUserById(userId: string): Promise<User> {

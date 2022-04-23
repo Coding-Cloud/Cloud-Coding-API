@@ -2,6 +2,7 @@ import {
   ConflictException,
   Inject,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,7 +13,7 @@ import { User } from 'src/domain/user/user';
 import UserAdapter from 'src/infrastructure/repositories/entities/user/user.adapter';
 import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/create-user.dto';
 
-export class TypeormUsersRespository implements Users {
+export class TypeormUsersRepository implements Users {
   constructor(
     @Inject(Encrypt) private encrypt: Encrypt,
     @InjectRepository(UserEntity)
@@ -20,13 +21,17 @@ export class TypeormUsersRespository implements Users {
   ) {}
 
   async createUser(createUserDTO: CreateUserDTO): Promise<void> {
-    const { username, password, email } = createUserDTO;
+    const { username, firstname, lastname, birthdate, password, email } =
+      createUserDTO;
 
     const salt = await this.encrypt.genSaltkey();
     const hashedPassword = await this.encrypt.hash(password, salt);
 
     const user = this.userEntityRepository.create({
       username,
+      firstname,
+      lastname,
+      birthdate,
       password: hashedPassword,
       email,
     });
@@ -37,6 +42,7 @@ export class TypeormUsersRespository implements Users {
       if (error.code === '23505') {
         throw new ConflictException('Username already exists');
       } else {
+        Logger.error(error);
         throw new InternalServerErrorException();
       }
     }
