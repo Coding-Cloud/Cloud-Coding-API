@@ -6,20 +6,23 @@ import { CodeWriter } from 'src/domain/code-writer.abstract';
 import { ReadProject } from './read-project';
 
 export class ReadProjectUseCase {
-  private FILES_NOT_INCLUDE = ['favicon.ico'];
+  private FILES_NOT_INCLUDE = [
+    'favicon.ico',
+    '.angular',
+    '.git',
+    'node_modules',
+  ];
 
   constructor(private readonly codeWriter: CodeWriter) {}
 
   async readProject(readProject: ReadProject): Promise<{
     appFiles: { [key: string]: Folder };
   }> {
-    const dir = `${readProject.path}/src`;
+    const dir = `${readProject.path}`;
     const files = await this.getFiles(dir);
     const project: { appFiles: { [key: string]: Folder } } = { appFiles: {} };
     const filesFlatten: any[] = [];
     this.arrayToFlat(filesFlatten, files);
-    //console.log(filesFlatten);
-
     for (const file of filesFlatten) {
       if (file === undefined) continue;
 

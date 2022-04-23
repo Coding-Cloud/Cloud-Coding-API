@@ -1,5 +1,5 @@
 export interface RenameFolderResource {
-    oldName: string;
-    newName: string;
-    basePath: string;
+  oldName: string;
+  newName: string;
+  basePath: string;
 }

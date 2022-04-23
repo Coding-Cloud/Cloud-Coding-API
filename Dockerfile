@@ -1,4 +1,4 @@
-FROM amd64/node:16-alpine as node-builder
+FROM node:16-alpine as node-builder
 WORKDIR /app
 COPY --chown=node:node . .
 RUN apk --no-cache --virtual build-dependencies add python3 make
@@ -26,7 +26,9 @@ ENV \
   MAIL_RECEIVER=rmachavoine@myges.fr \
   FRONT_URL=http://localhost/ \
   FRONT_PORT=4200 \
-  HELM_BRIDGE_URL=http://helm-bridge.default.svc.cluster.local:5000/
+  HELM_BRIDGE_URL=http://helm-bridge.default.svc.cluster.local:5000/ \
+  BASE_PATH_PROJECT=/data \
+  LOG_PATH_PROJECT=/data
 
 # DB TYPE / NAME / SYNC unused yet
 

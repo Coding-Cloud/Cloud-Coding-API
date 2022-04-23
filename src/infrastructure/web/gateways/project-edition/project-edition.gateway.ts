@@ -24,6 +24,8 @@ import { DeleteProjectFolderRunnerUseCase } from 'src/usecases/project-edition/d
 import { DeleteFolder } from 'src/usecases/project-edition/types/delete-folder';
 import { DeleteFolderDTO } from './dto/delete-folder.dto';
 import { DeleteFolderResource } from './resource/delete-folder.dto';
+import * as chokidar from 'chokidar';
+import * as fs from 'fs/promises';
 
 @WebSocketGateway()
 export class ProjectEditionGateway implements OnGatewayConnection {
@@ -61,11 +63,24 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       //client.rooms.forEach((room) => client.leave(room));
       client.join(projectId);
       //await this.startProject.getInstance().startProjectRunner(projectId);
+      const watcher = chokidar.watch([`${process.env.LOG_PATH_PROJECT}`], {
+        persistent: true,
+      });
+
+      // Add event listeners.
+      watcher.on('change', async (path, stats) => {
+        const contentLogFile = await fs.readFile(
+          `${process.env.LOG_PATH_PROJECT}/1.txt`,
+          { encoding: 'utf-8' },
+        );
+        client.emit('logChanged', contentLogFile);
+      });
 
       client.on('disconnecting', () => {
         client.rooms.forEach(async (room) => {
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
             //await this.stopProject.getInstance().stopProjectRunner(projectId);
+            watcher.close().then(() => console.log('closed'));
           }
         });
       });
@@ -86,7 +101,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @MessageBody('project') editsProjectDTO: EditProjectDTO[],
   ): Promise<void> {
     console.log('edit');
-    const editsProject: EditProject[]= editsProjectDTO.map(
+    const editsProject: EditProject[] = editsProjectDTO.map(
       (editProjectDTO) => ({
         ...editProjectDTO,
       }),
@@ -104,14 +119,16 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() renameFolderDTO: RenameFolderDTO,
   ): Promise<void> {
-    const basePath = '/Users/remy/Documents/ESGI/annee_4/projet_annuel/angular-copy-file/';
+    const basePath = process.env.BASE_PATH_PROJECT;
     console.log(renameFolderDTO);
-    
-    const renameFolder: RenameFolder = {...renameFolderDTO}
-    await this.renameFolderProject.getInstance().renameProjectFolder(renameFolder);
+
+    const renameFolder: RenameFolder = { ...renameFolderDTO };
+    await this.renameFolderProject
+      .getInstance()
+      .renameProjectFolder(renameFolder);
     this.broadcastRenameProject(
       'renameProjectFolder',
-      {...renameFolder, basePath},
+      { ...renameFolder, basePath },
       client,
     );
   }
@@ -121,14 +138,16 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() deleteFolderDTO: DeleteFolderDTO,
   ): Promise<void> {
-    const basePath = '/Users/remy/Documents/ESGI/annee_4/projet_annuel/angular-copy-file/';
+    const basePath = process.env.BASE_PATH_PROJECT;
     console.log(deleteFolderDTO);
-    
-    const deleteFolder: DeleteFolder = {...deleteFolderDTO}
-    await this.deleteFolderProject.getInstance().deleteProjectFolder(deleteFolder);
+
+    const deleteFolder: DeleteFolder = { ...deleteFolderDTO };
+    await this.deleteFolderProject
+      .getInstance()
+      .deleteProjectFolder(deleteFolder);
     this.broadcastDeleteFolderProject(
       'deleteProjectFolder',
-      {...deleteFolder, basePath},
+      { ...deleteFolder, basePath },
       client,
     );
   }
