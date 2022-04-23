@@ -99,15 +99,13 @@ export class TypeormGroupsRepository implements Groups {
     try {
       const groupEntities = await this.groupEntityRepository
         .createQueryBuilder()
-        .where('GroupEntity.createdWithProject=FALSE')
+        .where('GroupEntity.isHidden=FALSE')
         .andWhere('GroupEntity.ownerId=:ownerId', { ownerId })
         .getMany();
       return groupEntities.map((groupEntity) =>
         GroupAdapter.toGroup(groupEntity),
       );
     } catch (error) {
-      console.log(error);
-
       Logger.error(error);
       throw new BadRequestException(error);
     }
@@ -118,14 +116,13 @@ export class TypeormGroupsRepository implements Groups {
       const groupEntities = await this.groupEntityRepository
         .createQueryBuilder()
         .leftJoin('GroupEntity.members', 'GroupMembership')
-        .where('GroupEntity.createdWithProject=FALSE')
+        .where('GroupEntity.isHidden=FALSE')
         .andWhere('GroupMembership.userId=:userId', { userId })
         .getMany();
       return groupEntities.map((groupEntity) =>
         GroupAdapter.toGroup(groupEntity),
       );
     } catch (error) {
-      console.log(error);
       Logger.error(error);
       throw new BadRequestException(error);
     }

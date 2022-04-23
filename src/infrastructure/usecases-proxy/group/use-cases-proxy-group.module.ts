@@ -11,6 +11,7 @@ import { CreateConversationUseCase } from '../../../usecases/conversation/create
 import { RemoveConversationUseCase } from '../../../usecases/conversation/remove-conversation.usecase';
 import { FindOwnedGroupsUseCase } from '../../../usecases/group/find-owned-groups.usecase';
 import { FindUserGroupsUseCase } from '../../../usecases/group/find-user-groups-use.case';
+import { DeleteHiddenGroupUseCase } from '../../../usecases/group/delete-hidden-group.usecase';
 
 @Module({
   imports: [RepositoriesModule, UseCasesProxyConversationModule.register()],
@@ -20,6 +21,7 @@ export class UseCasesProxyGroupModule {
   static GET_GROUP_USE_CASES_PROXY = 'getGroupUseCaseProxy';
   static FIND_OWNED_GROUPS_USE_CASES_PROXY = 'findOwnedGroupsUseCaseProxy';
   static FIND_MEMBER_GROUPS_USE_CASES_PROXY = 'findMemberGroupsUseCaseProxy';
+  static DELETE_HIDDEN_GROUP_USE_CASES_PROXY = 'deleteHiddenGroupUseCaseProxy';
   static DELETE_GROUP_USE_CASES_PROXY = 'deleteGroupUseCaseProxy';
   static UPDATE_GROUP_USE_CASES_PROXY = 'updateGroupUseCaseProxy';
 
@@ -62,6 +64,18 @@ export class UseCasesProxyGroupModule {
             ),
         },
         {
+          inject: [
+            TypeormGroupsRepository,
+            UseCasesProxyGroupModule.DELETE_GROUP_USE_CASES_PROXY,
+          ],
+          provide: UseCasesProxyGroupModule.DELETE_HIDDEN_GROUP_USE_CASES_PROXY,
+          useFactory: (
+            groups: TypeormGroupsRepository,
+            deleteGroup: UseCaseProxy<DeleteGroupUseCase>,
+          ) =>
+            new UseCaseProxy(new DeleteHiddenGroupUseCase(groups, deleteGroup)),
+        },
+        {
           inject: [TypeormGroupsRepository],
           provide: UseCasesProxyGroupModule.UPDATE_GROUP_USE_CASES_PROXY,
           useFactory: (groups: TypeormGroupsRepository) =>
@@ -85,7 +99,9 @@ export class UseCasesProxyGroupModule {
         UseCasesProxyGroupModule.GET_GROUP_USE_CASES_PROXY,
         UseCasesProxyGroupModule.FIND_OWNED_GROUPS_USE_CASES_PROXY,
         UseCasesProxyGroupModule.FIND_MEMBER_GROUPS_USE_CASES_PROXY,
+        UseCasesProxyGroupModule.FIND_MEMBER_GROUPS_USE_CASES_PROXY,
         UseCasesProxyGroupModule.DELETE_GROUP_USE_CASES_PROXY,
+        UseCasesProxyGroupModule.DELETE_HIDDEN_GROUP_USE_CASES_PROXY,
         UseCasesProxyGroupModule.UPDATE_GROUP_USE_CASES_PROXY,
       ],
     };
