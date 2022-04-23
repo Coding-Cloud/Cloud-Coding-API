@@ -5,6 +5,6 @@ export class FindOwnedGroupsUseCase {
   constructor(private readonly groups: Groups) {}
 
   async findOwnedGroups(userId: string): Promise<Group[]> {
-    return await this.groups.findByUserId(userId);
+    return await this.groups.findByOwnerId(userId);
   }
 }

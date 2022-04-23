@@ -85,9 +85,9 @@ export class TypeormProjectsRepository implements Projects {
     try {
       const projectEntity = await this.projectEntityRepository
         .createQueryBuilder()
-        .where('id=:id', { id })
-        .orWhere('name=:name', { name })
-        .orWhere('"creatorId"=:userId', { userId })
+        .where('ProjectEntity.id=:id', { id })
+        .orWhere('ProjectEntity.name=:name', { name })
+        .orWhere('ProjectEntity.creatorId=:userId', { userId })
         .getOne();
       return ProjectAdapter.toProject(projectEntity);
     } catch (error) {
@@ -101,6 +101,21 @@ export class TypeormProjectsRepository implements Projects {
       const projectEntities = await this.projectEntityRepository
         .createQueryBuilder()
         .where('ProjectEntity.creatorId=:creatorId', { creatorId })
+        .getMany();
+      return projectEntities.map((projectEntity) =>
+        ProjectAdapter.toProject(projectEntity),
+      );
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException();
+    }
+  }
+
+  async findByGroupId(groupId: string): Promise<Project[]> {
+    try {
+      const projectEntities = await this.projectEntityRepository
+        .createQueryBuilder()
+        .where('ProjectEntity.groupId=:groupId', { groupId })
         .getMany();
       return projectEntities.map((projectEntity) =>
         ProjectAdapter.toProject(projectEntity),

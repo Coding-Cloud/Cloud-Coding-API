@@ -27,6 +27,8 @@ import { UpdateProjectCandidate } from '../../../../usecases/project/candidates/
 import { FindProjectUseCase } from '../../../../usecases/project/find-project.usecase';
 import { Project } from '../../../../domain/project/project';
 import { FindOwnedProjectsUseCase } from '../../../../usecases/project/find-owned-projects.usecase';
+import { ProjectNameDto } from './dto/project-name.dto';
+import { FindGroupProjectsUseCase } from '../../../../usecases/project/find-group-projects.usecase';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -39,6 +41,8 @@ export class ProjectsController {
     private readonly findProject: UseCaseProxy<FindProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.FIND_OWNED_PROJECTS_USE_CASES_PROXY)
     private readonly findOwnedProjects: UseCaseProxy<FindOwnedProjectsUseCase>,
+    @Inject(UseCasesProxyProjectModule.FIND_GROUP_PROJECTS_USE_CASES_PROXY)
+    private readonly findGroupProjects: UseCaseProxy<FindGroupProjectsUseCase>,
     @Inject(UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY)
     private readonly deleteProject: UseCaseProxy<DeleteProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY)
@@ -69,9 +73,21 @@ export class ProjectsController {
     return this.findOwnedProjects.getInstance().findProjectByCreatorId(user.id);
   }
 
+  @Get('/group/:groupId')
+  findProjectByGroupId(@Param('groupId') groupId: string): Promise<Project[]> {
+    return this.findGroupProjects.getInstance().findGroupProjects(groupId);
+  }
+
   @Get('/:id')
   findProjectById(@Param('id') id: string): Promise<Project> {
     return this.findProject.getInstance().findProjectById(id);
+  }
+
+  @Get('/:id/name')
+  async findProjectNameById(@Param('id') id: string): Promise<ProjectNameDto> {
+    return {
+      name: (await this.findProject.getInstance().findProjectById(id)).name,
+    };
   }
 
   @Delete('/:id')

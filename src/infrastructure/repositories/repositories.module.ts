@@ -7,7 +7,7 @@ import { PasswordResetEntity } from './entities/password-reset/password-reset.en
 import { ProjectEntity } from './entities/project/project.entity';
 import { EncryptModule } from '../encrypt/encrypt.module';
 import { TypeormUsersRepository } from './repositories/typeorm-users.repository';
-import { TypeormSessionsRespository } from './repositories/typeorm-session.repository';
+import { TypeormSessionsRepository } from './repositories/typeorm-session.repository';
 import { TypeormPasswordResetRespository } from './repositories/typeorm-password-reset.repository';
 import { TypeormProjectsRepository } from './repositories/typeorm-projects.repository';
 import { TypeormGroupsRepository } from './repositories/typeorm-groups.repository';
@@ -53,7 +53,7 @@ import { MessageEntity } from './entities/message/message.entity';
   ],
   providers: [
     TypeormUsersRepository,
-    TypeormSessionsRespository,
+    TypeormSessionsRepository,
     TypeormPasswordResetRespository,
     TypeormProjectsRepository,
     TypeormGroupsRepository,
@@ -66,7 +66,7 @@ import { MessageEntity } from './entities/message/message.entity';
   ],
   exports: [
     TypeormUsersRepository,
-    TypeormSessionsRespository,
+    TypeormSessionsRepository,
     TypeormPasswordResetRespository,
     TypeormProjectsRepository,
     TypeormGroupsRepository,

@@ -62,7 +62,7 @@ export class GroupsController {
   }
 
   @Get('/')
-  findOwnedUsers(@GetUser() user: User): Promise<Group[]> {
+  findGroupsOwned(@GetUser() user: User): Promise<Group[]> {
     return this.findOwnedGroups.getInstance().findOwnedGroups(user.id);
   }
 

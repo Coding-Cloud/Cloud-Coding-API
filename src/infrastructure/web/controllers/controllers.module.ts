@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { UsecasesProxyResetPasswordModule } from '../../usecases-proxy/reset-password/usecase-proxy-reset-password.module';
-import { UsecasesProxySessionModule } from '../../usecases-proxy/session/usecase-proxy-session.module';
+import { UseCasesProxySessionModule } from '../../usecases-proxy/session/usecase-proxy-session.module';
 import { UsecasesProxyUserModule } from '../../usecases-proxy/user/usecases-proxy-user.module';
 import { AuthController } from './auth/auth.controller';
 import { PasswordResetController } from './auth/password-reset.controller';
@@ -22,11 +22,12 @@ import { UseCasesProxyConversationModule } from '../../usecases-proxy/conversati
 import { ConversationsController } from './conversation/conversations.controller';
 import { UseCasesProxyMessageModule } from '../../usecases-proxy/message/use-cases-proxy-message.module';
 import { MessagesController } from './message/messages.controller';
+import { UserController } from './user/user.controller';
 
 @Module({
   imports: [
     UsecasesProxyUserModule.register(),
-    UsecasesProxySessionModule.register(),
+    UseCasesProxySessionModule.register(),
     UsecasesProxyResetPasswordModule.register(),
     UseCasesProxyProjectModule.register(),
     UseCasesProxyProjectVersioningModule.register(),
@@ -50,6 +51,7 @@ import { MessagesController } from './message/messages.controller';
     PasswordResetController,
     ProjectsController,
     ProjectVersionsController,
+    UserController,
   ],
 })
 export class ControllersModule {}
