@@ -1,7 +1,7 @@
 import { Projects } from '../../domain/project/projects.interface';
 import { Logger } from '@nestjs/common';
 import { ProjectVersioningApi } from '../../infrastructure/project-versioning/project-versioning.abstract';
-import { AddVersionCandidate } from './candidates/add-version.candidate';
+import { AddProjectVersion } from './types/add-project-version';
 
 export class AddProjectVersionUseCase {
   constructor(
@@ -9,24 +9,24 @@ export class AddProjectVersionUseCase {
     private readonly projectVersioningApi: ProjectVersioningApi,
   ) {}
 
-  async addProjectVersion(id: string, title: string): Promise<void> {
-    const project = await this.projects.findBy({ id });
-    project.lastVersion = project.lastVersion += 1;
-    const addVersionCandidate: AddVersionCandidate = {
-      version: project.lastVersion,
-      title,
-    };
+  async addProjectVersion(addProjectVersion: AddProjectVersion): Promise<void> {
+    const project = await this.projects.findBy({ id: addProjectVersion.id });
 
+    const lastVersion = (project.lastVersion += 1);
     const subscription = this.projectVersioningApi
-      .addProjectVersion(id, addVersionCandidate)
+      .addProjectVersion({
+        id: addProjectVersion.id,
+        title: addProjectVersion.title,
+        version: lastVersion,
+      })
       .subscribe({
         next: () =>
           Logger.log(
-            `Project {${id}} added new version {${project.lastVersion}}`,
+            `Project {${addProjectVersion.id}} added new version {${project.lastVersion}}`,
           ),
         error: (error) => Logger.error(error),
         complete: () => subscription.unsubscribe(),
       });
-    await this.projects.updateProjectById(id, project);
+    await this.projects.updateProjectById(addProjectVersion.id, project);
   }
 }

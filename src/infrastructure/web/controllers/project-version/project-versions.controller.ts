@@ -43,7 +43,7 @@ export class ProjectVersionsController {
   ): Promise<void> {
     return this.addVersion
       .getInstance()
-      .addProjectVersion(id, addProjectVersionDTO.title);
+      .addProjectVersion({ id, title: addProjectVersionDTO.title });
   }
 
   @Get('/:id')

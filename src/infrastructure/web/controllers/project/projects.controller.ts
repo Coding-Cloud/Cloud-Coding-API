@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
@@ -18,6 +19,8 @@ import { CreateProjectDTO } from './dto/create-project.dto';
 import { UpdateProjectDTO } from './dto/update-project.dto';
 import { InitialisedProjectUseCase } from '../../../../usecases/project/initialised-project.usecase';
 import { DeleteProjectUseCase } from '../../../../usecases/project/delete-project.usecase';
+import { Folder } from 'src/domain/folder/folder.interface';
+import { ReadProjectUseCase } from 'src/usecases/project/read-project-file.usecase';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
 import { AuthGuard } from '../auth/auth.guards';
@@ -49,6 +52,8 @@ export class ProjectsController {
     private readonly update: UseCaseProxy<UpdateProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY)
     private readonly initialised: UseCaseProxy<InitialisedProjectUseCase>,
+    @Inject(UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY)
+    private readonly read: UseCaseProxy<ReadProjectUseCase>,
   ) {}
 
   @Post()
@@ -113,5 +118,12 @@ export class ProjectsController {
     return this.update
       .getInstance()
       .updateProjectStatusById(id, projectCandidate);
+  }
+
+  @Get('/')
+  async getProject(@Query('path') path: string): Promise<{
+    appFiles: { [key: string]: Folder };
+  }> {
+    return await this.read.getInstance().readProject({ path });
   }
 }
