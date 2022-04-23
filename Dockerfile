@@ -1,11 +1,11 @@
 FROM node:16-alpine as node-builder
 WORKDIR /app
 COPY --chown=node:node . .
-RUN npm install \
-    && npm run build \
-    && npm prune --production
+RUN apk --no-cache --virtual build-dependencies add python3 make
+RUN yarn install
+RUN npm run build
 
-FROM node:16-alpine
+FROM amd64/node:16-alpine
 USER node
 WORKDIR /app
 COPY --from=node-builder --chown=node:node /app/package*.json ./
@@ -28,7 +28,9 @@ ENV \
   MAIL_RECEIVER=example@mail.com \
   FRONT_URL=http://localhost \
   FRONT_PORT=4200 \
-  HELM_BRIDGE_URL=http://helm-bridge.default.svc.cluster.local:5000
-# DB TYPE / NAME / SYNC unused yet
+  HELM_BRIDGE_URL=http://helm-bridge.default.svc.cluster.local:5000 \
+  BASE_PATH_PROJECT=/data \
+  LOG_PATH_PROJECT=/data
+
 
 CMD ["node", "dist/main.js"]

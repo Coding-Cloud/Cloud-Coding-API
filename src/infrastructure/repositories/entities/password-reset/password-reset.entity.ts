@@ -18,7 +18,7 @@ export class PasswordResetEntity {
   @DeleteDateColumn()
   deletedAt?: Date;
 
-  @ManyToOne((_type) => UserEntity, (user) => user.passworsdResets, {
+  @ManyToOne(() => UserEntity, (user) => user.passwordResets, {
     eager: false,
   })
   user: UserEntity;

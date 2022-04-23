@@ -10,17 +10,22 @@ export class UserEntity {
   username: string;
 
   @Column()
+  firstname: string;
+
+  @Column()
+  lastname: string;
+
+  @Column()
+  birthdate: Date;
+
+  @Column()
   password: string;
 
   @Column({ unique: true })
   email: string;
 
-  @ManyToOne(
-    (_type) => PasswordResetEntity,
-    (passwordReset) => passwordReset.user,
-    {
-      eager: false,
-    },
-  )
-  passworsdResets: PasswordResetEntity[];
+  @ManyToOne(() => PasswordResetEntity, (passwordReset) => passwordReset.user, {
+    eager: false,
+  })
+  passwordResets: PasswordResetEntity[];
 }

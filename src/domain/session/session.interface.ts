@@ -6,4 +6,6 @@ export interface Sessions {
   findByUserId(userId: string): Promise<SessionEntity[]>;
 
   findByToken(token: string): Promise<SessionEntity>;
+
+  deleteByToken(token: string): Promise<void>;
 }
