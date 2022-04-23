@@ -12,6 +12,7 @@ import { RemoveConversationUseCase } from '../../../usecases/conversation/remove
 import { FindOwnedGroupsUseCase } from '../../../usecases/group/find-owned-groups.usecase';
 import { FindUserGroupsUseCase } from '../../../usecases/group/find-user-groups-use.case';
 import { DeleteHiddenGroupUseCase } from '../../../usecases/group/delete-hidden-group.usecase';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Module({
   imports: [RepositoriesModule, UseCasesProxyConversationModule.register()],
@@ -53,14 +54,16 @@ export class UseCasesProxyGroupModule {
           inject: [
             TypeormGroupsRepository,
             UseCasesProxyConversationModule.REMOVE_CONVERSATION_USE_CASES_PROXY,
+            EventEmitter2,
           ],
           provide: UseCasesProxyGroupModule.DELETE_GROUP_USE_CASES_PROXY,
           useFactory: (
             groups: TypeormGroupsRepository,
             removeConversation: UseCaseProxy<RemoveConversationUseCase>,
+            eventEmitter: EventEmitter2,
           ) =>
             new UseCaseProxy(
-              new DeleteGroupUseCase(groups, removeConversation),
+              new DeleteGroupUseCase(groups, removeConversation, eventEmitter),
             ),
         },
         {
