@@ -1,5 +1,6 @@
 import { CodeWriter } from 'src/domain/code-writer.abstract';
 import * as fs from 'fs/promises';
+import * as fsSync from 'fs';
 import * as rimraf from 'rimraf';
 
 export class FileCodeWriter implements CodeWriter {
@@ -38,5 +39,8 @@ export class FileCodeWriter implements CodeWriter {
   }
   async renameFile(oldPath: string, newPath: string): Promise<void> {
     await fs.rename(oldPath, newPath);
+  }
+  verifyFileExist(path: string): boolean {
+    return fsSync.existsSync(path);
   }
 }

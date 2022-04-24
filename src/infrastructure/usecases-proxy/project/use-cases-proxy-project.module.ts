@@ -66,10 +66,12 @@ export class UseCasesProxyProjectModule {
             ),
         },
         {
-          inject: [TypeormProjectsRepository],
+          inject: [TypeormProjectsRepository, CodeWriter],
           provide: UseCasesProxyProjectModule.FIND_PROJECT_USE_CASES_PROXY,
-          useFactory: (projects: TypeormProjectsRepository) =>
-            new UseCaseProxy(new FindProjectUseCase(projects)),
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            codeWriter: CodeWriter,
+          ) => new UseCaseProxy(new FindProjectUseCase(projects, codeWriter)),
         },
         {
           inject: [TypeormProjectsRepository],
