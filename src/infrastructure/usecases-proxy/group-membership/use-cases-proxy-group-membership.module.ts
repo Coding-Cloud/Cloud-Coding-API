@@ -6,9 +6,11 @@ import { JoinGroupUseCase } from '../../../usecases/group-membership/join-group.
 import { LeaveGroupUseCase } from '../../../usecases/group-membership/leave-project.usecase';
 import { FindUserGroupsUseCase } from '../../../usecases/group-membership/find-user-groups.usecase';
 import { FindGroupMembersUseCase } from '../../../usecases/group-membership/find-group-members.usecase';
+import { UseCasesProxyGroupModule } from '../group/use-cases-proxy-group.module';
+import { UpdateGroupUseCase } from '../../../usecases/group/update-group.usecase';
 
 @Module({
-  imports: [RepositoriesModule],
+  imports: [RepositoriesModule, UseCasesProxyGroupModule.register()],
 })
 export class UseCasesProxyGroupMembershipModule {
   static JOIN_GROUP_USE_CASES_PROXY = 'joinGroupUseCaseProxy';
@@ -21,11 +23,19 @@ export class UseCasesProxyGroupMembershipModule {
       module: UseCasesProxyGroupMembershipModule,
       providers: [
         {
-          inject: [TypeormGroupMembershipsRepository],
+          inject: [
+            TypeormGroupMembershipsRepository,
+            UseCasesProxyGroupModule.UPDATE_GROUP_USE_CASES_PROXY,
+          ],
           provide:
             UseCasesProxyGroupMembershipModule.JOIN_GROUP_USE_CASES_PROXY,
-          useFactory: (groupMemberships: TypeormGroupMembershipsRepository) =>
-            new UseCaseProxy(new JoinGroupUseCase(groupMemberships)),
+          useFactory: (
+            groupMemberships: TypeormGroupMembershipsRepository,
+            updateGroup: UseCaseProxy<UpdateGroupUseCase>,
+          ) =>
+            new UseCaseProxy(
+              new JoinGroupUseCase(groupMemberships, updateGroup),
+            ),
         },
         {
           inject: [TypeormGroupMembershipsRepository],

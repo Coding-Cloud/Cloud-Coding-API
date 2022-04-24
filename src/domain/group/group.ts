@@ -3,6 +3,6 @@ export class Group {
   name: string;
   ownerId: string;
   conversationId: string;
-  createdWithProject: boolean;
+  isHidden: boolean;
   createdAt: Date;
 }

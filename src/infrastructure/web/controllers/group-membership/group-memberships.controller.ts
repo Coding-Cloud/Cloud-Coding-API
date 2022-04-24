@@ -25,7 +25,7 @@ import { GroupMembership } from '../../../../domain/group-membership/group-membe
 export class GroupMembershipsController {
   constructor(
     @Inject(UseCasesProxyGroupMembershipModule.JOIN_GROUP_USE_CASES_PROXY)
-    private readonly joinGroup: UseCaseProxy<JoinGroupUseCase>,
+    private readonly addGroupMember: UseCaseProxy<JoinGroupUseCase>,
     @Inject(UseCasesProxyGroupMembershipModule.LEAVE_GROUP_USE_CASES_PROXY)
     private readonly leaveGroup: UseCaseProxy<LeaveGroupUseCase>,
     @Inject(
@@ -36,12 +36,12 @@ export class GroupMembershipsController {
     private readonly findUserGroups: UseCaseProxy<FindUserGroupsUseCase>,
   ) {}
 
-  @Post('/:groupId')
-  join(
+  @Post('/:groupId/:userId')
+  addUser(
     @Param('groupId') groupId: string,
-    @GetUser() user: User,
+    @Param('userId') userId: string,
   ): Promise<void> {
-    return this.joinGroup.getInstance().joinGroup(user.id, groupId);
+    return this.addGroupMember.getInstance().addUser(userId, groupId);
   }
 
   @Get('/user/:userId')

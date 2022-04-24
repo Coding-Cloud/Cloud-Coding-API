@@ -25,6 +25,7 @@ import { AuthGuard } from '../auth/auth.guards';
 import { CreateGroupCandidate } from '../../../../usecases/group/candidates/create-group.candidate';
 import { UpdateGroupCandidate } from '../../../../usecases/group/candidates/update-group.candidate';
 import { FindOwnedGroupsUseCase } from '../../../../usecases/group/find-owned-groups.usecase';
+import { FindUserGroupsUseCase } from '../../../../usecases/group/find-user-groups-use.case';
 
 @Controller('groups')
 @ApiTags('groups')
@@ -37,6 +38,8 @@ export class GroupsController {
     private readonly getGroup: UseCaseProxy<GetGroupUseCase>,
     @Inject(UseCasesProxyGroupModule.FIND_OWNED_GROUPS_USE_CASES_PROXY)
     private readonly findOwnedGroups: UseCaseProxy<FindOwnedGroupsUseCase>,
+    @Inject(UseCasesProxyGroupModule.FIND_MEMBER_GROUPS_USE_CASES_PROXY)
+    private readonly findUserGroups: UseCaseProxy<FindUserGroupsUseCase>,
     @Inject(UseCasesProxyGroupModule.DELETE_GROUP_USE_CASES_PROXY)
     private readonly deleteGroup: UseCaseProxy<DeleteGroupUseCase>,
     @Inject(UseCasesProxyGroupModule.UPDATE_GROUP_USE_CASES_PROXY)
@@ -51,20 +54,25 @@ export class GroupsController {
     const groupCandidate: CreateGroupCandidate = {
       ownerId: user.id,
       name: createGroupDTO.name,
-      createdWithProject: false,
+      isHidden: false,
     };
 
     return this.createGroup.getInstance().createGroup(groupCandidate);
   }
 
+  @Get('/owned')
+  findGroupsOwned(@GetUser() user: User): Promise<Group[]> {
+    return this.findOwnedGroups.getInstance().findOwnedGroups(user.id);
+  }
+
+  @Get('/member')
+  getUserGroups(@GetUser() user: User): Promise<Group[]> {
+    return this.findUserGroups.getInstance().findUserGroups(user.id);
+  }
+
   @Get('/:id')
   findById(@Param('id') id: string): Promise<Group> {
     return this.getGroup.getInstance().getGroup(id);
-  }
-
-  @Get('/')
-  findGroupsOwned(@GetUser() user: User): Promise<Group[]> {
-    return this.findOwnedGroups.getInstance().findOwnedGroups(user.id);
   }
 
   @Patch('/:id')

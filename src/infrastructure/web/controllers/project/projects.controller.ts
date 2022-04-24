@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { UseCasesProxyProjectModule } from '../../../usecases-proxy/project/use-cases-proxy-project.module';
 import { CreateProjectUseCase } from '../../../../usecases/project/create-project.usecase';
@@ -32,6 +32,7 @@ import { Project } from '../../../../domain/project/project';
 import { FindOwnedProjectsUseCase } from '../../../../usecases/project/find-owned-projects.usecase';
 import { ProjectNameDto } from './dto/project-name.dto';
 import { FindGroupProjectsUseCase } from '../../../../usecases/project/find-group-projects.usecase';
+import { ChangeProjectGroupUseCase } from '../../../../usecases/project/change-project-group.usecase';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -48,6 +49,8 @@ export class ProjectsController {
     private readonly findGroupProjects: UseCaseProxy<FindGroupProjectsUseCase>,
     @Inject(UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY)
     private readonly deleteProject: UseCaseProxy<DeleteProjectUseCase>,
+    @Inject(UseCasesProxyProjectModule.CHANGE_PROJECT_GROUP_USE_CASES_PROXY)
+    private readonly changeProjectGroup: UseCaseProxy<ChangeProjectGroupUseCase>,
     @Inject(UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY)
     private readonly update: UseCaseProxy<UpdateProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY)
@@ -103,6 +106,17 @@ export class ProjectsController {
   @Patch('/:id/initialised')
   initialisedProject(@Param('id') id: string): Promise<void> {
     return this.initialised.getInstance().initialisedProjectStatusById(id);
+  }
+
+  @Patch('/:id/:groupId')
+  @ApiOperation({ summary: "Change project's group" })
+  patchProjectGroup(
+    @Param('id') id: string,
+    @Param('groupId') groupId: string,
+  ): Promise<void> {
+    return this.changeProjectGroup
+      .getInstance()
+      .changeProjectGroup(id, groupId);
   }
 
   @Patch('/:id')

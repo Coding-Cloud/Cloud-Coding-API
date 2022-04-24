@@ -41,7 +41,7 @@ export class CreateProjectUseCase {
 
   private async groupCreation(name: string, ownerId: string): Promise<string> {
     const group: CreateGroupCandidate = {
-      createdWithProject: true,
+      isHidden: true,
       name,
       ownerId,
     };
