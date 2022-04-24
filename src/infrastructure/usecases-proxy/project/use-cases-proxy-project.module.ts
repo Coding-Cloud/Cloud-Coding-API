@@ -132,6 +132,12 @@ export class UseCasesProxyProjectModule {
             new UseCaseProxy(new InitialisedProjectUseCase(projects)),
         },
         {
+          inject: [CodeWriter],
+          provide: UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY,
+          useFactory: (codeWriter: CodeWriter) =>
+            new UseCaseProxy(new ReadProjectUseCase(codeWriter)),
+        },
+        {
           inject: [
             TypeormProjectsRepository,
             UseCasesProxyGroupModule.CREATE_GROUP_USE_CASES_PROXY,
