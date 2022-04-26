@@ -1,9 +1,11 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   Inject,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +20,7 @@ import { LeaveGroupUseCase } from '../../../../usecases/group-membership/leave-p
 import { FindGroupMembersUseCase } from '../../../../usecases/group-membership/find-group-members.usecase';
 import { FindUserGroupsUseCase } from '../../../../usecases/group-membership/find-user-groups.usecase';
 import { GroupMembership } from '../../../../domain/group-membership/group-membership';
+import { UpdateGroupMembershipUseCase } from '../../../../usecases/group-membership/update-group-membership.usecase';
 
 @Controller('group-memberships')
 @ApiTags('group-memberships')
@@ -34,6 +37,10 @@ export class GroupMembershipsController {
     private readonly findGroupMembers: UseCaseProxy<FindGroupMembersUseCase>,
     @Inject(UseCasesProxyGroupMembershipModule.FIND_USER_GROUPS_USE_CASES_PROXY)
     private readonly findUserGroups: UseCaseProxy<FindUserGroupsUseCase>,
+    @Inject(
+      UseCasesProxyGroupMembershipModule.UPDATE_GROUP_MEMBERSHIP_USE_CASES_PROXY,
+    )
+    private readonly updateGroupMembership: UseCaseProxy<UpdateGroupMembershipUseCase>,
   ) {}
 
   @Post('/:groupId/:userId')
@@ -52,6 +59,17 @@ export class GroupMembershipsController {
   @Get('/group/:groupId')
   findMembers(@Param('groupId') groupId: string): Promise<GroupMembership[]> {
     return this.findGroupMembers.getInstance().findGroupMembers(groupId);
+  }
+
+  @Patch('/:groupId/:userId')
+  updateMembership(
+    @Param('groupId') groupId: string,
+    @Param('userId') userId: string,
+    @Body('canEdit') canEdit: boolean,
+  ): Promise<void> {
+    return this.updateGroupMembership
+      .getInstance()
+      .updateGroupMembership(userId, groupId, canEdit);
   }
 
   @Delete('/:groupId')
