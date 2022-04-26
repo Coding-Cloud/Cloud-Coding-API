@@ -20,8 +20,9 @@ export class UsecasesProxyUserModule {
   static SIGNIN_USE_CASES_PROXY = 'signinUseCasesProxy';
   static SIGNUP_USE_CASES_PROXY = 'signupUseCasesProxy';
   static GET_USER_USE_CASES_PROXY = 'getUserUseCasesProxy';
-  static UPDATE_USER_USE_CASES_PROXY = 'getUserUseCasesProxy';
-  static UPDATE_USER_PASSWORD_USE_CASES_PROXY = 'getUserUseCasesProxy';
+  static UPDATE_USER_USE_CASES_PROXY = 'updateUserUseCasesProxy';
+  static UPDATE_USER_PASSWORD_USE_CASES_PROXY =
+    'updateUserPasswordUseCasesProxy';
 
   static register(): DynamicModule {
     return {
