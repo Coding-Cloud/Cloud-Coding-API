@@ -11,7 +11,7 @@ export class CodeSnippetEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   projectId: string;
 
   @Column({ nullable: false })

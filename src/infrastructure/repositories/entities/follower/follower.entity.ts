@@ -2,10 +2,10 @@ import { Column, CreateDateColumn, Entity } from 'typeorm';
 
 @Entity('follower')
 export class FollowerEntity {
-  @Column({ primary: true })
+  @Column('uuid', { primary: true })
   followerId: string;
 
-  @Column({ primary: true })
+  @Column('uuid', { primary: true })
   followedId: string;
 
   @CreateDateColumn()

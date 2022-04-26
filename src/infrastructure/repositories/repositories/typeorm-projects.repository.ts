@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Projects } from '../../../domain/project/projects.interface';
 import { Project } from '../../../domain/project/project';
 import ProjectAdapter from '../entities/project/project.adapter';
@@ -13,6 +13,7 @@ import { ProjectEntity } from '../entities/project/project.entity';
 import { ProjectStatus } from '../../../domain/project/project-status.enum';
 import { CreateProjectCandidate } from '../../../usecases/project/candidates/create-project.candidate';
 import { UpdateProjectCandidate } from '../../../usecases/project/candidates/update-project.candidate';
+import { GroupMembershipEntity } from '../entities/group-membership/group-membership.entity';
 
 export class TypeormProjectsRepository implements Projects {
   constructor(
@@ -132,8 +133,20 @@ export class TypeormProjectsRepository implements Projects {
   ): Promise<Project[]> {
     return this.projectEntityRepository
       .createQueryBuilder()
-      .where('ProjectEntity.creatorId=:userId', { userId })
-      .andWhere('SIMILARITY(ProjectEntity.name, :projectName) > 0.1', {
+      .leftJoin(
+        GroupMembershipEntity,
+        'GroupMembershipEntity',
+        'GroupMembershipEntity.groupId = ProjectEntity.groupId',
+      )
+      .where(
+        new Brackets((qb) => {
+          qb.where('ProjectEntity.creatorId=:userId', { userId }).orWhere(
+            'GroupMembershipEntity.userId=:userId',
+            { userId },
+          );
+        }),
+      )
+      .andWhere('SIMILARITY(ProjectEntity.name, :projectName) > 0.2', {
         projectName,
       })
       .getMany();
