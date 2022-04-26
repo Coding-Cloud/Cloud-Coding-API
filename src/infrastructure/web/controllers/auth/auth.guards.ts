@@ -13,7 +13,7 @@ import { GetUserUseCases } from 'src/usecases/user/get-user.usecase';
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    @Inject(UsecasesProxyUserModule.GET_USER_USECASES_PROXY)
+    @Inject(UsecasesProxyUserModule.GET_USER_USE_CASES_PROXY)
     private readonly getUserUseCaseProxy: UseCaseProxy<GetUserUseCases>,
     @Inject(UseCasesProxySessionModule.GET_SESSION_USE_CASES_PROXY)
     private readonly getSessionUseCaseProxy: UseCaseProxy<GetSessionUseCases>,

@@ -5,6 +5,7 @@ import {
   Get,
   Headers,
   Inject,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -21,16 +22,24 @@ import { MeUserDto } from './dto/me-user.dto';
 import { AuthGuard } from './auth.guards';
 import { UseCasesProxySessionModule } from '../../../usecases-proxy/session/usecase-proxy-session.module';
 import { DeleteSessionUseCases } from '../../../../usecases/session/delete-session.usecase';
+import { UpdateUserUseCases } from '../../../../usecases/user/update-user.usecase';
+import { UpdateUserPasswordUseCases } from '../../../../usecases/user/update-user-password.usecase';
+import { UpdateUserDTO } from './dto/update-user.dto';
+import { UpdateUserCandidate } from '../../../../usecases/user/candidates/update-user.candidate';
 
 @Controller('auth')
 @ApiTags('auth')
 @ApiResponse({ status: 500, description: 'Internal error' })
 export class AuthController {
   constructor(
-    @Inject(UsecasesProxyUserModule.SIGNIN_USECASES_PROXY)
+    @Inject(UsecasesProxyUserModule.SIGNIN_USE_CASES_PROXY)
     private readonly signInUseCaseProxy: UseCaseProxy<SignInUseCases>,
-    @Inject(UsecasesProxyUserModule.SIGNUP_USECASES_PROXY)
+    @Inject(UsecasesProxyUserModule.SIGNUP_USE_CASES_PROXY)
     private readonly signUpUseCaseProxy: UseCaseProxy<SignUpUseCases>,
+    @Inject(UsecasesProxyUserModule.UPDATE_USER_PASSWORD_USE_CASES_PROXY)
+    private readonly updateUserPasswordUseCaseProxy: UseCaseProxy<UpdateUserPasswordUseCases>,
+    @Inject(UsecasesProxyUserModule.UPDATE_USER_USE_CASES_PROXY)
+    private readonly updateUserUseCaseProxy: UseCaseProxy<UpdateUserUseCases>,
     @Inject(UseCasesProxySessionModule.DELETE_SESSION_USE_CASES_PROXY)
     private readonly logoutUseCaseProxy: UseCaseProxy<DeleteSessionUseCases>,
   ) {}
@@ -40,7 +49,6 @@ export class AuthController {
   @ApiResponse({ status: 400 })
   @ApiResponse({ status: 403 })
   signUp(@Body() createUserDTO: CreateUserDTO): Promise<void> {
-
     return this.signUpUseCaseProxy.getInstance().signUp(createUserDTO);
   }
 
@@ -62,6 +70,35 @@ export class AuthController {
     return await this.logoutUseCaseProxy
       .getInstance()
       .deleteSessionByToken(token);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch()
+  async updateUser(
+    @GetUser() user: User,
+    updateUserDto: UpdateUserDTO,
+  ): Promise<void> {
+    const updateUserCandidate: UpdateUserCandidate = {
+      username: updateUserDto.username,
+      firstname: updateUserDto.firstname,
+      lastname: updateUserDto.lastname,
+      email: updateUserDto.email,
+      birthdate: updateUserDto.birthdate,
+    };
+    await this.updateUserUseCaseProxy
+      .getInstance()
+      .updateUserById(user.id, updateUserCandidate);
+  }
+
+  @UseGuards(AuthGuard)
+  @Patch('/password')
+  async updateUserPassword(
+    @GetUser() user: User,
+    @Body('password') password: string,
+  ): Promise<void> {
+    await this.updateUserPasswordUseCaseProxy
+      .getInstance()
+      .updateUserPasswordById(user.id, password);
   }
 
   @UseGuards(AuthGuard)
