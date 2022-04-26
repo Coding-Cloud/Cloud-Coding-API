@@ -91,10 +91,29 @@ export class TypeormUsersRepository implements Users {
     return userEntity ? UserAdapter.toUser(userEntity) : null;
   }
 
-  updateUser(
+  async updateUser(
     userId: string,
     userCandidate: UpdateUserCandidate,
   ): Promise<void> {
-    throw new Error('Method not implemented.');
+    const { username, firstname, lastname, birthdate, email } = userCandidate;
+
+    const user = this.userEntityRepository.create({
+      username,
+      firstname,
+      lastname,
+      birthdate,
+      email,
+    });
+
+    try {
+      await this.userEntityRepository.update(userId, user);
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new ConflictException('Username already exists');
+      } else {
+        Logger.error(error);
+        throw new InternalServerErrorException();
+      }
+    }
   }
 }

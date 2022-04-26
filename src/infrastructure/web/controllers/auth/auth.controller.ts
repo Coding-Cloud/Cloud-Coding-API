@@ -76,7 +76,7 @@ export class AuthController {
   @Patch()
   async updateUser(
     @GetUser() user: User,
-    updateUserDto: UpdateUserDTO,
+    @Body() updateUserDto: UpdateUserDTO,
   ): Promise<void> {
     const updateUserCandidate: UpdateUserCandidate = {
       username: updateUserDto.username,
