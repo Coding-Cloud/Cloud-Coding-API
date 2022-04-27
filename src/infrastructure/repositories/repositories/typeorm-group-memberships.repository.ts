@@ -71,4 +71,18 @@ export class TypeormGroupMembershipsRepository implements GroupMemberships {
   async leaveGroup(userId: string, groupId: string): Promise<void> {
     await this.groupMembershipEntityRepository.delete({ userId, groupId });
   }
+
+  async updateGroupMembership(
+    userId: string,
+    groupId: string,
+    canEdit: boolean,
+  ): Promise<void> {
+    await this.groupMembershipEntityRepository
+      .createQueryBuilder()
+      .update()
+      .set({ canEdit })
+      .where('groupId=:groupId', { groupId })
+      .andWhere('userId=:userId', { userId })
+      .execute();
+  }
 }

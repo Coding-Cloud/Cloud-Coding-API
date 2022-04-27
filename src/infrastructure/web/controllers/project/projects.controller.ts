@@ -33,6 +33,7 @@ import { FindOwnedProjectsUseCase } from '../../../../usecases/project/find-owne
 import { ProjectNameDto } from './dto/project-name.dto';
 import { FindGroupProjectsUseCase } from '../../../../usecases/project/find-group-projects.usecase';
 import { ChangeProjectGroupUseCase } from '../../../../usecases/project/change-project-group.usecase';
+import { SearchUserProjectsUseCase } from '../../../../usecases/project/search-user-projects.usecase';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -57,6 +58,8 @@ export class ProjectsController {
     private readonly initialised: UseCaseProxy<InitialisedProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY)
     private readonly read: UseCaseProxy<ReadProjectUseCase>,
+    @Inject(UseCasesProxyProjectModule.SEARCH_USER_PROJECTS_USE_CASES_PROXY)
+    private readonly searchByName: UseCaseProxy<SearchUserProjectsUseCase>,
   ) {}
 
   @Post()
@@ -79,6 +82,16 @@ export class ProjectsController {
   @Get('/owned')
   findProjectByCreatorId(@GetUser() user: User): Promise<Project[]> {
     return this.findOwnedProjects.getInstance().findProjectByCreatorId(user.id);
+  }
+
+  @Get('/search')
+  async searchUserProjectsByName(
+    @GetUser() user: User,
+    @Query('name') name: string,
+  ): Promise<Project[]> {
+    return await this.searchByName
+      .getInstance()
+      .searchUserProjectsByName(user.id, name);
   }
 
   @Get('/group/:groupId')

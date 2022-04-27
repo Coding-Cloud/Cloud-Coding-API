@@ -22,6 +22,7 @@ import { FindGroupProjectsUseCase } from '../../../usecases/project/find-group-p
 import { ChangeProjectGroupUseCase } from '../../../usecases/project/change-project-group.usecase';
 import { DeleteHiddenGroupUseCase } from '../../../usecases/group/delete-hidden-group.usecase';
 import { SetProjectHiddenGroupUseCase } from '../../../usecases/project/set-project-hidden-group.usecase';
+import { SearchUserProjectsUseCase } from '../../../usecases/project/search-user-projects.usecase';
 
 @Module({
   imports: [
@@ -47,6 +48,8 @@ export class UseCasesProxyProjectModule {
     'changeProjectGroupUseCaseProxy';
   static INITIALISED_PROJECT_USE_CASES_PROXY = 'initialisedProjectUseCaseProxy';
   static READ_PROJECT_USE_CASES_PROXY = 'readProjectUseCaseProxy';
+  static SEARCH_USER_PROJECTS_USE_CASES_PROXY =
+    'searchUserProjectsUseCaseProxy';
 
   static register(): DynamicModule {
     return {
@@ -152,6 +155,13 @@ export class UseCasesProxyProjectModule {
               new SetProjectHiddenGroupUseCase(projects, createGroup),
             ),
         },
+        {
+          inject: [TypeormProjectsRepository],
+          provide:
+            UseCasesProxyProjectModule.SEARCH_USER_PROJECTS_USE_CASES_PROXY,
+          useFactory: (projects: TypeormProjectsRepository) =>
+            new UseCaseProxy(new SearchUserProjectsUseCase(projects)),
+        },
       ],
       exports: [
         UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
@@ -164,6 +174,7 @@ export class UseCasesProxyProjectModule {
         UseCasesProxyProjectModule.CHANGE_PROJECT_GROUP_USE_CASES_PROXY,
         UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.SEARCH_USER_PROJECTS_USE_CASES_PROXY,
       ],
     };
   }

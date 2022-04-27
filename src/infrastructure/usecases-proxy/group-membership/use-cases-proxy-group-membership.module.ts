@@ -8,6 +8,7 @@ import { FindUserGroupsUseCase } from '../../../usecases/group-membership/find-u
 import { FindGroupMembersUseCase } from '../../../usecases/group-membership/find-group-members.usecase';
 import { UseCasesProxyGroupModule } from '../group/use-cases-proxy-group.module';
 import { UpdateGroupUseCase } from '../../../usecases/group/update-group.usecase';
+import { UpdateGroupMembershipUseCase } from '../../../usecases/group-membership/update-group-membership.usecase';
 
 @Module({
   imports: [RepositoriesModule, UseCasesProxyGroupModule.register()],
@@ -17,6 +18,8 @@ export class UseCasesProxyGroupMembershipModule {
   static LEAVE_GROUP_USE_CASES_PROXY = 'leaveGroupUseCaseProxy';
   static FIND_GROUP_MEMBERS_USE_CASES_PROXY = 'findGroupMembersUseCaseProxy';
   static FIND_USER_GROUPS_USE_CASES_PROXY = 'findUserGroupsUseCaseProxy';
+  static UPDATE_GROUP_MEMBERSHIP_USE_CASES_PROXY =
+    'updateGroupMembershipUseCaseProxy';
 
   static register(): DynamicModule {
     return {
@@ -58,12 +61,22 @@ export class UseCasesProxyGroupMembershipModule {
           useFactory: (groupMemberships: TypeormGroupMembershipsRepository) =>
             new UseCaseProxy(new FindUserGroupsUseCase(groupMemberships)),
         },
+        {
+          inject: [TypeormGroupMembershipsRepository],
+          provide:
+            UseCasesProxyGroupMembershipModule.UPDATE_GROUP_MEMBERSHIP_USE_CASES_PROXY,
+          useFactory: (groupMemberships: TypeormGroupMembershipsRepository) =>
+            new UseCaseProxy(
+              new UpdateGroupMembershipUseCase(groupMemberships),
+            ),
+        },
       ],
       exports: [
         UseCasesProxyGroupMembershipModule.JOIN_GROUP_USE_CASES_PROXY,
         UseCasesProxyGroupMembershipModule.LEAVE_GROUP_USE_CASES_PROXY,
         UseCasesProxyGroupMembershipModule.FIND_GROUP_MEMBERS_USE_CASES_PROXY,
         UseCasesProxyGroupMembershipModule.FIND_USER_GROUPS_USE_CASES_PROXY,
+        UseCasesProxyGroupMembershipModule.UPDATE_GROUP_MEMBERSHIP_USE_CASES_PROXY,
       ],
     };
   }

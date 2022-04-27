@@ -2,10 +2,10 @@ import { Column, CreateDateColumn, Entity } from 'typeorm';
 
 @Entity('friend_request')
 export class FriendRequestEntity {
-  @Column({ primary: true })
+  @Column('uuid', { primary: true })
   requesterUserId: string;
 
-  @Column({ primary: true })
+  @Column('uuid', { primary: true })
   requestedUserId: string;
 
   @CreateDateColumn()

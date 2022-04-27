@@ -11,10 +11,10 @@ export class CommentEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   ownerId: string;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   postId: string;
 
   @Column({ nullable: false })

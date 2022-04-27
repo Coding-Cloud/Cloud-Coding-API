@@ -3,10 +3,10 @@ import { GroupEntity } from '../group/group.entity';
 
 @Entity('group_membership')
 export class GroupMembershipEntity {
-  @Column({ primary: true })
+  @Column('uuid', { primary: true })
   userId: string;
 
-  @Column({ primary: true })
+  @Column('uuid', { primary: true })
   groupId: string;
 
   @ManyToOne(() => GroupEntity, (group) => group.members, {

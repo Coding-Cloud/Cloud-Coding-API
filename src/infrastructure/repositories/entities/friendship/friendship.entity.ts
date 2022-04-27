@@ -10,13 +10,13 @@ export class FriendshipEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ primary: true })
+  @Column('uuid', { primary: true })
   user1Id: string;
 
-  @Column({ primary: true })
+  @Column('uuid', { primary: true })
   user2Id: string;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   conversationId: string;
 
   @CreateDateColumn()

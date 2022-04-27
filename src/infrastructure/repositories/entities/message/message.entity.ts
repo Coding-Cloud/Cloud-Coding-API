@@ -14,13 +14,13 @@ export class MessageEntity {
   @Column({ nullable: false })
   content: string;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   userId: string;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   assetId: string;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   conversationId: string;
 
   @CreateDateColumn()
