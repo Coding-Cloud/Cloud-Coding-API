@@ -12,6 +12,7 @@ import { Users } from '../../../domain/user/users.interface';
 import { User } from 'src/domain/user/user';
 import UserAdapter from 'src/infrastructure/repositories/entities/user/user.adapter';
 import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/create-user.dto';
+import { UpdateUserCandidate } from 'src/usecases/user/candidates/update-user.candidate';
 
 export class TypeormUsersRepository implements Users {
   constructor(
@@ -73,9 +74,8 @@ export class TypeormUsersRepository implements Users {
     }
   }
 
-  async changePassword(user: User, password: string): Promise<void> {
-    const userEntity = UserAdapter.toUserEntity(user);
-    await this.userEntityRepository.update({ id: userEntity.id }, { password });
+  async changePassword(id: string, password: string): Promise<void> {
+    await this.userEntityRepository.update({ id: id }, { password });
   }
 
   async findUserByResetPassword(token: string): Promise<User> {
@@ -89,5 +89,31 @@ export class TypeormUsersRepository implements Users {
       .where('password_reset.token = :token', { token })
       .getOne();
     return userEntity ? UserAdapter.toUser(userEntity) : null;
+  }
+
+  async updateUser(
+    userId: string,
+    userCandidate: UpdateUserCandidate,
+  ): Promise<void> {
+    const { username, firstname, lastname, birthdate, email } = userCandidate;
+
+    const user = this.userEntityRepository.create({
+      username,
+      firstname,
+      lastname,
+      birthdate,
+      email,
+    });
+
+    try {
+      await this.userEntityRepository.update(userId, user);
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new ConflictException('Username already exists');
+      } else {
+        Logger.error(error);
+        throw new InternalServerErrorException();
+      }
+    }
   }
 }

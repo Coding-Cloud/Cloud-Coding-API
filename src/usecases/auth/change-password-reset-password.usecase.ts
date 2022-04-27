@@ -15,7 +15,7 @@ export class ChangePasswordresetPasswordUseCases {
     if (!user) throw new BadRequestException();
     const salt = await this.encrypt.genSaltkey();
     const hashedPassword = await this.encrypt.hash(password, salt);
-    await this.users.changePassword(user, hashedPassword);
+    await this.users.changePassword(user.id, hashedPassword);
     const passwordReset = await this.passwordResets.findByToken(token);
     await this.passwordResets.delete(passwordReset);
   }
