@@ -61,4 +61,12 @@ export class GroupMembershipsController {
   ): Promise<void> {
     return this.leaveGroup.getInstance().leaveGroup(user.id, groupId);
   }
+
+  @Delete('/:groupId/:userId')
+  removeUser(
+    @Param('groupId') groupId: string,
+    @Param('userId') userId: string,
+  ): Promise<void> {
+    return this.leaveGroup.getInstance().leaveGroup(userId, groupId);
+  }
 }
