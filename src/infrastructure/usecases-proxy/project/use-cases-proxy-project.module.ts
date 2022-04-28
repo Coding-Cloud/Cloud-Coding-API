@@ -22,6 +22,7 @@ import { FindGroupProjectsUseCase } from '../../../usecases/project/find-group-p
 import { ChangeProjectGroupUseCase } from '../../../usecases/project/change-project-group.usecase';
 import { DeleteHiddenGroupUseCase } from '../../../usecases/group/delete-hidden-group.usecase';
 import { SetProjectHiddenGroupUseCase } from '../../../usecases/project/set-project-hidden-group.usecase';
+import { FindMemberVisibleProjectUseCase } from '../../../usecases/project/find-visible-projects.usecase';
 import { SearchUserProjectsUseCase } from '../../../usecases/project/search-user-projects.usecase';
 
 @Module({
@@ -40,6 +41,8 @@ export class UseCasesProxyProjectModule {
   static FIND_PROJECT_USE_CASES_PROXY = 'findProjectUseCaseProxy';
   static FIND_OWNED_PROJECTS_USE_CASES_PROXY = 'findOwnedProjectsUseCaseProxy';
   static FIND_GROUP_PROJECTS_USE_CASES_PROXY = 'findGroupProjectsUseCaseProxy';
+  static FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY =
+    'findMemberVisibleProjectsUseCaseProxy';
   static DELETE_PROJECT_USE_CASES_PROXY = 'deleteProjectUseCaseProxy';
   static SET_PROJECT_HIDDEN_GROUP_USE_CASES_PROXY =
     'setProjectHiddenGroupUseCaseProxy';
@@ -158,6 +161,13 @@ export class UseCasesProxyProjectModule {
         {
           inject: [TypeormProjectsRepository],
           provide:
+            UseCasesProxyProjectModule.FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY,
+          useFactory: (projects: TypeormProjectsRepository) =>
+            new UseCaseProxy(new FindMemberVisibleProjectUseCase(projects)),
+        },
+        {
+          inject: [TypeormProjectsRepository],
+          provide:
             UseCasesProxyProjectModule.SEARCH_USER_PROJECTS_USE_CASES_PROXY,
           useFactory: (projects: TypeormProjectsRepository) =>
             new UseCaseProxy(new SearchUserProjectsUseCase(projects)),
@@ -168,6 +178,7 @@ export class UseCasesProxyProjectModule {
         UseCasesProxyProjectModule.FIND_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.FIND_OWNED_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.FIND_GROUP_PROJECTS_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.SET_PROJECT_HIDDEN_GROUP_USE_CASES_PROXY,
