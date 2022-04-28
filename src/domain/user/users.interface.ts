@@ -16,4 +16,6 @@ export interface Users {
   updateUser(userId: string, userCandidate: UpdateUserCandidate): Promise<void>;
 
   findUserByResetPassword(token: string): Promise<User>;
+
+  searchUsers(search: string): Promise<User[]>;
 }
