@@ -8,4 +8,10 @@ export interface GroupMemberships {
   findByUserId(userId: string): Promise<GroupMembership[]>;
 
   findByGroupId(groupId: string): Promise<GroupMembership[]>;
+
+  updateGroupMembership(
+    userId: string,
+    groupId: string,
+    canEdit: boolean,
+  ): Promise<void>;
 }
