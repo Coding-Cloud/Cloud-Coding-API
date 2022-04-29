@@ -14,6 +14,8 @@ export interface Projects {
 
   findByGroupId(groupId: string): Promise<Project[]>;
 
+  findVisibleProjects(memberId: string): Promise<Project[]>;
+
   findBy(props: {
     id?: string;
     userId?: string;
