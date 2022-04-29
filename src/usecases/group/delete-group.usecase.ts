@@ -15,7 +15,7 @@ export class DeleteGroupUseCase {
 
   async deleteGroup(id: string): Promise<void> {
     const group = await this.groups.findById(id);
-    this.eventEmitter.emit('group.deleted', id);
+    this.eventEmitter.emit('group.deleted', id, group.isHidden);
     this.removeConversation
       .getInstance()
       .removeConversation(group.conversationId);

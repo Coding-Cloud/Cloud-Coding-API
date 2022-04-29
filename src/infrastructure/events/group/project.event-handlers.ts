@@ -11,9 +11,11 @@ export class ProjectEventHandlers {
   ) {}
 
   @OnEvent('group.deleted')
-  async handleGroupDeleted(groupId: string) {
-    await this.setProjectHiddenGroup
-      .getInstance()
-      .setProjectHiddenGroup(groupId);
+  async handleGroupDeleted(groupId: string, isHidden: boolean) {
+    if (!isHidden) {
+      await this.setProjectHiddenGroup
+        .getInstance()
+        .setProjectHiddenGroup(groupId);
+    }
   }
 }
