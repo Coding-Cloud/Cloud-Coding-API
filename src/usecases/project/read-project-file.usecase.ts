@@ -1,9 +1,7 @@
-import { Projects } from '../../domain/project/projects.interface';
 import { Folder } from 'src/domain/folder/folder.interface';
 import * as fs from 'fs/promises';
 import { resolve } from 'path';
 import { CodeWriter } from 'src/domain/code-writer.abstract';
-import { ReadProject } from './read-project';
 
 export class ReadProjectUseCase {
   private FILES_NOT_INCLUDE = [
@@ -15,10 +13,10 @@ export class ReadProjectUseCase {
 
   constructor(private readonly codeWriter: CodeWriter) {}
 
-  async readProject(readProject: ReadProject): Promise<{
+  async readProject(projectId: string): Promise<{
     appFiles: { [key: string]: Folder };
   }> {
-    const dir = `${readProject.path}`;
+    const dir = `${process.env.BASE_PATH_PROJECT}/${projectId}`;
     const files = await this.getFiles(dir);
     const project: { appFiles: { [key: string]: Folder } } = { appFiles: {} };
     const filesFlatten: any[] = [];

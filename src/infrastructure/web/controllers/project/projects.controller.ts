@@ -160,12 +160,12 @@ export class ProjectsController {
       .updateProjectStatusById(id, projectCandidate);
   }
 
-  @Get('/')
+  @Get('/:projectId/read')
   @UseGuards(AuthGuard)
-  async getProject(@Query('path') path: string): Promise<{
+  async getProject(@Param('projectId') projectId: string): Promise<{
     appFiles: { [key: string]: Folder };
   }> {
-    return await this.read.getInstance().readProject({ path });
+    return await this.read.getInstance().readProject(projectId);
   }
 
   @Get('/:userId/projects')
