@@ -33,6 +33,7 @@ import { FindOwnedProjectsUseCase } from '../../../../usecases/project/find-owne
 import { ProjectNameDto } from './dto/project-name.dto';
 import { FindGroupProjectsUseCase } from '../../../../usecases/project/find-group-projects.usecase';
 import { ChangeProjectGroupUseCase } from '../../../../usecases/project/change-project-group.usecase';
+import { FindMemberVisibleProjectUseCase } from '../../../../usecases/project/find-visible-projects.usecase';
 import { SearchUserProjectsUseCase } from '../../../../usecases/project/search-user-projects.usecase';
 
 @Controller('projects')
@@ -58,6 +59,10 @@ export class ProjectsController {
     private readonly initialised: UseCaseProxy<InitialisedProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY)
     private readonly read: UseCaseProxy<ReadProjectUseCase>,
+    @Inject(
+      UseCasesProxyProjectModule.FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY,
+    )
+    private readonly findVisibleProjects: UseCaseProxy<FindMemberVisibleProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.SEARCH_USER_PROJECTS_USE_CASES_PROXY)
     private readonly searchByName: UseCaseProxy<SearchUserProjectsUseCase>,
   ) {}
@@ -152,5 +157,10 @@ export class ProjectsController {
     appFiles: { [key: string]: Folder };
   }> {
     return await this.read.getInstance().readProject({ path });
+  }
+
+  @Get('/:userId/projects')
+  async getProjects(@Param('userId') userId: string): Promise<Project[]> {
+    return this.findVisibleProjects.getInstance().findVisibleProjects(userId);
   }
 }

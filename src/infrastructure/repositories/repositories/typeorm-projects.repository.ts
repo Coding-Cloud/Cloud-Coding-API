@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Brackets, Repository } from 'typeorm';
 import { Projects } from '../../../domain/project/projects.interface';
 import { Project } from '../../../domain/project/project';
 import ProjectAdapter from '../entities/project/project.adapter';
@@ -13,6 +13,10 @@ import { ProjectEntity } from '../entities/project/project.entity';
 import { ProjectStatus } from '../../../domain/project/project-status.enum';
 import { CreateProjectCandidate } from '../../../usecases/project/candidates/create-project.candidate';
 import { UpdateProjectCandidate } from '../../../usecases/project/candidates/update-project.candidate';
+import { GroupMembershipEntity } from '../entities/group-membership/group-membership.entity';
+import { ProjectVisibility } from '../../../domain/project/project-visibility.enum';
+import { ProjectUserAccessEntity } from '../entities/project-user-access/project-user-access.entity';
+import { GroupEntity } from '../entities/group/group.entity';
 
 export class TypeormProjectsRepository implements Projects {
   constructor(
@@ -137,5 +141,44 @@ export class TypeormProjectsRepository implements Projects {
         projectName,
       })
       .getMany();
+  }
+
+  async findVisibleProjects(memberId: string): Promise<Project[]> {
+    try {
+      const projectEntities = await this.projectEntityRepository
+        .createQueryBuilder()
+        .leftJoin(
+          GroupEntity,
+          'GroupEntity',
+          'GroupEntity.id = ProjectEntity.groupId',
+        )
+        .leftJoin(
+          GroupMembershipEntity,
+          'GroupMembershipEntity',
+          'GroupMembershipEntity.groupId = ProjectEntity.groupId',
+        )
+        .leftJoin(
+          ProjectUserAccessEntity,
+          'ProjectUserAccessEntity',
+          'ProjectUserAccessEntity.projectId = ProjectEntity.id',
+        )
+        .where(
+          new Brackets((qb) => {
+            qb.where('ProjectEntity.creatorId=:memberId', { memberId })
+              .orWhere('GroupMembershipEntity.userId=:memberId', { memberId })
+              .orWhere('GroupEntity.ownerId=:memberId', { memberId });
+          }),
+        )
+        .andWhere('ProjectEntity.globalVisibility != :visibility', {
+          visibility: ProjectVisibility.PRIVATE,
+        })
+        .getMany();
+      return projectEntities.map((projectEntity) =>
+        ProjectAdapter.toProject(projectEntity),
+      );
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException();
+    }
   }
 }
