@@ -23,4 +23,9 @@ export interface Projects {
   initialisedProjectById(id: string): Promise<void>;
 
   deleteProject(id: string): Promise<void>;
+
+  searchUserProjectsByName(
+    userId: string,
+    projectName: string,
+  ): Promise<Project[]>;
 }

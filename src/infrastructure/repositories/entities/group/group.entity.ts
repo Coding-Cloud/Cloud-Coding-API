@@ -16,13 +16,13 @@ export class GroupEntity {
   @Column({ nullable: false })
   name: string;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   ownerId: string;
 
   @Column({ nullable: false, default: true })
   isHidden: boolean;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   conversationId: string;
 
   @OneToMany(() => GroupMembershipEntity, (members) => members.group)

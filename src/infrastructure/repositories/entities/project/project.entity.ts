@@ -29,10 +29,10 @@ export class ProjectEntity {
   @Column('enum', { enum: ProjectVisibility, nullable: false })
   globalVisibility: ProjectVisibility;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   creatorId: string;
 
-  @Column({ nullable: false })
+  @Column('uuid', { nullable: false })
   groupId: string;
 
   @CreateDateColumn()

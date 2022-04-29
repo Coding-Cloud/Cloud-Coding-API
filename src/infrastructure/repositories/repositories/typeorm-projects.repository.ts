@@ -125,4 +125,17 @@ export class TypeormProjectsRepository implements Projects {
       throw new BadRequestException();
     }
   }
+
+  searchUserProjectsByName(
+    userId: string,
+    projectName: string,
+  ): Promise<Project[]> {
+    return this.projectEntityRepository
+      .createQueryBuilder()
+      .where('ProjectEntity.creatorId=:userId', { userId })
+      .andWhere('SIMILARITY(ProjectEntity.name, :projectName) > 0.2', {
+        projectName,
+      })
+      .getMany();
+  }
 }
