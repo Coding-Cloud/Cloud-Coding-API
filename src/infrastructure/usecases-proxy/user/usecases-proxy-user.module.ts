@@ -10,6 +10,7 @@ import { JwtEncryptModule } from '../../web/jwt/jwt-encrypt.module';
 import { RepositoriesModule } from '../../repositories/repositories.module';
 import { TypeormUsersRepository } from '../../repositories/repositories/typeorm-users.repository';
 import { UseCaseProxy } from '../usecases-proxy';
+import { SearchUsersUseCases } from '../../../usecases/user/search-users.usecase';
 import { UpdateUserUseCases } from '../../../usecases/user/update-user.usecase';
 import { UpdateUserPasswordUseCases } from '../../../usecases/user/update-user-password.usecase';
 
@@ -23,6 +24,7 @@ export class UsecasesProxyUserModule {
   static UPDATE_USER_USE_CASES_PROXY = 'updateUserUseCasesProxy';
   static UPDATE_USER_PASSWORD_USE_CASES_PROXY =
     'updateUserPasswordUseCasesProxy';
+  static SEARCH_USERS_USE_CASES_PROXY = 'searchUsersUseCasesProxy';
 
   static register(): DynamicModule {
     return {
@@ -70,6 +72,12 @@ export class UsecasesProxyUserModule {
           useFactory: (users: TypeormUsersRepository) =>
             new UseCaseProxy(new UpdateUserUseCases(users)),
         },
+        {
+          inject: [TypeormUsersRepository],
+          provide: UsecasesProxyUserModule.SEARCH_USERS_USE_CASES_PROXY,
+          useFactory: (users: TypeormUsersRepository) =>
+            new UseCaseProxy(new SearchUsersUseCases(users)),
+        },
       ],
       exports: [
         UsecasesProxyUserModule.SIGNIN_USE_CASES_PROXY,
@@ -77,6 +85,7 @@ export class UsecasesProxyUserModule {
         UsecasesProxyUserModule.GET_USER_USE_CASES_PROXY,
         UsecasesProxyUserModule.UPDATE_USER_PASSWORD_USE_CASES_PROXY,
         UsecasesProxyUserModule.UPDATE_USER_USE_CASES_PROXY,
+        UsecasesProxyUserModule.SEARCH_USERS_USE_CASES_PROXY,
       ],
     };
   }
