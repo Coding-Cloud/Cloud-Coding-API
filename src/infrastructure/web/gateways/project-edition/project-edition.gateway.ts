@@ -63,14 +63,19 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       //client.rooms.forEach((room) => client.leave(room));
       client.join(projectId);
       //await this.startProject.getInstance().startProjectRunner(projectId);
-      const watcher = chokidar.watch([`${process.env.LOG_PATH_PROJECT}`], {
-        persistent: true,
-      });
+      const watcher = chokidar.watch(
+        [`${process.env.LOG_PATH_PROJECT}${projectId}`],
+        {
+          persistent: true,
+        },
+      );
+      console.log(`${process.env.LOG_PATH_PROJECT}${projectId}`);
+      
 
       // Add event listeners.
       watcher.on('change', async (path, stats) => {
         const contentLogFile = await fs.readFile(
-          `${process.env.LOG_PATH_PROJECT}/1.txt`,
+          `${process.env.LOG_PATH_PROJECT}${projectId}/1.txt`,
           { encoding: 'utf-8' },
         );
         client.emit('logChanged', contentLogFile);
