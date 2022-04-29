@@ -116,4 +116,18 @@ export class TypeormUsersRepository implements Users {
       }
     }
   }
+
+  async searchUsers(search: string): Promise<User[]> {
+    try {
+      const userEntities = await this.userEntityRepository
+        .createQueryBuilder()
+        .where('SIMILARITY(UserEntity.username, :search) > 0.2', { search })
+        .orWhere('SIMILARITY(UserEntity.email, :search) > 0.2', { search })
+        .getMany();
+      return userEntities.map((userEntity) => UserAdapter.toUser(userEntity));
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
 }
