@@ -38,7 +38,6 @@ import { SearchUserProjectsUseCase } from '../../../../usecases/project/search-u
 
 @Controller('projects')
 @ApiTags('projects')
-@UseGuards(AuthGuard)
 export class ProjectsController {
   constructor(
     @Inject(UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY)
@@ -68,6 +67,7 @@ export class ProjectsController {
   ) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   create(
     @Body() createProjectDTO: CreateProjectDTO,
     @GetUser() user: User,
@@ -85,11 +85,13 @@ export class ProjectsController {
   }
 
   @Get('/owned')
+  @UseGuards(AuthGuard)
   findProjectByCreatorId(@GetUser() user: User): Promise<Project[]> {
     return this.findOwnedProjects.getInstance().findProjectByCreatorId(user.id);
   }
 
   @Get('/search')
+  @UseGuards(AuthGuard)
   async searchUserProjectsByName(
     @GetUser() user: User,
     @Query('name') name: string,
@@ -100,16 +102,19 @@ export class ProjectsController {
   }
 
   @Get('/group/:groupId')
+  @UseGuards(AuthGuard)
   findProjectByGroupId(@Param('groupId') groupId: string): Promise<Project[]> {
     return this.findGroupProjects.getInstance().findGroupProjects(groupId);
   }
 
   @Get('/:id')
+  @UseGuards(AuthGuard)
   findProjectById(@Param('id') id: string): Promise<Project> {
     return this.findProject.getInstance().findProjectById(id);
   }
 
   @Get('/:id/name')
+  @UseGuards(AuthGuard)
   async findProjectNameById(@Param('id') id: string): Promise<ProjectNameDto> {
     return {
       name: (await this.findProject.getInstance().findProjectById(id)).name,
@@ -117,6 +122,7 @@ export class ProjectsController {
   }
 
   @Delete('/:id')
+  @UseGuards(AuthGuard)
   delete(@Param('id') id: string): Promise<void> {
     return this.deleteProject.getInstance().deleteProject(id);
   }
@@ -128,6 +134,7 @@ export class ProjectsController {
 
   @Patch('/:id/:groupId')
   @ApiOperation({ summary: "Change project's group" })
+  @UseGuards(AuthGuard)
   patchProjectGroup(
     @Param('id') id: string,
     @Param('groupId') groupId: string,
@@ -138,6 +145,7 @@ export class ProjectsController {
   }
 
   @Patch('/:id')
+  @UseGuards(AuthGuard)
   updateProjectById(
     @Param('id') id: string,
     @Body() updateProjectDTO: UpdateProjectDTO,
@@ -153,6 +161,7 @@ export class ProjectsController {
   }
 
   @Get('/')
+  @UseGuards(AuthGuard)
   async getProject(@Query('path') path: string): Promise<{
     appFiles: { [key: string]: Folder };
   }> {
@@ -160,6 +169,7 @@ export class ProjectsController {
   }
 
   @Get('/:userId/projects')
+  @UseGuards(AuthGuard)
   async getProjects(@Param('userId') userId: string): Promise<Project[]> {
     return this.findVisibleProjects.getInstance().findVisibleProjects(userId);
   }
