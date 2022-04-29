@@ -11,7 +11,11 @@ export class FindProjectUseCase {
 
   async findProjectById(id: string): Promise<Project> {
     if (process.env.VERIF_REPO_PROJECT) {
-      if (this.codeWriter.verifyFileExist(process.env.BASE_PATH_PROJECT + id)) {
+      if (
+        this.codeWriter.verifyFileExist(
+          `${process.env.BASE_PATH_PROJECT}/${id}`,
+        )
+      ) {
         return this.projects.findBy({ id });
       }
       throw new NotFoundException();

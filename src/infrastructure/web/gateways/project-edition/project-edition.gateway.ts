@@ -62,20 +62,19 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       // pose problème pour faire du broadcast
       //client.rooms.forEach((room) => client.leave(room));
       client.join(projectId);
-      //await this.startProject.getInstance().startProjectRunner(projectId);
+      await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
-        [`${process.env.LOG_PATH_PROJECT}${projectId}`],
+        [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
           persistent: true,
         },
       );
-      console.log(`${process.env.LOG_PATH_PROJECT}${projectId}`);
-      
+      console.log(`${process.env.LOG_PATH_PROJECT}/${projectId}`);
 
       // Add event listeners.
       watcher.on('change', async (path, stats) => {
         const contentLogFile = await fs.readFile(
-          `${process.env.LOG_PATH_PROJECT}${projectId}/1.txt`,
+          `${process.env.LOG_PATH_PROJECT}/${projectId}.log`,
           { encoding: 'utf-8' },
         );
         client.emit('logChanged', contentLogFile);
@@ -84,7 +83,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       client.on('disconnecting', () => {
         client.rooms.forEach(async (room) => {
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
-            //await this.stopProject.getInstance().stopProjectRunner(projectId);
+            await this.stopProject.getInstance().stopProjectRunner(projectId);
             watcher.close().then(() => console.log('closed'));
           }
         });
@@ -124,7 +123,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() renameFolderDTO: RenameFolderDTO,
   ): Promise<void> {
-    const basePath = process.env.BASE_PATH_PROJECT;
+    const basePath = `${process.env.BASE_PATH_PROJECT}/`;
     console.log(renameFolderDTO);
 
     const renameFolder: RenameFolder = { ...renameFolderDTO };
@@ -143,7 +142,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() deleteFolderDTO: DeleteFolderDTO,
   ): Promise<void> {
-    const basePath = process.env.BASE_PATH_PROJECT;
+    const basePath = `${process.env.BASE_PATH_PROJECT}/`;
     console.log(deleteFolderDTO);
 
     const deleteFolder: DeleteFolder = { ...deleteFolderDTO };
