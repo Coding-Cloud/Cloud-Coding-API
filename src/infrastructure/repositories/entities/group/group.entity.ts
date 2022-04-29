@@ -20,7 +20,7 @@ export class GroupEntity {
   ownerId: string;
 
   @Column({ nullable: false, default: true })
-  createdWithProject: boolean;
+  isHidden: boolean;
 
   @Column({ nullable: false })
   conversationId: string;

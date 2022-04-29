@@ -1,3 +1,4 @@
 export class UpdateGroupCandidate {
-  name: string;
+  name?: string;
+  isHidden? = false;
 }

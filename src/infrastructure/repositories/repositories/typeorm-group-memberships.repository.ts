@@ -38,7 +38,7 @@ export class TypeormGroupMembershipsRepository implements GroupMemberships {
         .createQueryBuilder()
         .leftJoin('GroupMembershipEntity.group', 'GroupEntity')
         .where('GroupMembershipEntity.userId=:userId', { userId })
-        .andWhere('GroupEntity.createdWithProject=FALSE or COUNT(*)>1')
+        .andWhere('GroupEntity.isHidden=FALSE or COUNT(*)>1')
         .getMany();
       return groupEntities.map((groupEntity) =>
         GroupMembershipAdapter.toGroupMembership(groupEntity),

@@ -12,7 +12,7 @@ import { UsernameDto } from './dto/username-dto';
 @UseGuards(AuthGuard)
 export class UserController {
   constructor(
-    @Inject(UsecasesProxyUserModule.GET_USER_USECASES_PROXY)
+    @Inject(UsecasesProxyUserModule.GET_USER_USE_CASES_PROXY)
     private readonly getUserById: UseCaseProxy<GetUserUseCases>,
   ) {}
 

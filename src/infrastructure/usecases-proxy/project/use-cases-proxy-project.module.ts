@@ -19,6 +19,9 @@ import { CreateGroupUseCase } from '../../../usecases/group/create-group.usecase
 import { FindProjectUseCase } from '../../../usecases/project/find-project.usecase';
 import { FindOwnedProjectsUseCase } from '../../../usecases/project/find-owned-projects.usecase';
 import { FindGroupProjectsUseCase } from '../../../usecases/project/find-group-projects.usecase';
+import { ChangeProjectGroupUseCase } from '../../../usecases/project/change-project-group.usecase';
+import { DeleteHiddenGroupUseCase } from '../../../usecases/group/delete-hidden-group.usecase';
+import { SetProjectHiddenGroupUseCase } from '../../../usecases/project/set-project-hidden-group.usecase';
 
 @Module({
   imports: [
@@ -37,7 +40,11 @@ export class UseCasesProxyProjectModule {
   static FIND_OWNED_PROJECTS_USE_CASES_PROXY = 'findOwnedProjectsUseCaseProxy';
   static FIND_GROUP_PROJECTS_USE_CASES_PROXY = 'findGroupProjectsUseCaseProxy';
   static DELETE_PROJECT_USE_CASES_PROXY = 'deleteProjectUseCaseProxy';
+  static SET_PROJECT_HIDDEN_GROUP_USE_CASES_PROXY =
+    'setProjectHiddenGroupUseCaseProxy';
   static UPDATE_PROJECT_USE_CASES_PROXY = 'updateProjectUseCaseProxy';
+  static CHANGE_PROJECT_GROUP_USE_CASES_PROXY =
+    'changeProjectGroupUseCaseProxy';
   static INITIALISED_PROJECT_USE_CASES_PROXY = 'initialisedProjectUseCaseProxy';
   static READ_PROJECT_USE_CASES_PROXY = 'readProjectUseCaseProxy';
 
@@ -105,6 +112,21 @@ export class UseCasesProxyProjectModule {
             new UseCaseProxy(new UpdateProjectUseCase(projects)),
         },
         {
+          inject: [
+            TypeormProjectsRepository,
+            UseCasesProxyGroupModule.DELETE_HIDDEN_GROUP_USE_CASES_PROXY,
+          ],
+          provide:
+            UseCasesProxyProjectModule.CHANGE_PROJECT_GROUP_USE_CASES_PROXY,
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            deleteHiddenGroup: UseCaseProxy<DeleteHiddenGroupUseCase>,
+          ) =>
+            new UseCaseProxy(
+              new ChangeProjectGroupUseCase(projects, deleteHiddenGroup),
+            ),
+        },
+        {
           inject: [TypeormProjectsRepository],
           provide:
             UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY,
@@ -117,6 +139,21 @@ export class UseCasesProxyProjectModule {
           useFactory: (codeWriter: CodeWriter) =>
             new UseCaseProxy(new ReadProjectUseCase(codeWriter)),
         },
+        {
+          inject: [
+            TypeormProjectsRepository,
+            UseCasesProxyGroupModule.CREATE_GROUP_USE_CASES_PROXY,
+          ],
+          provide:
+            UseCasesProxyProjectModule.SET_PROJECT_HIDDEN_GROUP_USE_CASES_PROXY,
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            createGroup: UseCaseProxy<CreateGroupUseCase>,
+          ) =>
+            new UseCaseProxy(
+              new SetProjectHiddenGroupUseCase(projects, createGroup),
+            ),
+        },
       ],
       exports: [
         UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
@@ -125,6 +162,8 @@ export class UseCasesProxyProjectModule {
         UseCasesProxyProjectModule.FIND_GROUP_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.SET_PROJECT_HIDDEN_GROUP_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.CHANGE_PROJECT_GROUP_USE_CASES_PROXY,
         UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY,
       ],
