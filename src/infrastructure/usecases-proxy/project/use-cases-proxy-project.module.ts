@@ -24,6 +24,8 @@ import { DeleteHiddenGroupUseCase } from '../../../usecases/group/delete-hidden-
 import { SetProjectHiddenGroupUseCase } from '../../../usecases/project/set-project-hidden-group.usecase';
 import { FindMemberVisibleProjectUseCase } from '../../../usecases/project/find-visible-projects.usecase';
 import { SearchUserProjectsUseCase } from '../../../usecases/project/search-user-projects.usecase';
+import { ReadTreeStructureProjectUseCase } from '../../../usecases/project/read-tree-structure-project.usecase';
+import { GetProjectFileContentUseCase } from 'src/usecases/project/get-project-file-content.usecase';
 
 @Module({
   imports: [
@@ -51,6 +53,9 @@ export class UseCasesProxyProjectModule {
     'changeProjectGroupUseCaseProxy';
   static INITIALISED_PROJECT_USE_CASES_PROXY = 'initialisedProjectUseCaseProxy';
   static READ_PROJECT_USE_CASES_PROXY = 'readProjectUseCaseProxy';
+  static READ_TREE_STRUCTURE_PROJECT_USE_CASES_PROXY =
+    'readTreeStructureProjectUseCaseProxy';
+  static READ_PROJECT_FILE_USE_CASES_PROXY = 'readProjectFileUseCaseProxy';
   static SEARCH_USER_PROJECTS_USE_CASES_PROXY =
     'searchUserProjectsUseCaseProxy';
 
@@ -146,6 +151,19 @@ export class UseCasesProxyProjectModule {
             new UseCaseProxy(new ReadProjectUseCase(codeWriter)),
         },
         {
+          inject: [CodeWriter],
+          provide:
+            UseCasesProxyProjectModule.READ_TREE_STRUCTURE_PROJECT_USE_CASES_PROXY,
+          useFactory: (codeWriter: CodeWriter) =>
+            new UseCaseProxy(new ReadTreeStructureProjectUseCase(codeWriter)),
+        },
+        {
+          inject: [CodeWriter],
+          provide: UseCasesProxyProjectModule.READ_PROJECT_FILE_USE_CASES_PROXY,
+          useFactory: (codeWriter: CodeWriter) =>
+            new UseCaseProxy(new GetProjectFileContentUseCase(codeWriter)),
+        },
+        {
           inject: [
             TypeormProjectsRepository,
             UseCasesProxyGroupModule.CREATE_GROUP_USE_CASES_PROXY,
@@ -187,7 +205,9 @@ export class UseCasesProxyProjectModule {
         UseCasesProxyProjectModule.CHANGE_PROJECT_GROUP_USE_CASES_PROXY,
         UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.READ_TREE_STRUCTURE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.SEARCH_USER_PROJECTS_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.READ_PROJECT_FILE_USE_CASES_PROXY,
       ],
     };
   }

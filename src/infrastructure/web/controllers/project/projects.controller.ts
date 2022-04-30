@@ -35,6 +35,8 @@ import { FindGroupProjectsUseCase } from '../../../../usecases/project/find-grou
 import { ChangeProjectGroupUseCase } from '../../../../usecases/project/change-project-group.usecase';
 import { FindMemberVisibleProjectUseCase } from '../../../../usecases/project/find-visible-projects.usecase';
 import { SearchUserProjectsUseCase } from '../../../../usecases/project/search-user-projects.usecase';
+import { ReadTreeStructureProjectUseCase } from '../../../../usecases/project/read-tree-structure-project.usecase';
+import { GetProjectFileContentUseCase } from '../../../../usecases/project/get-project-file-content.usecase';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -59,11 +61,17 @@ export class ProjectsController {
     @Inject(UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY)
     private readonly read: UseCaseProxy<ReadProjectUseCase>,
     @Inject(
+      UseCasesProxyProjectModule.READ_TREE_STRUCTURE_PROJECT_USE_CASES_PROXY,
+    )
+    private readonly readV2: UseCaseProxy<ReadTreeStructureProjectUseCase>,
+    @Inject(
       UseCasesProxyProjectModule.FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY,
     )
     private readonly findVisibleProjects: UseCaseProxy<FindMemberVisibleProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.SEARCH_USER_PROJECTS_USE_CASES_PROXY)
     private readonly searchByName: UseCaseProxy<SearchUserProjectsUseCase>,
+    @Inject(UseCasesProxyProjectModule.READ_PROJECT_FILE_USE_CASES_PROXY)
+    private readonly getProjectFileContent: UseCaseProxy<GetProjectFileContentUseCase>,
   ) {}
 
   @Post()
@@ -166,6 +174,25 @@ export class ProjectsController {
     appFiles: { [key: string]: Folder };
   }> {
     return await this.read.getInstance().readProject(projectId);
+  }
+
+  @Get('/:projectId/read/v2')
+  @UseGuards(AuthGuard)
+  async getProjectV2(@Param('projectId') projectId: string): Promise<{
+    appFiles: { [key: string]: Folder };
+  }> {
+    return await this.readV2.getInstance().readProject(projectId);
+  }
+
+  @Get('/:projectId/read/file')
+  @UseGuards(AuthGuard)
+  async getFileProjectContent(
+    @Param('projectId') projectId: string,
+    @Query('path') path: string,
+  ): Promise<{ content: string }> {
+    return await this.getProjectFileContent
+      .getInstance()
+      .readFile(projectId, path);
   }
 
   @Get('/:userId/projects')
