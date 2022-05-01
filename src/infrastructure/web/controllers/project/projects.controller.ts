@@ -182,9 +182,9 @@ export class ProjectsController {
     return this.removeFromGroup.getInstance().removeProjectFromGroup(projectId);
   }
 
-  @Patch('/:id/initialised')
-  initialisedProject(@Param('id') id: string): Promise<void> {
-    return this.initialised.getInstance().initialisedProjectStatusById(id);
+  @Patch('/:uniqueName/initialised')
+  initialisedProject(@Param('uniqueName') uniqueName: string): Promise<void> {
+    return this.initialised.getInstance().initialisedProjectStatus(uniqueName);
   }
 
   @Patch('/:id/:groupId')

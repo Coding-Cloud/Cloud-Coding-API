@@ -69,11 +69,16 @@ export class TypeormProjectsRepository implements Projects {
     }
   }
 
-  async initialisedProjectById(id: string): Promise<void> {
+  async initialisedProject(uniqueName: string): Promise<void> {
     try {
-      await this.projectEntityRepository.update(id, {
-        status: ProjectStatus.INACTIVE,
-      });
+      await this.projectEntityRepository
+        .createQueryBuilder()
+        .update()
+        .set({
+          status: ProjectStatus.INACTIVE,
+        })
+        .where('ProjectEntity.uniqueName=:uniqueName', { uniqueName })
+        .execute();
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();

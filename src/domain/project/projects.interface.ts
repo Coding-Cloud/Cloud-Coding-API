@@ -22,7 +22,7 @@ export interface Projects {
     name?: string;
   }): Promise<Project>;
 
-  initialisedProjectById(id: string): Promise<void>;
+  initialisedProject(uniqueName: string): Promise<void>;
 
   deleteProject(id: string): Promise<void>;
 
