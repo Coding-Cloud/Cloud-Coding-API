@@ -8,17 +8,17 @@ export class HelmBridgeApi implements CodeRunnerApi {
   constructor(private httpService: HttpService) {}
 
   startCodeRunner(
-    id: string,
+    uniqueName: string,
     language: ProjectLanguage,
   ): Observable<AxiosResponse<void>> {
     return this.httpService.post(
-      `${process.env.HELM_BRIDGE_URL}/runners/${id}/${language}`,
+      `${process.env.HELM_BRIDGE_URL}/runners/${uniqueName}/${language}`,
     );
   }
 
-  stopCodeRunner(id: string): Observable<AxiosResponse<void>> {
+  stopCodeRunner(uniqueName: string): Observable<AxiosResponse<void>> {
     return this.httpService.delete(
-      `${process.env.HELM_BRIDGE_URL}/runners/${id}`,
+      `${process.env.HELM_BRIDGE_URL}/runners/${uniqueName}`,
     );
   }
 }

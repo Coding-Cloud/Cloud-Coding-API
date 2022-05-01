@@ -17,6 +17,13 @@ export class ProjectEntity {
   @Column({ nullable: false })
   name: string;
 
+  @Column({
+    nullable: false,
+    unique: true,
+    update: false,
+  })
+  uniqueName: string;
+
   @Column({ nullable: false, default: 1 })
   lastVersion: number;
 

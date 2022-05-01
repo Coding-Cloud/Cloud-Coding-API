@@ -26,7 +26,7 @@ export class TypeormProjectsRepository implements Projects {
 
   async createProject(
     projectCandidate: CreateProjectCandidate,
-  ): Promise<string> {
+  ): Promise<Project> {
     try {
       const creationProject = this.projectEntityRepository.create({
         ...projectCandidate,
@@ -38,7 +38,7 @@ export class TypeormProjectsRepository implements Projects {
       const projectEntity = await this.projectEntityRepository.save(
         creationProjectEntity,
       );
-      return projectEntity.id;
+      return ProjectAdapter.toProject(projectEntity);
     } catch (error) {
       Logger.error(error);
       if (error.code === '23505') {

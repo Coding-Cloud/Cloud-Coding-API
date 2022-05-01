@@ -3,7 +3,7 @@ import { CreateProjectCandidate } from '../../usecases/project/candidates/create
 import { UpdateProjectCandidate } from '../../usecases/project/candidates/update-project.candidate';
 
 export interface Projects {
-  createProject(projectCandidate: CreateProjectCandidate): Promise<string>;
+  createProject(projectCandidate: CreateProjectCandidate): Promise<Project>;
 
   updateProjectById(
     id: string,

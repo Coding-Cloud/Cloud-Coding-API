@@ -4,9 +4,9 @@ import { AxiosResponse } from 'axios';
 
 export abstract class CodeRunnerApi {
   abstract startCodeRunner(
-    id: string,
+    uniqueName: string,
     language: ProjectLanguage,
   ): Observable<AxiosResponse<void>>;
 
-  abstract stopCodeRunner(id: string): Observable<AxiosResponse<void>>;
+  abstract stopCodeRunner(uniqueName: string): Observable<AxiosResponse<void>>;
 }
