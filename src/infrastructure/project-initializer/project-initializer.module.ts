@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ProjectInitialiserApi } from './project-initialiser.abstract';
+import { ProjectInitializerApi } from './project-initializer.abstract';
 import { HelmBridgeApi } from './helm-bridge-api';
 import { HttpModule, HttpService } from '@nestjs/axios';
 
@@ -8,10 +8,10 @@ import { HttpModule, HttpService } from '@nestjs/axios';
   providers: [
     {
       inject: [HttpService],
-      provide: ProjectInitialiserApi,
+      provide: ProjectInitializerApi,
       useFactory: (httpService: HttpService) => new HelmBridgeApi(httpService),
     },
   ],
-  exports: [ProjectInitialiserApi],
+  exports: [ProjectInitializerApi],
 })
-export class ProjectInitialiserModule {}
+export class ProjectInitializerModule {}

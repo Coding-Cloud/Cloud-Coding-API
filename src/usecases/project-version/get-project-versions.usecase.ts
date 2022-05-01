@@ -8,9 +8,11 @@ export class GetProjectVersionsUseCase {
     private readonly projectVersioningApi: ProjectVersioningApi,
   ) {}
 
-  async getProjectVersions(id: string): Promise<string[]> {
+  async getProjectVersions(uniqueName: string): Promise<string[]> {
     return (
-      await firstValueFrom(this.projectVersioningApi.getProjectVersions(id))
+      await firstValueFrom(
+        this.projectVersioningApi.getProjectVersions(uniqueName),
+      )
     ).data;
   }
 }

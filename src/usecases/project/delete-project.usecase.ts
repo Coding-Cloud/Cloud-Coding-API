@@ -1,19 +1,25 @@
 import { Projects } from '../../domain/project/projects.interface';
-import { ProjectInitialiserApi } from '../../infrastructure/project-initialiser/project-initialiser.abstract';
+import { ProjectInitializerApi } from '../../infrastructure/project-initializer/project-initializer.abstract';
 import { Logger } from '@nestjs/common';
 
 export class DeleteProjectUseCase {
   constructor(
     private readonly projects: Projects,
-    private readonly projectInitialiserApi: ProjectInitialiserApi,
+    private readonly projectInitializerApi: ProjectInitializerApi,
   ) {}
 
   async deleteProject(id: string): Promise<void> {
+    const project = await this.projects.findBy({ id });
     await this.projects.deleteProject(id);
-    const subscription = this.projectInitialiserApi
-      .deleteProject(id)
+    this.deleteRepository(project.uniqueName);
+  }
+
+  private deleteRepository(uniqueName: string): void {
+    const subscription = this.projectInitializerApi
+      .deleteProject(uniqueName)
       .subscribe({
-        next: () => Logger.log(`Project {${id}} repository has been deleted`),
+        next: () =>
+          Logger.log(`Project {${uniqueName}} repository has been deleted`),
         error: (error) => Logger.error(error),
         complete: () => subscription.unsubscribe(),
       });
