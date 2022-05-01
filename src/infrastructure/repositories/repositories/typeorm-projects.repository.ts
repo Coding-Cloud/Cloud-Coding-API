@@ -77,7 +77,7 @@ export class TypeormProjectsRepository implements Projects {
         .set({
           status: ProjectStatus.INACTIVE,
         })
-        .where('ProjectEntity.uniqueName=:uniqueName', { uniqueName })
+        .where('uniqueName=:uniqueName', { uniqueName })
         .execute();
     } catch (error) {
       Logger.error(error);
