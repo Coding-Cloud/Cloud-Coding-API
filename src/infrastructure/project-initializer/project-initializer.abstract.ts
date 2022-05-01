@@ -4,7 +4,7 @@ import { AxiosResponse } from 'axios';
 
 export abstract class ProjectInitializerApi {
   abstract initialiseProject(
-    id: string,
+    uniqueName: string,
     language: ProjectLanguage,
   ): Observable<AxiosResponse<void>>;
 
