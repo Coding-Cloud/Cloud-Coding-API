@@ -123,14 +123,23 @@ export class ProjectsController {
   @Get('/:id')
   @UseGuards(AuthGuard)
   findProjectById(@Param('id') id: string): Promise<Project> {
-    return this.findProject.getInstance().findProjectById(id);
+    return this.findProject.getInstance().findProjectBy({ id });
+  }
+
+  @Get('/unique-name/:uniqueName')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get by unique name' })
+  findProjectByUniqueName(
+    @Param('uniqueName') uniqueName: string,
+  ): Promise<Project> {
+    return this.findProject.getInstance().findProjectBy({ uniqueName });
   }
 
   @Get('/:id/name')
   @UseGuards(AuthGuard)
   async findProjectNameById(@Param('id') id: string): Promise<ProjectNameDto> {
     return {
-      name: (await this.findProject.getInstance().findProjectById(id)).name,
+      name: (await this.findProject.getInstance().findProjectBy({ id })).name,
     };
   }
 

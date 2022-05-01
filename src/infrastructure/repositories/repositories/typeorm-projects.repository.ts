@@ -88,16 +88,19 @@ export class TypeormProjectsRepository implements Projects {
   async findBy(props: {
     id?: string;
     userId?: string;
+    uniqueName?: string;
     name?: string;
   }): Promise<Project> {
-    const { id, userId, name } = props;
+    const { id, userId, uniqueName, name } = props;
     try {
       const projectEntity = await this.projectEntityRepository
         .createQueryBuilder()
         .where('ProjectEntity.id=:id', { id })
         .orWhere('ProjectEntity.name=:name', { name })
+        .orWhere('ProjectEntity.uniqueName=:uniqueName', { uniqueName })
         .orWhere('ProjectEntity.creatorId=:userId', { userId })
-        .getOne();
+        .getOneOrFail();
+
       return ProjectAdapter.toProject(projectEntity);
     } catch (error) {
       Logger.error(error);
