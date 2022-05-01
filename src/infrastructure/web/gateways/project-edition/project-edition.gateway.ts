@@ -26,6 +26,7 @@ import { DeleteFolderDTO } from './dto/delete-folder.dto';
 import { DeleteFolderResource } from './resource/delete-folder.dto';
 import * as chokidar from 'chokidar';
 import * as fs from 'fs/promises';
+import { disconnectingProjectTimeout } from './ram-disconnecting-project/disconnecting-project-timeout';
 
 @WebSocketGateway()
 export class ProjectEditionGateway implements OnGatewayConnection {
@@ -59,6 +60,10 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     try {
       const projectId = client.handshake.query.projectId as string;
       client.join(projectId);
+      if (disconnectingProjectTimeout.has(projectId)) {
+        clearTimeout(disconnectingProjectTimeout.get(projectId));
+        disconnectingProjectTimeout.delete(projectId);
+      }
       console.log(projectId);
       await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
@@ -80,7 +85,10 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       client.on('disconnecting', () => {
         client.rooms.forEach(async (room) => {
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
-            await this.stopProject.getInstance().stopProjectRunner(projectId);
+            const timeOut = setTimeout(async () => {
+              await this.stopProject.getInstance().stopProjectRunner(projectId);
+            }, 500_000);
+            disconnectingProjectTimeout.set(room, timeOut);
           }
         });
       });
