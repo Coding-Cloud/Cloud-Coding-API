@@ -2,18 +2,27 @@ import { CodeWriter } from 'src/domain/code-writer.abstract';
 import * as fs from 'fs/promises';
 import * as fsSync from 'fs';
 import * as rimraf from 'rimraf';
+import { IMAGE_EXTENSION } from './image-extension';
+import { EncodeContentFile } from './encode-content-file.interface';
 
 export class FileCodeWriter implements CodeWriter {
+  constructor(private encodeContentFile: EncodeContentFile) {}
   async readFile(path: string): Promise<string> {
-    try {
-      return await fs.readFile(path, { encoding: 'utf-8' });
-    } catch (error) {}
+    if (IMAGE_EXTENSION.includes(this.getFileType(path))) {
+      try {
+        return await this.encodeContentFile.encode(path);
+      } catch (error) {}
+    } else {
+      try {
+        return await fs.readFile(path, { encoding: 'utf-8' });
+      } catch (error) {}
+    }
   }
   async writeInFile(
     path: string,
     modifications: { content: string; lineNumber: number }[],
   ): Promise<void> {
-    if(modifications.length === 0) return;
+    if (modifications.length === 0) return;
     const fileContent = await fs.readFile(path, { encoding: 'utf-8' });
     const fileArray = fileContent.split('\n');
     modifications.forEach((modification) => {
@@ -42,5 +51,9 @@ export class FileCodeWriter implements CodeWriter {
   }
   verifyFileExist(path: string): boolean {
     return fsSync.existsSync(path);
+  }
+
+  private getFileType(path: string) {
+    return path.split('/').pop()?.split('.').pop();
   }
 }

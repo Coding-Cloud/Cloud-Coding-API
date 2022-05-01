@@ -2,12 +2,7 @@ import { CodeWriter } from 'src/domain/code-writer.abstract';
 import { NotFoundException } from '@nestjs/common';
 
 export class GetProjectFileContentUseCase {
-  private FILES_NOT_INCLUDE = [
-    'favicon.ico',
-    '.angular',
-    '.git',
-    'node_modules',
-  ];
+  private FILES_NOT_INCLUDE = ['.angular', '.git', 'node_modules'];
 
   constructor(private readonly codeWriter: CodeWriter) {}
 
@@ -16,7 +11,6 @@ export class GetProjectFileContentUseCase {
     path: string,
   ): Promise<{ content: string }> {
     try {
-      console.log(`${process.env.BASE_PATH_PROJECT}/${projectId}/${path}`);
       const fileContent = await this.codeWriter.readFile(
         `${process.env.BASE_PATH_PROJECT}/${projectId}/${path}`,
       );
