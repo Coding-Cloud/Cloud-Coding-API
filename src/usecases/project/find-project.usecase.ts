@@ -9,8 +9,11 @@ export class FindProjectUseCase {
     private readonly codeWriter: CodeWriter,
   ) {}
 
-  async findProjectById(id: string): Promise<Project> {
-    const project = await this.projects.findBy({ id });
+  async findProjectBy(data: {
+    id?: string;
+    uniqueName?: string;
+  }): Promise<Project> {
+    const project = await this.projects.findBy(data);
     if (
       process.env.VERIF_REPO_PROJECT &&
       !this.codeWriter.verifyFileExist(

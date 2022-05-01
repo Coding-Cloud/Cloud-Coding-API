@@ -20,6 +20,7 @@ export interface Projects {
     id?: string;
     userId?: string;
     name?: string;
+    uniqueName?: string;
   }): Promise<Project>;
 
   initialisedProject(uniqueName: string): Promise<void>;
