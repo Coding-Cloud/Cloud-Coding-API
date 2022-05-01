@@ -59,6 +59,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     try {
       const projectId = client.handshake.query.projectId as string;
       client.join(projectId);
+      console.log(projectId);
       await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
@@ -99,6 +100,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody('project') editsProjectDTO: EditProjectDTO[],
   ): Promise<void> {
+    console.log('ça marche pas');
+
     const editsProject: EditProject[] = editsProjectDTO.map(
       (editProjectDTO) => ({
         ...editProjectDTO,

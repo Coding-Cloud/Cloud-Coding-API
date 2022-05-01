@@ -57,20 +57,20 @@ export class TypeormUsersRepository implements Users {
     const { id, username, email } = props;
     if (id) {
       const userEntity = await this.userEntityRepository.findOne(id);
-      return UserAdapter.toUser(userEntity);
+      return userEntity ? UserAdapter.toUser(userEntity) : null;
     }
     if (username) {
       const userEntity = await this.userEntityRepository.findOne({
         where: { username },
       });
-      return UserAdapter.toUser(userEntity);
+      return userEntity ? UserAdapter.toUser(userEntity) : null;
     }
 
     if (email) {
       const userEntity = await this.userEntityRepository.findOne({
         where: { email },
       });
-      return UserAdapter.toUser(userEntity);
+      return userEntity ? UserAdapter.toUser(userEntity) : null;
     }
   }
 
