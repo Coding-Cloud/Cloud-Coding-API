@@ -12,21 +12,23 @@ export class AddProjectVersionUseCase {
   async addProjectVersion(addProjectVersion: AddProjectVersion): Promise<void> {
     const project = await this.projects.findBy({ id: addProjectVersion.id });
 
-    const lastVersion = (project.lastVersion += 1);
+    const lastVersion = project.lastVersion + 1;
     const subscription = this.projectVersioningApi
       .addProjectVersion({
-        id: addProjectVersion.id,
+        projectUniqueName: project.uniqueName,
         title: addProjectVersion.title,
         version: lastVersion,
       })
       .subscribe({
         next: () =>
           Logger.log(
-            `Project {${addProjectVersion.id}} added new version {${project.lastVersion}}`,
+            `Project {${project.uniqueName}} added new version {${project.lastVersion}}`,
           ),
         error: (error) => Logger.error(error),
         complete: () => subscription.unsubscribe(),
       });
-    await this.projects.updateProjectById(addProjectVersion.id, project);
+    await this.projects.updateProjectById(addProjectVersion.id, {
+      lastVersion,
+    });
   }
 }

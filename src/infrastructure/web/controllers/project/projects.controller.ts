@@ -37,6 +37,7 @@ import { FindMemberVisibleProjectUseCase } from '../../../../usecases/project/fi
 import { SearchUserProjectsUseCase } from '../../../../usecases/project/search-user-projects.usecase';
 import { ReadTreeStructureProjectUseCase } from '../../../../usecases/project/read-tree-structure-project.usecase';
 import { GetProjectFileContentUseCase } from '../../../../usecases/project/get-project-file-content.usecase';
+import { RemoveProjectFromGroupUseCase } from '../../../../usecases/project/remove-project-from-group.usecase';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -58,6 +59,10 @@ export class ProjectsController {
     private readonly update: UseCaseProxy<UpdateProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.INITIALISED_PROJECT_USE_CASES_PROXY)
     private readonly initialised: UseCaseProxy<InitialisedProjectUseCase>,
+    @Inject(
+      UseCasesProxyProjectModule.REMOVE_PROJECT_FROM_GROUP_USE_CASES_PROXY,
+    )
+    private readonly removeFromGroup: UseCaseProxy<RemoveProjectFromGroupUseCase>,
     @Inject(UseCasesProxyProjectModule.READ_PROJECT_USE_CASES_PROXY)
     private readonly read: UseCaseProxy<ReadProjectUseCase>,
     @Inject(
@@ -129,10 +134,52 @@ export class ProjectsController {
     };
   }
 
+  @Get('/:projectId/read')
+  @UseGuards(AuthGuard)
+  async getProject(@Param('projectId') projectId: string): Promise<{
+    appFiles: { [key: string]: Folder };
+  }> {
+    return await this.read.getInstance().readProject(projectId);
+  }
+
+  @Get('/:projectId/read/v2')
+  @UseGuards(AuthGuard)
+  async getProjectV2(@Param('projectId') projectId: string): Promise<{
+    appFiles: { [key: string]: Folder };
+  }> {
+    return await this.readV2.getInstance().readProject(projectId);
+  }
+
+  @Get('/:projectId/read/file')
+  @UseGuards(AuthGuard)
+  async getFileProjectContent(
+    @Param('projectId') projectId: string,
+    @Query('path') path: string,
+  ): Promise<{ content: string }> {
+    return await this.getProjectFileContent
+      .getInstance()
+      .readFile(projectId, path);
+  }
+
+  @Get('/:userId/projects')
+  @UseGuards(AuthGuard)
+  async getProjects(@Param('userId') userId: string): Promise<Project[]> {
+    return this.findVisibleProjects.getInstance().findVisibleProjects(userId);
+  }
+
   @Delete('/:id')
   @UseGuards(AuthGuard)
   delete(@Param('id') id: string): Promise<void> {
     return this.deleteProject.getInstance().deleteProject(id);
+  }
+
+  @Patch('/:projectId/remove-group')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Remove project from group' })
+  async removeProjectFromGroup(
+    @Param('projectId') projectId: string,
+  ): Promise<void> {
+    return this.removeFromGroup.getInstance().removeProjectFromGroup(projectId);
   }
 
   @Patch('/:id/initialised')
@@ -166,38 +213,5 @@ export class ProjectsController {
     return this.update
       .getInstance()
       .updateProjectStatusById(id, projectCandidate);
-  }
-
-  @Get('/:projectId/read')
-  @UseGuards(AuthGuard)
-  async getProject(@Param('projectId') projectId: string): Promise<{
-    appFiles: { [key: string]: Folder };
-  }> {
-    return await this.read.getInstance().readProject(projectId);
-  }
-
-  @Get('/:projectId/read/v2')
-  @UseGuards(AuthGuard)
-  async getProjectV2(@Param('projectId') projectId: string): Promise<{
-    appFiles: { [key: string]: Folder };
-  }> {
-    return await this.readV2.getInstance().readProject(projectId);
-  }
-
-  @Get('/:projectId/read/file')
-  @UseGuards(AuthGuard)
-  async getFileProjectContent(
-    @Param('projectId') projectId: string,
-    @Query('path') path: string,
-  ): Promise<{ content: string }> {
-    return await this.getProjectFileContent
-      .getInstance()
-      .readFile(projectId, path);
-  }
-
-  @Get('/:userId/projects')
-  @UseGuards(AuthGuard)
-  async getProjects(@Param('userId') userId: string): Promise<Project[]> {
-    return this.findVisibleProjects.getInstance().findVisibleProjects(userId);
   }
 }

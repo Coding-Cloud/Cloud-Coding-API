@@ -1,5 +1,5 @@
 export interface AddProjectVersionDTO {
-  id: string;
+  projectUniqueName: string;
   version: number;
   title: string;
 }

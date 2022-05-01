@@ -6,9 +6,9 @@ import { CreateProjectUseCase } from '../../../usecases/project/create-project.u
 import { UpdateProjectUseCase } from '../../../usecases/project/update-project.usecase';
 import { DeleteProjectUseCase } from '../../../usecases/project/delete-project.usecase';
 import { InitialisedProjectUseCase } from '../../../usecases/project/initialised-project.usecase';
-import { ProjectInitialiserModule } from '../../project-initialiser/project-initialiser.module';
+import { ProjectInitializerModule } from '../../project-initializer/project-initializer.module';
 import { CodeRunnerModule } from '../../code-runner/code-runner.module';
-import { ProjectInitialiserApi } from '../../project-initialiser/project-initialiser.abstract';
+import { ProjectInitializerApi } from '../../project-initializer/project-initializer.abstract';
 import { HttpModule } from '@nestjs/axios';
 import { ProjectVersioningModule } from '../../project-versioning/project-versioning.module';
 import { CodeWriterModule } from 'src/infrastructure/code-writer/code-writer.module';
@@ -26,14 +26,18 @@ import { FindMemberVisibleProjectUseCase } from '../../../usecases/project/find-
 import { SearchUserProjectsUseCase } from '../../../usecases/project/search-user-projects.usecase';
 import { ReadTreeStructureProjectUseCase } from '../../../usecases/project/read-tree-structure-project.usecase';
 import { GetProjectFileContentUseCase } from 'src/usecases/project/get-project-file-content.usecase';
+import { RemoveProjectFromGroupUseCase } from '../../../usecases/project/remove-project-from-group.usecase';
+import { NameGeneratorModule } from '../../name-generator/name-generator.module';
+import { NameGenerator } from '../../../domain/name-generator.interface';
 
 @Module({
   imports: [
     RepositoriesModule,
-    ProjectInitialiserModule,
+    ProjectInitializerModule,
     ProjectVersioningModule,
     CodeRunnerModule,
     HttpModule,
+    NameGeneratorModule,
     CodeWriterModule,
     UseCasesProxyGroupModule.register(),
   ],
@@ -45,6 +49,8 @@ export class UseCasesProxyProjectModule {
   static FIND_GROUP_PROJECTS_USE_CASES_PROXY = 'findGroupProjectsUseCaseProxy';
   static FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY =
     'findMemberVisibleProjectsUseCaseProxy';
+  static REMOVE_PROJECT_FROM_GROUP_USE_CASES_PROXY =
+    'removeProjectFromGroupUseCaseProxy';
   static DELETE_PROJECT_USE_CASES_PROXY = 'deleteProjectUseCaseProxy';
   static SET_PROJECT_HIDDEN_GROUP_USE_CASES_PROXY =
     'setProjectHiddenGroupUseCaseProxy';
@@ -66,19 +72,22 @@ export class UseCasesProxyProjectModule {
         {
           inject: [
             TypeormProjectsRepository,
-            ProjectInitialiserApi,
+            NameGenerator,
+            ProjectInitializerApi,
             UseCasesProxyGroupModule.CREATE_GROUP_USE_CASES_PROXY,
           ],
           provide: UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
           useFactory: (
             projects: TypeormProjectsRepository,
-            projectInitialiserApi: ProjectInitialiserApi,
+            nameGenerator: NameGenerator,
+            projectInitializerApi: ProjectInitializerApi,
             createGroup: UseCaseProxy<CreateGroupUseCase>,
           ) =>
             new UseCaseProxy(
               new CreateProjectUseCase(
                 projects,
-                projectInitialiserApi,
+                nameGenerator,
+                projectInitializerApi,
                 createGroup,
               ),
             ),
@@ -106,14 +115,14 @@ export class UseCasesProxyProjectModule {
             new UseCaseProxy(new FindGroupProjectsUseCase(projects)),
         },
         {
-          inject: [TypeormProjectsRepository, ProjectInitialiserApi],
+          inject: [TypeormProjectsRepository, ProjectInitializerApi],
           provide: UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
           useFactory: (
             projects: TypeormProjectsRepository,
-            projectInitialiserApi: ProjectInitialiserApi,
+            projectInitializerApi: ProjectInitializerApi,
           ) =>
             new UseCaseProxy(
-              new DeleteProjectUseCase(projects, projectInitialiserApi),
+              new DeleteProjectUseCase(projects, projectInitializerApi),
             ),
         },
         {
@@ -179,6 +188,21 @@ export class UseCasesProxyProjectModule {
             ),
         },
         {
+          inject: [
+            TypeormProjectsRepository,
+            UseCasesProxyGroupModule.CREATE_GROUP_USE_CASES_PROXY,
+          ],
+          provide:
+            UseCasesProxyProjectModule.REMOVE_PROJECT_FROM_GROUP_USE_CASES_PROXY,
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            createGroup: UseCaseProxy<CreateGroupUseCase>,
+          ) =>
+            new UseCaseProxy(
+              new RemoveProjectFromGroupUseCase(projects, createGroup),
+            ),
+        },
+        {
           inject: [TypeormProjectsRepository],
           provide:
             UseCasesProxyProjectModule.FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY,
@@ -200,6 +224,7 @@ export class UseCasesProxyProjectModule {
         UseCasesProxyProjectModule.FIND_GROUP_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.REMOVE_PROJECT_FROM_GROUP_USE_CASES_PROXY,
         UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.SET_PROJECT_HIDDEN_GROUP_USE_CASES_PROXY,
         UseCasesProxyProjectModule.CHANGE_PROJECT_GROUP_USE_CASES_PROXY,

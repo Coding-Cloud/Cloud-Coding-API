@@ -6,6 +6,7 @@ export default class ProjectAdapter {
     const {
       id,
       name,
+      uniqueName,
       lastVersion,
       language,
       status,
@@ -17,6 +18,7 @@ export default class ProjectAdapter {
     return {
       id,
       name,
+      uniqueName,
       lastVersion,
       language,
       status,

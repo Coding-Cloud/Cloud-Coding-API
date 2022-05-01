@@ -12,7 +12,7 @@ export class HelmBridgeApi implements ProjectVersioningApi {
     addProjectVersionDTO: AddProjectVersionDTO,
   ): Observable<AxiosResponse<void>> {
     return this.httpService.post(
-      `${process.env.HELM_BRIDGE_URL}/versions/${addProjectVersionDTO.id}`,
+      `${process.env.HELM_BRIDGE_URL}/versions/${addProjectVersionDTO.projectUniqueName}`,
       {
         title: addProjectVersionDTO.title,
         version: addProjectVersionDTO.version,
@@ -20,18 +20,20 @@ export class HelmBridgeApi implements ProjectVersioningApi {
     );
   }
 
-  getProjectVersions(id: string): Observable<AxiosResponse<string[]>> {
+  getProjectVersions(
+    projectUniqueName: string,
+  ): Observable<AxiosResponse<string[]>> {
     return this.httpService.get(
-      `${process.env.HELM_BRIDGE_URL}/versions/${id}`,
+      `${process.env.HELM_BRIDGE_URL}/versions/${projectUniqueName}`,
     );
   }
 
   rollbackProjectVersion(
-    id: string,
+    projectUniqueName: string,
     versions: number,
   ): Observable<AxiosResponse<void>> {
     return this.httpService.patch(
-      `${process.env.HELM_BRIDGE_URL}/versions/${id}/${versions}`,
+      `${process.env.HELM_BRIDGE_URL}/versions/${projectUniqueName}/${versions}`,
     );
   }
 }
