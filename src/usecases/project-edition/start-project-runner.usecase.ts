@@ -10,11 +10,11 @@ export class StartProjectRunnerUseCase {
     private readonly codeRunnerApi: CodeRunnerApi,
   ) {}
 
-  async startProjectRunner(id: string): Promise<void> {
-    const project = await this.projects.findBy({ id });
+  async startProjectRunner(uniqueName: string): Promise<void> {
+    const project = await this.projects.findBy({ uniqueName });
     if (project.status === ProjectStatus.INACTIVE) {
       this.startCodeRunner(project.uniqueName, project.language);
-      await this.projects.updateProjectById(id, {
+      await this.projects.updateProjectById(project.id, {
         status: ProjectStatus.RUNNING,
       });
     }

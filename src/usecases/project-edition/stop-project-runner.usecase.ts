@@ -9,12 +9,12 @@ export class StopProjectRunnerUseCase {
     private readonly codeRunnerApi: CodeRunnerApi,
   ) {}
 
-  async stopProjectRunner(id: string): Promise<void> {
-    const project = await this.projects.findBy({ id });
+  async stopProjectRunner(uniqueName: string): Promise<void> {
+    const project = await this.projects.findBy({ uniqueName });
 
     if (project.status === ProjectStatus.RUNNING) {
       this.stopCodeRunner(project.uniqueName);
-      await this.projects.updateProjectById(id, {
+      await this.projects.updateProjectById(project.id, {
         status: ProjectStatus.INACTIVE,
       });
     }

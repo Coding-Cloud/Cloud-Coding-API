@@ -28,11 +28,14 @@ export class TypeormSessionsRepository implements Sessions {
     );
   }
 
-  async findByToken(token: string): Promise<Session> {
+  async findByToken(token: string): Promise<Session | null> {
     const sessionEntity = await this.sessionEntityRepository.findOne({
       token,
     });
-    return SessionAdapter.toSession(sessionEntity);
+
+    return sessionEntity === null
+      ? null
+      : SessionAdapter.toSession(sessionEntity);
   }
 
   async deleteByToken(token: string): Promise<void> {
