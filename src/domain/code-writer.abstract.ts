@@ -10,4 +10,5 @@ export abstract class CodeWriter {
   abstract overwriteAFile(content: string, path: string): Promise<void>;
   abstract readFile(path: string): Promise<string | undefined>;
   abstract renameFile(oldPath: string, newPath: string): Promise<void>;
+  abstract verifyFileExist(path: string): boolean;
 }

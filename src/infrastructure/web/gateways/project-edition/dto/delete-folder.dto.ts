@@ -1,4 +1,4 @@
 export class DeleteFolderDTO {
-    path: string;
-    type: 'file' | 'dir';
+  path: string;
+  type: 'file' | 'dir';
 }

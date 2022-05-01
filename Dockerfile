@@ -1,4 +1,4 @@
-FROM node:16-alpine as node-builder
+FROM amd64/node:16-alpine as node-builder
 WORKDIR /app
 COPY --chown=node:node . .
 RUN apk --no-cache --virtual build-dependencies add python3 make

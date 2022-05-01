@@ -15,6 +15,5 @@ const databaseConfig: ConnectionOptions = {
   cli: {
     migrationsDir: 'src/infrastructure/config/migrations',
   },
-  logging: 'all',
 };
 export default databaseConfig;

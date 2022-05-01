@@ -57,20 +57,20 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
   async handleConnection(client: Socket): Promise<void> {
     try {
-      console.log('connection');
       const projectId = client.handshake.query.projectId as string;
-      // pose problème pour faire du broadcast
-      //client.rooms.forEach((room) => client.leave(room));
       client.join(projectId);
-      //await this.startProject.getInstance().startProjectRunner(projectId);
-      const watcher = chokidar.watch([`${process.env.LOG_PATH_PROJECT}`], {
-        persistent: true,
-      });
+      await this.startProject.getInstance().startProjectRunner(projectId);
+      const watcher = chokidar.watch(
+        [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
+        {
+          persistent: true,
+        },
+      );
 
       // Add event listeners.
-      watcher.on('change', async (path, stats) => {
+      watcher.on('change', async () => {
         const contentLogFile = await fs.readFile(
-          `${process.env.LOG_PATH_PROJECT}/1.txt`,
+          `${process.env.LOG_PATH_PROJECT}/${projectId}.log`,
           { encoding: 'utf-8' },
         );
         client.emit('logChanged', contentLogFile);
@@ -79,8 +79,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       client.on('disconnecting', () => {
         client.rooms.forEach(async (room) => {
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
-            //await this.stopProject.getInstance().stopProjectRunner(projectId);
-            watcher.close().then(() => console.log('closed'));
+            await this.stopProject.getInstance().stopProjectRunner(projectId);
           }
         });
       });
@@ -100,7 +99,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody('project') editsProjectDTO: EditProjectDTO[],
   ): Promise<void> {
-    console.log('edit');
     const editsProject: EditProject[] = editsProjectDTO.map(
       (editProjectDTO) => ({
         ...editProjectDTO,
@@ -119,8 +117,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() renameFolderDTO: RenameFolderDTO,
   ): Promise<void> {
-    const basePath = process.env.BASE_PATH_PROJECT;
-    console.log(renameFolderDTO);
+    const basePath = `${process.env.BASE_PATH_PROJECT}/`;
 
     const renameFolder: RenameFolder = { ...renameFolderDTO };
     await this.renameFolderProject
@@ -138,8 +135,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() deleteFolderDTO: DeleteFolderDTO,
   ): Promise<void> {
-    const basePath = process.env.BASE_PATH_PROJECT;
-    console.log(deleteFolderDTO);
+    const basePath = `${process.env.BASE_PATH_PROJECT}/`;
 
     const deleteFolder: DeleteFolder = { ...deleteFolderDTO };
     await this.deleteFolderProject
@@ -154,12 +150,12 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
   private broadcastEditProject(
     event: string,
-    editPorjectDTO: EditProjectDTO[],
+    editProjectDTO: EditProjectDTO[],
     client: Socket,
   ) {
     //2 rooms ici
     client.rooms.forEach(async (room) => {
-      client.broadcast.to(room).emit(event, editPorjectDTO);
+      client.broadcast.to(room).emit(event, editProjectDTO);
     });
   }
 

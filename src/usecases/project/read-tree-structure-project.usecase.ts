@@ -3,7 +3,7 @@ import * as fs from 'fs/promises';
 import { resolve } from 'path';
 import { CodeWriter } from 'src/domain/code-writer.abstract';
 
-export class ReadProjectUseCase {
+export class ReadTreeStructureProjectUseCase {
   private FILES_NOT_INCLUDE = [
     'favicon.ico',
     '.angular',
@@ -27,15 +27,11 @@ export class ReadProjectUseCase {
       project.appFiles[file.res] = {
         name: file.name,
         type: file.type,
-        contents:
-          file?.type === 'file'
-            ? (await this.codeWriter.readFile(file.res)) ?? ''
-            : '',
+        contents: file?.type === 'file' ? '' : null,
         fullPath: file.res,
         lastModified: Date.now(),
       };
     }
-
     return project;
   }
 
@@ -52,10 +48,10 @@ export class ReadProjectUseCase {
     const dirents = await fs.readdir(dir, { withFileTypes: true });
     const files = await Promise.all(
       dirents.map(async (dirent) => {
+        const res = resolve(dir, dirent.name);
         if (this.FILES_NOT_INCLUDE.includes(dirent.name)) {
           return;
         }
-        const res = resolve(dir, dirent.name);
         return dirent.isDirectory()
           ? [
               { name: dirent.name, res, type: 'folder' },
