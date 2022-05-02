@@ -70,6 +70,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
           persistent: true,
+          usePolling: true,
+          interval: 2000,
         },
       );
 
@@ -87,7 +89,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
             const timeOut = setTimeout(async () => {
               await this.stopProject.getInstance().stopProjectRunner(projectId);
-            }, 500_000);
+            }, 250_000);
             disconnectingProjectTimeout.set(room, timeOut);
           }
         });
