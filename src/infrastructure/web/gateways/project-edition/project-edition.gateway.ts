@@ -8,7 +8,7 @@ import {
   WsResponse,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Inject, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { UseCasesProxyProjectEditionModule } from '../../../usecases-proxy/project-edition/use-cases-proxy-project-edition.module';
 import { StopProjectRunnerUseCase } from '../../../../usecases/project-edition/stop-project-runner.usecase';
@@ -27,13 +27,17 @@ import { DeleteFolderResource } from './resource/delete-folder.dto';
 import * as chokidar from 'chokidar';
 import * as fs from 'fs/promises';
 import { disconnectingProjectTimeout } from './ram-disconnecting-project/disconnecting-project-timeout';
+import { HttpService } from '@nestjs/axios';
+import axios from 'axios';
 
 @WebSocketGateway()
+@Injectable()
 export class ProjectEditionGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
   constructor(
+    private httpService: HttpService,
     @Inject(
       UseCasesProxyProjectEditionModule.START_PROJECT_RUNNER_USE_CASES_PROXY,
     )
@@ -55,17 +59,36 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     )
     private readonly deleteFolderProject: UseCaseProxy<DeleteProjectFolderRunnerUseCase>,
   ) {}
-
+  //TODO: refactoring all the connexion system with specific usecase
   async handleConnection(client: Socket): Promise<void> {
     try {
       const projectId = client.handshake.query.projectId as string;
       client.join(projectId);
+      const interval = setInterval(async () => {
+        let codeRunnerUrl = process.env.CODE_RUNNER_DNS_SUFFIX;
+        if (!codeRunnerUrl.includes('localhost')) {
+          codeRunnerUrl = projectId + codeRunnerUrl;
+        }
+        this.httpService.get(codeRunnerUrl).subscribe(
+          (res) => {
+            console.log('une rrequete');
+            console.log(res.status);
+            if (res.status === 200) {
+              this.broadcastSiteIsReady(client);
+              clearInterval(interval);
+            }
+          },
+          (error) => {
+            console.log(error);
+          },
+        );
+      }, 5000);
       if (disconnectingProjectTimeout.has(projectId)) {
         clearTimeout(disconnectingProjectTimeout.get(projectId));
         disconnectingProjectTimeout.delete(projectId);
       }
       console.log(projectId);
-      await this.startProject.getInstance().startProjectRunner(projectId);
+      //await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
@@ -88,8 +111,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         client.rooms.forEach(async (room) => {
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
             const timeOut = setTimeout(async () => {
-              await this.stopProject.getInstance().stopProjectRunner(projectId);
-            }, 250_000);
+              //await this.stopProject.getInstance().stopProjectRunner(projectId);
+            }, 300_000);
             disconnectingProjectTimeout.set(room, timeOut);
           }
         });
@@ -189,6 +212,12 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   ) {
     client.rooms.forEach(async (room) => {
       client.broadcast.to(room).emit(event, deleteFolderResource);
+    });
+  }
+
+  private broadcastSiteIsReady(client: Socket) {
+    client.rooms.forEach(async (room) => {
+      this.server.to(room).emit('siteIsReady');
     });
   }
 }
