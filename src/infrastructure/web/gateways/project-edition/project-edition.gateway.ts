@@ -96,13 +96,13 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       );
 
       // Add event listeners.
-      watcher.on('change', async () => {
+      /*watcher.on('change', async () => {
         const contentLogFile = await fs.readFile(
           `${process.env.LOG_PATH_PROJECT}/${projectId}.log`,
           { encoding: 'utf-8' },
         );
         client.emit('logChanged', contentLogFile);
-      });
+      });*/
 
       client.on('disconnecting', () => {
         client.rooms.forEach(async (room) => {
@@ -228,12 +228,16 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   private async sendLogsToClient(room: string): Promise<void> {
     setTimeout(async () => {
       try {
+        Logger.log(
+          `path -> ${process.env.LOG_PATH_PROJECT}/${room}/${room}.log`,
+        );
         const contentLogFile = await fs.readFile(
-          `${process.env.LOG_PATH_PROJECT}/${room}.log`,
+          `${process.env.LOG_PATH_PROJECT}/${room}/${room}.log`,
           { encoding: 'utf-8' },
         );
+        Logger.log(contentLogFile);
         this.server.to(room).emit('logChanged', contentLogFile);
-      } catch (eror) {}
+      } catch (error) {}
     }, 4000);
   }
 }
