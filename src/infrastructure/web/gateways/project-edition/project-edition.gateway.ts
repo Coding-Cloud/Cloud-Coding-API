@@ -141,6 +141,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       editsProject,
       client,
     );
+    client.rooms.forEach(async (room) => {
+      this.sendLogsToClient(room);
+    });
   }
 
   @SubscribeMessage('renameFolder')
@@ -159,6 +162,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       { ...renameFolder, basePath },
       client,
     );
+    client.rooms.forEach(async (room) => {
+      this.sendLogsToClient(room);
+    });
   }
 
   @SubscribeMessage('deleteFolder')
@@ -177,6 +183,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       { ...deleteFolder, basePath },
       client,
     );
+    client.rooms.forEach(async (room) => {
+      this.sendLogsToClient(room);
+    });
   }
 
   private broadcastEditProject(
@@ -214,5 +223,17 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     client.rooms.forEach(async (room) => {
       this.server.to(room).emit('siteIsReady');
     });
+  }
+
+  private async sendLogsToClient(room: string): Promise<void> {
+    setTimeout(async () => {
+      try {
+        const contentLogFile = await fs.readFile(
+          `${process.env.LOG_PATH_PROJECT}/${room}.log`,
+          { encoding: 'utf-8' },
+        );
+        this.server.to(room).emit('logChanged', contentLogFile);
+      } catch (eror) {}
+    }, 4000);
   }
 }
