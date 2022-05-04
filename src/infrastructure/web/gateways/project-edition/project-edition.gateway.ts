@@ -28,7 +28,6 @@ import * as chokidar from 'chokidar';
 import * as fs from 'fs/promises';
 import { disconnectingProjectTimeout } from './ram-disconnecting-project/disconnecting-project-timeout';
 import { HttpService } from '@nestjs/axios';
-import axios from 'axios';
 
 @WebSocketGateway()
 @Injectable()
@@ -67,19 +66,17 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       const interval = setInterval(async () => {
         let codeRunnerUrl = process.env.CODE_RUNNER_DNS_SUFFIX;
         if (!codeRunnerUrl.includes('localhost')) {
-          codeRunnerUrl = projectId + codeRunnerUrl;
+          codeRunnerUrl = 'https://' + projectId + codeRunnerUrl;
         }
         this.httpService.get(codeRunnerUrl).subscribe(
           (res) => {
-            console.log('une rrequete');
-            console.log(res.status);
             if (res.status === 200) {
               this.broadcastSiteIsReady(client);
               clearInterval(interval);
             }
           },
           (error) => {
-            console.log(error);
+            Logger.error('check code-runner status' + error);
           },
         );
       }, 5000);
@@ -87,8 +84,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         clearTimeout(disconnectingProjectTimeout.get(projectId));
         disconnectingProjectTimeout.delete(projectId);
       }
-      console.log(projectId);
-      //await this.startProject.getInstance().startProjectRunner(projectId);
+
+      await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
@@ -111,7 +108,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         client.rooms.forEach(async (room) => {
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
             const timeOut = setTimeout(async () => {
-              //await this.stopProject.getInstance().stopProjectRunner(projectId);
+              await this.stopProject.getInstance().stopProjectRunner(projectId);
             }, 300_000);
             disconnectingProjectTimeout.set(room, timeOut);
           }
@@ -133,8 +130,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody('project') editsProjectDTO: EditProjectDTO[],
   ): Promise<void> {
-    console.log('ça marche pas');
-
     const editsProject: EditProject[] = editsProjectDTO.map(
       (editProjectDTO) => ({
         ...editProjectDTO,
