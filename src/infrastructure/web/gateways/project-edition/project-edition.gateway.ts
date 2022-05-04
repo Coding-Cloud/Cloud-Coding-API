@@ -75,14 +75,17 @@ export class ProjectEditionGateway implements OnGatewayConnection {
               clearInterval(interval);
             }
           },
-          (error) => {
-            Logger.error('check code-runner status' + error);
-          },
+          (error) => {},
         );
       }, 5000);
       if (disconnectingProjectTimeout.has(projectId)) {
+        Logger.log('on rentre bien clean le timeout');
+        Logger.log(disconnectingProjectTimeout.get(projectId));
         clearTimeout(disconnectingProjectTimeout.get(projectId));
         disconnectingProjectTimeout.delete(projectId);
+        Logger.log(
+          'après le clear -> ' + disconnectingProjectTimeout.get(projectId),
+        );
       }
 
       await this.startProject.getInstance().startProjectRunner(projectId);
@@ -110,6 +113,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
             const timeOut = setTimeout(async () => {
               await this.stopProject.getInstance().stopProjectRunner(projectId);
             }, 300_000);
+            Logger.log('on déclenche le timeout dans 5 minutes');
             disconnectingProjectTimeout.set(room, timeOut);
           }
         });
