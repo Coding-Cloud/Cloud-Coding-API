@@ -110,11 +110,11 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       client.on('disconnecting', () => {
         client.rooms.forEach(async (room) => {
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
-            const timeOut = setTimeout(async () => {
+            /*const timeOut = setTimeout(async () => {
               await this.stopProject.getInstance().stopProjectRunner(projectId);
             }, 300_000);
             Logger.log('on déclenche le timeout dans 5 minutes');
-            disconnectingProjectTimeout.set(room, timeOut);
+            disconnectingProjectTimeout.set(room, timeOut);*/
           }
         });
       });
