@@ -12,6 +12,7 @@ import { CodeWriterModule } from 'src/infrastructure/code-writer/code-writer.mod
 import { RenameProjectRunnerUseCase } from 'src/usecases/project-edition/rename-project-folder-runner.usecase';
 import { DeleteProjectUseCase } from 'src/usecases/project/delete-project.usecase';
 import { DeleteProjectFolderRunnerUseCase } from 'src/usecases/project-edition/delete-project-folder.usecase';
+import { CreateImageUseCase } from '../../../usecases/project-edition/create-image.usecase';
 
 @Module({
   imports: [RepositoriesModule, CodeRunnerModule, CodeWriterModule],
@@ -21,8 +22,11 @@ export class UseCasesProxyProjectEditionModule {
     'startProjectRunnerUseCaseProxy';
   static STOP_PROJECT_RUNNER_USE_CASES_PROXY = 'stopProjectRunnerUseCaseProxy';
   static EDIT_PROJECT_RUNNER_USE_CASES_PROXY = 'editProjectRunnerUseCaseProxy';
-  static RENAME_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY = 'renameFolderProjectRunnerUseCaseProxy';
-  static DELETE_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY = 'deleteFolderProjectRunnerUseCaseProxy';
+  static RENAME_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY =
+    'renameFolderProjectRunnerUseCaseProxy';
+  static DELETE_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY =
+    'deleteFolderProjectRunnerUseCaseProxy';
+  static CREATE_IMAGE_USE_CASES_PROXY = 'createImageUseCaseProxy';
 
   static register(): DynamicModule {
     return {
@@ -62,6 +66,13 @@ export class UseCasesProxyProjectEditionModule {
         {
           inject: [CodeWriter],
           provide:
+            UseCasesProxyProjectEditionModule.CREATE_IMAGE_USE_CASES_PROXY,
+          useFactory: (codeWriter: CodeWriter) =>
+            new UseCaseProxy(new CreateImageUseCase(codeWriter)),
+        },
+        {
+          inject: [CodeWriter],
+          provide:
             UseCasesProxyProjectEditionModule.RENAME_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY,
           useFactory: (codeWriter: CodeWriter) =>
             new UseCaseProxy(new RenameProjectRunnerUseCase(codeWriter)),
@@ -79,7 +90,8 @@ export class UseCasesProxyProjectEditionModule {
         UseCasesProxyProjectEditionModule.STOP_PROJECT_RUNNER_USE_CASES_PROXY,
         UseCasesProxyProjectEditionModule.EDIT_PROJECT_RUNNER_USE_CASES_PROXY,
         UseCasesProxyProjectEditionModule.RENAME_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY,
-        UseCasesProxyProjectEditionModule.DELETE_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY
+        UseCasesProxyProjectEditionModule.DELETE_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY,
+        UseCasesProxyProjectEditionModule.CREATE_IMAGE_USE_CASES_PROXY,
       ],
     };
   }

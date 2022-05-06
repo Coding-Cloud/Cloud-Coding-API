@@ -37,6 +37,11 @@ export class FileCodeWriter implements CodeWriter {
   async createFile(content: string, path: string): Promise<void> {
     await fs.writeFile(path, content);
   }
+  async createImage(content: string, path: string): Promise<void> {
+    const bitmap = Buffer.from(content, 'base64');
+    await fs.writeFile(path, bitmap);
+  }
+
   async deleteFile(path: string): Promise<void> {
     await fs.unlink(path);
   }
