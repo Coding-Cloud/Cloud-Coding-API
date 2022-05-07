@@ -26,7 +26,10 @@ import { DeleteFolderDTO } from './dto/delete-folder.dto';
 import { DeleteFolderResource } from './resource/delete-folder.dto';
 import * as chokidar from 'chokidar';
 import * as fs from 'fs/promises';
-import { disconnectingProjectTimeout } from './ram-disconnecting-project/disconnecting-project-timeout';
+import {
+  addDisconnectigProjectTimeout,
+  deleteDisconnectigProjectTimeout,
+} from './ram-disconnecting-project/disconnecting-project-timeout';
 import { HttpService } from '@nestjs/axios';
 import { CreateImageUseCase } from '../../../../usecases/project-edition/create-image.usecase';
 import { FolderStatus } from 'src/domain/folder/folder-status.enum';
@@ -77,16 +80,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       client.data.username = username;
       this.sendUserInRoom(projectId);
       this.checkCodeRunnerStatus(projectId, client);
-
-      if (disconnectingProjectTimeout.has(projectId)) {
-        Logger.log('on rentre bien clean le timeout');
-        Logger.log(disconnectingProjectTimeout.get(projectId));
-        clearTimeout(disconnectingProjectTimeout.get(projectId));
-        disconnectingProjectTimeout.delete(projectId);
-        Logger.log(
-          'après le clear -> ' + disconnectingProjectTimeout.get(projectId),
-        );
-      }
+      deleteDisconnectigProjectTimeout(projectId);
 
       await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
@@ -109,14 +103,20 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
       client.on('disconnecting', () => {
         client.rooms.forEach(async (room) => {
-          deleteConnectedUsers(room, client.data.username);
-          this.sendUserInRoom(room);
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
-            /*const timeOut = setTimeout(async () => {
-              await this.stopProject.getInstance().stopProjectRunner(projectId);
-            }, 300_000);
-            Logger.log('on déclenche le timeout dans 5 minutes');
-            disconnectingProjectTimeout.set(room, timeOut);*/
+            if (getConnectedUsers(room)) {
+              const timeOut = setTimeout(async () => {
+                await this.stopProject
+                  .getInstance()
+                  .stopProjectRunner(projectId);
+                console.log('ça timeout');
+              }, 300_000);
+              Logger.log('on déclenche le timeout dans 5 minutes');
+              Logger.log(room);
+              addDisconnectigProjectTimeout(room, timeOut);
+            }
+            deleteConnectedUsers(room, client.data.username);
+            this.sendUserInRoom(room);
           }
         });
       });
@@ -293,8 +293,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   private sendUserInRoom(projectId: string) {
     const connectedUsers = getConnectedUsers(projectId);
     if (connectedUsers === undefined) return;
-    console.log('users connected');
-    console.log(connectedUsers);
     this.server
       .to(projectId)
       .emit('developerConnected', getConnectedUsers(projectId));

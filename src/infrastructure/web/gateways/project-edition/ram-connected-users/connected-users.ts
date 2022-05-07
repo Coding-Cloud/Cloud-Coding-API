@@ -36,6 +36,5 @@ export const deleteConnectedUsers = (room: string, username: string) => {
 };
 
 export const getConnectedUsers = (room: string): string[] => {
-  console.log(conectedUsers);
   return conectedUsers.get(room);
 };
