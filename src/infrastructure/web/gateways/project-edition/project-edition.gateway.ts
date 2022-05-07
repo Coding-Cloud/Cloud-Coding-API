@@ -30,6 +30,11 @@ import { disconnectingProjectTimeout } from './ram-disconnecting-project/disconn
 import { HttpService } from '@nestjs/axios';
 import { CreateImageUseCase } from '../../../../usecases/project-edition/create-image.usecase';
 import { FolderStatus } from 'src/domain/folder/folder-status.enum';
+import {
+  addConnectedUsers,
+  deleteConnectedUsers,
+  getConnectedUsers,
+} from './ram-connected-users/connected-users';
 
 @WebSocketGateway()
 @Injectable()
@@ -66,22 +71,13 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   async handleConnection(client: Socket): Promise<void> {
     try {
       const projectId = client.handshake.query.projectId as string;
+      const username = client.handshake.query.username as string;
       client.join(projectId);
-      const interval = setInterval(async () => {
-        let codeRunnerUrl = process.env.CODE_RUNNER_DNS_SUFFIX;
-        if (!codeRunnerUrl.includes('localhost')) {
-          codeRunnerUrl = 'https://' + projectId + codeRunnerUrl;
-        }
-        this.httpService.get(codeRunnerUrl).subscribe(
-          (res) => {
-            if (res.status === 200) {
-              this.broadcastSiteIsReady(client);
-              clearInterval(interval);
-            }
-          },
-          (error) => {},
-        );
-      }, 5000);
+      addConnectedUsers(projectId, username);
+      client.data.username = username;
+      this.sendUserInRoom(projectId);
+      this.checkCodeRunnerStatus(projectId, client);
+
       if (disconnectingProjectTimeout.has(projectId)) {
         Logger.log('on rentre bien clean le timeout');
         Logger.log(disconnectingProjectTimeout.get(projectId));
@@ -113,6 +109,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
       client.on('disconnecting', () => {
         client.rooms.forEach(async (room) => {
+          deleteConnectedUsers(room, client.data.username);
+          this.sendUserInRoom(room);
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
             /*const timeOut = setTimeout(async () => {
               await this.stopProject.getInstance().stopProjectRunner(projectId);
@@ -272,5 +270,33 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         this.server.to(room).emit('logChanged', contentLogFile);
       } catch (error) {}
     }, 4000);
+  }
+
+  private checkCodeRunnerStatus(projectId: string, client: Socket) {
+    const interval = setInterval(async () => {
+      let codeRunnerUrl = process.env.CODE_RUNNER_DNS_SUFFIX;
+      if (!codeRunnerUrl.includes('localhost')) {
+        codeRunnerUrl = 'https://' + projectId + codeRunnerUrl;
+      }
+      this.httpService.get(codeRunnerUrl).subscribe(
+        (res) => {
+          if (res.status === 200) {
+            this.broadcastSiteIsReady(client);
+            clearInterval(interval);
+          }
+        },
+        (error) => {},
+      );
+    }, 5000);
+  }
+
+  private sendUserInRoom(projectId: string) {
+    const connectedUsers = getConnectedUsers(projectId);
+    if (connectedUsers === undefined) return;
+    console.log('users connected');
+    console.log(connectedUsers);
+    this.server
+      .to(projectId)
+      .emit('developerConnected', getConnectedUsers(projectId));
   }
 }
