@@ -29,6 +29,7 @@ import * as fs from 'fs/promises';
 import { disconnectingProjectTimeout } from './ram-disconnecting-project/disconnecting-project-timeout';
 import { HttpService } from '@nestjs/axios';
 import { CreateImageUseCase } from '../../../../usecases/project-edition/create-image.usecase';
+import { FolderStatus } from 'src/domain/folder/folder-status.enum';
 
 @WebSocketGateway()
 @Injectable()
@@ -91,7 +92,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         );
       }
 
-      //await this.startProject.getInstance().startProjectRunner(projectId);
+      await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
@@ -201,9 +202,21 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @MessageBody() body: { base64: string; path: string },
   ): Promise<void> {
     const basePath = `${process.env.BASE_PATH_PROJECT}/${body.path}`;
-    console.log(body.base64);
     await this.createImage.getInstance().createImage(body.base64, basePath);
-    this.broadcastUploadImage('uploadImage', basePath, client);
+    const editProject: EditProjectDTO[] = [
+      {
+        name: body.path,
+        type: 'file',
+        fullPath: basePath,
+        folderStatus: FolderStatus.CREATED,
+        modifications: [],
+      },
+    ];
+    this.broadcastEditProject(
+      'projectModificationFromContributor',
+      editProject,
+      client,
+    );
     client.rooms.forEach(async (room) => {
       this.sendLogsToClient(room);
     });
@@ -217,12 +230,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     //2 rooms ici
     client.rooms.forEach(async (room) => {
       client.broadcast.to(room).emit(event, editProjectDTO);
-    });
-  }
-
-  private broadcastUploadImage(event: string, path: string, client: Socket) {
-    client.rooms.forEach(async (room) => {
-      client.broadcast.to(room).emit(event, path);
     });
   }
 
@@ -262,7 +269,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
           `${process.env.LOG_PATH_PROJECT}/${room}/${room}.log`,
           { encoding: 'utf-8' },
         );
-        Logger.log(contentLogFile);
         this.server.to(room).emit('logChanged', contentLogFile);
       } catch (error) {}
     }, 4000);
