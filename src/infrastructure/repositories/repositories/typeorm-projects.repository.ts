@@ -26,7 +26,7 @@ export class TypeormProjectsRepository implements Projects {
 
   async createProject(
     projectCandidate: CreateProjectCandidate,
-  ): Promise<string> {
+  ): Promise<Project> {
     try {
       const creationProject = this.projectEntityRepository.create({
         ...projectCandidate,
@@ -38,7 +38,7 @@ export class TypeormProjectsRepository implements Projects {
       const projectEntity = await this.projectEntityRepository.save(
         creationProjectEntity,
       );
-      return projectEntity.id;
+      return ProjectAdapter.toProject(projectEntity);
     } catch (error) {
       Logger.error(error);
       if (error.code === '23505') {
@@ -69,11 +69,16 @@ export class TypeormProjectsRepository implements Projects {
     }
   }
 
-  async initialisedProjectById(id: string): Promise<void> {
+  async initialisedProject(uniqueName: string): Promise<void> {
     try {
-      await this.projectEntityRepository.update(id, {
-        status: ProjectStatus.INACTIVE,
-      });
+      await this.projectEntityRepository
+        .createQueryBuilder()
+        .update()
+        .set({
+          status: ProjectStatus.INACTIVE,
+        })
+        .where('uniqueName=:uniqueName', { uniqueName })
+        .execute();
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();
@@ -83,16 +88,19 @@ export class TypeormProjectsRepository implements Projects {
   async findBy(props: {
     id?: string;
     userId?: string;
+    uniqueName?: string;
     name?: string;
   }): Promise<Project> {
-    const { id, userId, name } = props;
+    const { id, userId, uniqueName, name } = props;
     try {
       const projectEntity = await this.projectEntityRepository
         .createQueryBuilder()
         .where('ProjectEntity.id=:id', { id })
         .orWhere('ProjectEntity.name=:name', { name })
+        .orWhere('ProjectEntity.uniqueName=:uniqueName', { uniqueName })
         .orWhere('ProjectEntity.creatorId=:userId', { userId })
-        .getOne();
+        .getOneOrFail();
+
       return ProjectAdapter.toProject(projectEntity);
     } catch (error) {
       Logger.error(error);

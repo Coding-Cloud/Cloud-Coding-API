@@ -8,7 +8,7 @@ import {
   WsResponse,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Inject, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { UseCasesProxyProjectEditionModule } from '../../../usecases-proxy/project-edition/use-cases-proxy-project-edition.module';
 import { StopProjectRunnerUseCase } from '../../../../usecases/project-edition/stop-project-runner.usecase';
@@ -26,13 +26,17 @@ import { DeleteFolderDTO } from './dto/delete-folder.dto';
 import { DeleteFolderResource } from './resource/delete-folder.dto';
 import * as chokidar from 'chokidar';
 import * as fs from 'fs/promises';
+import { disconnectingProjectTimeout } from './ram-disconnecting-project/disconnecting-project-timeout';
+import { HttpService } from '@nestjs/axios';
 
 @WebSocketGateway()
+@Injectable()
 export class ProjectEditionGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
   constructor(
+    private httpService: HttpService,
     @Inject(
       UseCasesProxyProjectEditionModule.START_PROJECT_RUNNER_USE_CASES_PROXY,
     )
@@ -54,32 +58,63 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     )
     private readonly deleteFolderProject: UseCaseProxy<DeleteProjectFolderRunnerUseCase>,
   ) {}
-
+  //TODO: refactoring all the connexion system with specific usecase
   async handleConnection(client: Socket): Promise<void> {
     try {
       const projectId = client.handshake.query.projectId as string;
       client.join(projectId);
+      const interval = setInterval(async () => {
+        let codeRunnerUrl = process.env.CODE_RUNNER_DNS_SUFFIX;
+        if (!codeRunnerUrl.includes('localhost')) {
+          codeRunnerUrl = 'https://' + projectId + codeRunnerUrl;
+        }
+        this.httpService.get(codeRunnerUrl).subscribe(
+          (res) => {
+            if (res.status === 200) {
+              this.broadcastSiteIsReady(client);
+              clearInterval(interval);
+            }
+          },
+          (error) => {},
+        );
+      }, 5000);
+      if (disconnectingProjectTimeout.has(projectId)) {
+        Logger.log('on rentre bien clean le timeout');
+        Logger.log(disconnectingProjectTimeout.get(projectId));
+        clearTimeout(disconnectingProjectTimeout.get(projectId));
+        disconnectingProjectTimeout.delete(projectId);
+        Logger.log(
+          'après le clear -> ' + disconnectingProjectTimeout.get(projectId),
+        );
+      }
+
       await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
           persistent: true,
+          usePolling: true,
+          interval: 2000,
         },
       );
 
       // Add event listeners.
-      watcher.on('change', async () => {
+      /*watcher.on('change', async () => {
         const contentLogFile = await fs.readFile(
           `${process.env.LOG_PATH_PROJECT}/${projectId}.log`,
           { encoding: 'utf-8' },
         );
         client.emit('logChanged', contentLogFile);
-      });
+      });*/
 
       client.on('disconnecting', () => {
         client.rooms.forEach(async (room) => {
           if (this.server.sockets.adapter.rooms.get(room).size === 1) {
-            await this.stopProject.getInstance().stopProjectRunner(projectId);
+            /*const timeOut = setTimeout(async () => {
+              await this.stopProject.getInstance().stopProjectRunner(projectId);
+            }, 300_000);
+            Logger.log('on déclenche le timeout dans 5 minutes');
+            disconnectingProjectTimeout.set(room, timeOut);*/
           }
         });
       });
@@ -110,6 +145,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       editsProject,
       client,
     );
+    client.rooms.forEach(async (room) => {
+      this.sendLogsToClient(room);
+    });
   }
 
   @SubscribeMessage('renameFolder')
@@ -128,6 +166,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       { ...renameFolder, basePath },
       client,
     );
+    client.rooms.forEach(async (room) => {
+      this.sendLogsToClient(room);
+    });
   }
 
   @SubscribeMessage('deleteFolder')
@@ -146,6 +187,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       { ...deleteFolder, basePath },
       client,
     );
+    client.rooms.forEach(async (room) => {
+      this.sendLogsToClient(room);
+    });
   }
 
   private broadcastEditProject(
@@ -177,5 +221,27 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     client.rooms.forEach(async (room) => {
       client.broadcast.to(room).emit(event, deleteFolderResource);
     });
+  }
+
+  private broadcastSiteIsReady(client: Socket) {
+    client.rooms.forEach(async (room) => {
+      this.server.to(room).emit('siteIsReady');
+    });
+  }
+
+  private async sendLogsToClient(room: string): Promise<void> {
+    setTimeout(async () => {
+      try {
+        Logger.log(
+          `path -> ${process.env.LOG_PATH_PROJECT}/${room}/${room}.log`,
+        );
+        const contentLogFile = await fs.readFile(
+          `${process.env.LOG_PATH_PROJECT}/${room}/${room}.log`,
+          { encoding: 'utf-8' },
+        );
+        Logger.log(contentLogFile);
+        this.server.to(room).emit('logChanged', contentLogFile);
+      } catch (error) {}
+    }, 4000);
   }
 }

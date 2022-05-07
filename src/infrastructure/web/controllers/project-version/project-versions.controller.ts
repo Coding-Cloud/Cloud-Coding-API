@@ -46,9 +46,11 @@ export class ProjectVersionsController {
       .addProjectVersion({ id, title: addProjectVersionDTO.title });
   }
 
-  @Get('/:id')
-  getProjectVersions(@Param('id') id: string): Promise<string[]> {
-    return this.getVersions.getInstance().getProjectVersions(id);
+  @Get('/:uniqueName')
+  getProjectVersions(
+    @Param('uniqueName') uniqueName: string,
+  ): Promise<string[]> {
+    return this.getVersions.getInstance().getProjectVersions(uniqueName);
   }
 
   @Patch('/:id/:versions')

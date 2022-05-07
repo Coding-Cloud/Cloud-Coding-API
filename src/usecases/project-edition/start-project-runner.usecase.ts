@@ -1,7 +1,8 @@
 import { Projects } from '../../domain/project/projects.interface';
 import { CodeRunnerApi } from '../../infrastructure/code-runner/code-runner-api.abstract';
-import { Logger } from '@nestjs/common';
 import { ProjectStatus } from '../../domain/project/project-status.enum';
+import { Logger } from '@nestjs/common';
+import { ProjectLanguage } from '../../domain/project/project-language.enum';
 
 export class StartProjectRunnerUseCase {
   constructor(
@@ -9,18 +10,24 @@ export class StartProjectRunnerUseCase {
     private readonly codeRunnerApi: CodeRunnerApi,
   ) {}
 
-  async startProjectRunner(id: string): Promise<void> {
-    const project = await this.projects.findBy({ id });
+  async   startProjectRunner(uniqueName: string): Promise<void> {
+    const project = await this.projects.findBy({ uniqueName });
     if (project.status === ProjectStatus.INACTIVE) {
-      const subscription = this.codeRunnerApi
-        .startCodeRunner(id, project.language)
-        .subscribe({
-          next: () => Logger.log(`Started code runner for project {${id}}`),
-          error: (error) => Logger.error(error),
-          complete: () => subscription.unsubscribe(),
-        });
-      project.status = ProjectStatus.RUNNING;
-      await this.projects.updateProjectById(id, project);
+      this.startCodeRunner(project.uniqueName, project.language);
+      await this.projects.updateProjectById(project.id, {
+        status: ProjectStatus.RUNNING,
+      });
     }
+  }
+
+  private startCodeRunner(uniqueName: string, language: ProjectLanguage): void {
+    const subscription = this.codeRunnerApi
+      .startCodeRunner(uniqueName, language)
+      .subscribe({
+        next: () =>
+          Logger.log(`Started code runner for project {${uniqueName}}`),
+        error: (error) => Logger.error(error),
+        complete: () => subscription.unsubscribe(),
+      });
   }
 }

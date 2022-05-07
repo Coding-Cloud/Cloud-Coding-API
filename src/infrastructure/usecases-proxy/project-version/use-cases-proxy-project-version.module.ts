@@ -2,7 +2,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { RepositoriesModule } from '../../repositories/repositories.module';
 import { UseCaseProxy } from '../usecases-proxy';
 import { TypeormProjectsRepository } from '../../repositories/repositories/typeorm-projects.repository';
-import { ProjectInitialiserModule } from '../../project-initialiser/project-initialiser.module';
+import { ProjectInitializerModule } from '../../project-initializer/project-initializer.module';
 import { CodeRunnerModule } from '../../code-runner/code-runner.module';
 import { HttpModule } from '@nestjs/axios';
 import { AddProjectVersionUseCase } from '../../../usecases/project-version/add-project-version.usecase';
@@ -14,7 +14,7 @@ import { ProjectVersioningModule } from '../../project-versioning/project-versio
 @Module({
   imports: [
     RepositoriesModule,
-    ProjectInitialiserModule,
+    ProjectInitializerModule,
     ProjectVersioningModule,
     CodeRunnerModule,
     HttpModule,

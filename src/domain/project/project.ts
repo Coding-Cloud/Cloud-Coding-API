@@ -5,6 +5,7 @@ import { ProjectVisibility } from './project-visibility.enum';
 export class Project {
   id: string;
   name: string;
+  uniqueName: string;
   lastVersion: number;
   language: ProjectLanguage;
   status: ProjectStatus;

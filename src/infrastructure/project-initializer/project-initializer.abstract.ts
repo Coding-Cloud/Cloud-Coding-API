@@ -2,9 +2,9 @@ import { ProjectLanguage } from '../../domain/project/project-language.enum';
 import { Observable } from 'rxjs';
 import { AxiosResponse } from 'axios';
 
-export abstract class ProjectInitialiserApi {
+export abstract class ProjectInitializerApi {
   abstract initialiseProject(
-    id: string,
+    uniqueName: string,
     language: ProjectLanguage,
   ): Observable<AxiosResponse<void>>;
 
