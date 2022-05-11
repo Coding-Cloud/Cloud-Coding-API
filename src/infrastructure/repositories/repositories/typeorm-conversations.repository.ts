@@ -88,18 +88,28 @@ export class TypeormConversationsRepository implements Conversations {
   }
 
   async removeConversationByFriendshipId(friendshipId: string): Promise<void> {
-    await this.conversationEntityRepository
-      .createQueryBuilder()
-      .delete()
-      .where('ConversationEntity.friendshipId=:friendshipId', { friendshipId })
-      .execute();
+    try {
+      await this.conversationEntityRepository
+        .createQueryBuilder()
+        .delete()
+        .where('friendshipId=:friendshipId', { friendshipId })
+        .execute();
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException();
+    }
   }
 
   async removeConversationByGroupId(groupId: string): Promise<void> {
-    await this.conversationEntityRepository
-      .createQueryBuilder()
-      .delete()
-      .where('ConversationEntity.groupId=:groupId', { groupId })
-      .execute();
+    try {
+      await this.conversationEntityRepository
+        .createQueryBuilder()
+        .delete()
+        .where('groupId=:groupId', { groupId })
+        .execute();
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException();
+    }
   }
 }
