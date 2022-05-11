@@ -10,6 +10,10 @@ import { Conversations } from '../../../domain/conversation/conversations.interf
 import { Conversation } from 'src/domain/conversation/conversation';
 import ConversationAdapter from '../entities/conversation/conversation.adapter';
 import { ConversationEntity } from '../entities/conversation/conversation.entity';
+import { GroupMembershipEntity } from '../entities/group-membership/group-membership.entity';
+import { FriendshipEntity } from '../entities/friendship/friendship.entity';
+import { CreateConversationCandidate } from '../../../usecases/conversation/candidates/create-conversation.candidate';
+import { GroupEntity } from '../entities/group/group.entity';
 
 export class TypeormConversationsRepository implements Conversations {
   constructor(
@@ -17,9 +21,13 @@ export class TypeormConversationsRepository implements Conversations {
     private readonly conversationEntityRepository: Repository<ConversationEntity>,
   ) {}
 
-  async createConversation(): Promise<string> {
+  async createConversation(
+    ownership: CreateConversationCandidate,
+  ): Promise<string> {
     try {
-      const conversationEntity = this.conversationEntityRepository.create();
+      const conversationEntity = this.conversationEntityRepository.create({
+        ...ownership,
+      });
 
       const conversation = await this.conversationEntityRepository.save(
         conversationEntity,
@@ -46,7 +54,52 @@ export class TypeormConversationsRepository implements Conversations {
     }
   }
 
-  async removeConversation(id: string): Promise<void> {
-    await this.conversationEntityRepository.delete(id);
+  async findUserConversationById(userId: string): Promise<Conversation[]> {
+    try {
+      const conversationEntities = await this.conversationEntityRepository
+        .createQueryBuilder()
+        .leftJoin(
+          GroupMembershipEntity,
+          'GroupMembershipEntity',
+          'GroupMembershipEntity.groupId = ConversationEntity.groupId',
+        )
+        .leftJoin(
+          FriendshipEntity,
+          'FriendshipEntity',
+          'FriendshipEntity.id = ConversationEntity.friendshipId',
+        )
+        .leftJoin(
+          GroupEntity,
+          'GroupEntity',
+          'GroupEntity.id = ConversationEntity.groupId',
+        )
+        .where('GroupMembershipEntity.userId=:userId', { userId })
+        .orWhere('GroupEntity.ownerId=:userId', { userId })
+        .orWhere('FriendshipEntity.user1Id=:userId', { userId })
+        .orWhere('FriendshipEntity.user2Id=:userId', { userId })
+        .getMany();
+      return conversationEntities.map((conversationEntity) =>
+        ConversationAdapter.toConversation(conversationEntity),
+      );
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException();
+    }
+  }
+
+  async removeConversationByFriendshipId(friendshipId: string): Promise<void> {
+    await this.conversationEntityRepository
+      .createQueryBuilder()
+      .delete()
+      .where('ConversationEntity.friendshipId=:friendshipId', { friendshipId })
+      .execute();
+  }
+
+  async removeConversationByGroupId(groupId: string): Promise<void> {
+    await this.conversationEntityRepository
+      .createQueryBuilder()
+      .delete()
+      .where('ConversationEntity.groupId=:groupId', { groupId })
+      .execute();
   }
 }

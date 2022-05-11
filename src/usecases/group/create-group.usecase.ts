@@ -1,24 +1,19 @@
 import { Group } from '../../domain/group/group';
 import { Groups } from '../../domain/group/groups.interface';
-import { Inject } from '@nestjs/common';
-import { UseCaseProxy } from '../../infrastructure/usecases-proxy/usecases-proxy';
-import { UseCasesProxyConversationModule } from '../../infrastructure/usecases-proxy/conversation/use-cases-proxy-conversation.module';
-import { CreateConversationUseCase } from '../conversation/create-conversation.usecase';
 import { CreateGroupCandidate } from './candidates/create-group.candidate';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 export class CreateGroupUseCase {
   constructor(
     private readonly groups: Groups,
-    @Inject(UseCasesProxyConversationModule.CREATE_CONVERSATION_USE_CASES_PROXY)
-    private readonly createConversation: UseCaseProxy<CreateConversationUseCase>,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async createGroup(
     createGroupCandidate: CreateGroupCandidate,
   ): Promise<Group> {
-    createGroupCandidate.conversationId = await this.createConversation
-      .getInstance()
-      .createConversation();
-    return await this.groups.createGroup(createGroupCandidate);
+    const group = await this.groups.createGroup(createGroupCandidate);
+    this.eventEmitter.emit('group.created', group.id);
+    return group;
   }
 }

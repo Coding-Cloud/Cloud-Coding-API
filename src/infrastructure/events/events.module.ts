@@ -12,7 +12,8 @@ import { UseCasesProxyFriendRequestModule } from '../usecases-proxy/friend-reque
 import { UseCasesProxyFriendshipModule } from '../usecases-proxy/friendship/use-cases-proxy-friendship.module';
 import { UseCasesProxyConversationModule } from '../usecases-proxy/conversation/use-cases-proxy-conversation.module';
 import { UseCasesProxyMessageModule } from '../usecases-proxy/message/use-cases-proxy-message.module';
-import { ProjectEventHandlers } from './group/project.event-handlers';
+import { ProjectEventHandlers } from './project/project.event-handlers';
+import { ConversationEventHandlers } from './conversation/conversation.event-handlers';
 
 @Module({
   imports: [
@@ -45,6 +46,6 @@ import { ProjectEventHandlers } from './group/project.event-handlers';
     UseCasesProxyConversationModule.register(),
     UseCasesProxyMessageModule.register(),
   ],
-  providers: [ProjectEventHandlers],
+  providers: [ProjectEventHandlers, ConversationEventHandlers],
 })
 export class EventsModule {}
