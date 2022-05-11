@@ -22,9 +22,6 @@ export class GroupEntity {
   @Column({ nullable: false, default: true })
   isHidden: boolean;
 
-  @Column('uuid', { nullable: false })
-  conversationId: string;
-
   @OneToMany(() => GroupMembershipEntity, (members) => members.group)
   members?: GroupMembershipEntity[];
 

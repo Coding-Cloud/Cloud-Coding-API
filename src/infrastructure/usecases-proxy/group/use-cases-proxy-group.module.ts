@@ -7,8 +7,6 @@ import { UpdateGroupUseCase } from '../../../usecases/group/update-group.usecase
 import { DeleteGroupUseCase } from '../../../usecases/group/delete-group.usecase';
 import { GetGroupUseCase } from '../../../usecases/group/get-group.usecase';
 import { UseCasesProxyConversationModule } from '../conversation/use-cases-proxy-conversation.module';
-import { CreateConversationUseCase } from '../../../usecases/conversation/create-conversation.usecase';
-import { RemoveConversationUseCase } from '../../../usecases/conversation/remove-conversation.usecase';
 import { FindOwnedGroupsUseCase } from '../../../usecases/group/find-owned-groups.usecase';
 import { FindUserGroupsUseCase } from '../../../usecases/group/find-user-groups-use.case';
 import { DeleteHiddenGroupUseCase } from '../../../usecases/group/delete-hidden-group.usecase';
@@ -31,18 +29,12 @@ export class UseCasesProxyGroupModule {
       module: UseCasesProxyGroupModule,
       providers: [
         {
-          inject: [
-            TypeormGroupsRepository,
-            UseCasesProxyConversationModule.CREATE_CONVERSATION_USE_CASES_PROXY,
-          ],
+          inject: [TypeormGroupsRepository, EventEmitter2],
           provide: UseCasesProxyGroupModule.CREATE_GROUP_USE_CASES_PROXY,
           useFactory: (
             groups: TypeormGroupsRepository,
-            createConversation: UseCaseProxy<CreateConversationUseCase>,
-          ) =>
-            new UseCaseProxy(
-              new CreateGroupUseCase(groups, createConversation),
-            ),
+            eventEmitter: EventEmitter2,
+          ) => new UseCaseProxy(new CreateGroupUseCase(groups, eventEmitter)),
         },
         {
           inject: [TypeormGroupsRepository],
@@ -51,20 +43,12 @@ export class UseCasesProxyGroupModule {
             new UseCaseProxy(new GetGroupUseCase(groups)),
         },
         {
-          inject: [
-            TypeormGroupsRepository,
-            UseCasesProxyConversationModule.REMOVE_CONVERSATION_USE_CASES_PROXY,
-            EventEmitter2,
-          ],
+          inject: [TypeormGroupsRepository, EventEmitter2],
           provide: UseCasesProxyGroupModule.DELETE_GROUP_USE_CASES_PROXY,
           useFactory: (
             groups: TypeormGroupsRepository,
-            removeConversation: UseCaseProxy<RemoveConversationUseCase>,
             eventEmitter: EventEmitter2,
-          ) =>
-            new UseCaseProxy(
-              new DeleteGroupUseCase(groups, removeConversation, eventEmitter),
-            ),
+          ) => new UseCaseProxy(new DeleteGroupUseCase(groups, eventEmitter)),
         },
         {
           inject: [

@@ -1,9 +1,14 @@
 import { Conversation } from './conversation';
+import { CreateConversationCandidate } from '../../usecases/conversation/candidates/create-conversation.candidate';
 
 export interface Conversations {
-  createConversation(): Promise<string>;
+  createConversation(ownership: CreateConversationCandidate): Promise<string>;
 
   findConversationById(id: string): Promise<Conversation>;
 
-  removeConversation(id: string): Promise<void>;
+  findUserConversationById(id: string): Promise<Conversation[]>;
+
+  removeConversationByGroupId(groupId: string): Promise<void>;
+
+  removeConversationByFriendshipId(friendshipId: string): Promise<void>;
 }

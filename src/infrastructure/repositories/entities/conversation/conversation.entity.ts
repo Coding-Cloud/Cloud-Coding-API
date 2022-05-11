@@ -11,10 +11,10 @@ export class ConversationEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: true })
+  @Column('uuid', { nullable: true })
   friendshipId?: string;
 
-  @Column({ nullable: true })
+  @Column('uuid', { nullable: true })
   groupId?: string;
 
   @CreateDateColumn()

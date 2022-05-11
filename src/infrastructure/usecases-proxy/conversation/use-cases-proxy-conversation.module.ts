@@ -5,6 +5,7 @@ import { TypeormConversationsRepository } from '../../repositories/repositories/
 import { CreateConversationUseCase } from '../../../usecases/conversation/create-conversation.usecase';
 import { FindConversationUseCase } from '../../../usecases/conversation/find-conversation.usecase';
 import { RemoveConversationUseCase } from '../../../usecases/conversation/remove-conversation.usecase';
+import { FindUserConversationsUseCase } from '../../../usecases/conversation/find-user-conversations.usecase';
 
 @Module({
   imports: [RepositoriesModule],
@@ -12,6 +13,8 @@ import { RemoveConversationUseCase } from '../../../usecases/conversation/remove
 export class UseCasesProxyConversationModule {
   static CREATE_CONVERSATION_USE_CASES_PROXY = 'createConversationUseCaseProxy';
   static FIND_CONVERSATION_USE_CASES_PROXY = 'findConversationUseCaseProxy';
+  static FIND_USER_CONVERSATIONS_USE_CASES_PROXY =
+    'findUserConversationsUseCaseProxy';
   static REMOVE_CONVERSATION_USE_CASES_PROXY = 'removeConversationUseCaseProxy';
 
   static register(): DynamicModule {
@@ -35,6 +38,13 @@ export class UseCasesProxyConversationModule {
         {
           inject: [TypeormConversationsRepository],
           provide:
+            UseCasesProxyConversationModule.FIND_USER_CONVERSATIONS_USE_CASES_PROXY,
+          useFactory: (conversations: TypeormConversationsRepository) =>
+            new UseCaseProxy(new FindUserConversationsUseCase(conversations)),
+        },
+        {
+          inject: [TypeormConversationsRepository],
+          provide:
             UseCasesProxyConversationModule.REMOVE_CONVERSATION_USE_CASES_PROXY,
           useFactory: (conversations: TypeormConversationsRepository) =>
             new UseCaseProxy(new RemoveConversationUseCase(conversations)),
@@ -43,6 +53,7 @@ export class UseCasesProxyConversationModule {
       exports: [
         UseCasesProxyConversationModule.CREATE_CONVERSATION_USE_CASES_PROXY,
         UseCasesProxyConversationModule.FIND_CONVERSATION_USE_CASES_PROXY,
+        UseCasesProxyConversationModule.FIND_USER_CONVERSATIONS_USE_CASES_PROXY,
         UseCasesProxyConversationModule.REMOVE_CONVERSATION_USE_CASES_PROXY,
       ],
     };

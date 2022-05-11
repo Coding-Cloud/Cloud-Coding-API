@@ -16,9 +16,6 @@ export class FriendshipEntity {
   @Column('uuid', { primary: true })
   user2Id: string;
 
-  @Column('uuid', { nullable: false })
-  conversationId: string;
-
   @CreateDateColumn()
   createdAt: Date;
 }
