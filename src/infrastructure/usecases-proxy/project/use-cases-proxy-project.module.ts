@@ -29,6 +29,7 @@ import { GetProjectFileContentUseCase } from 'src/usecases/project/get-project-f
 import { RemoveProjectFromGroupUseCase } from '../../../usecases/project/remove-project-from-group.usecase';
 import { NameGeneratorModule } from '../../name-generator/name-generator.module';
 import { NameGenerator } from '../../../domain/name-generator.interface';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -115,14 +116,23 @@ export class UseCasesProxyProjectModule {
             new UseCaseProxy(new FindGroupProjectsUseCase(projects)),
         },
         {
-          inject: [TypeormProjectsRepository, ProjectInitializerApi],
+          inject: [
+            TypeormProjectsRepository,
+            ProjectInitializerApi,
+            EventEmitter2,
+          ],
           provide: UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
           useFactory: (
             projects: TypeormProjectsRepository,
             projectInitializerApi: ProjectInitializerApi,
+            eventEmitter: EventEmitter2,
           ) =>
             new UseCaseProxy(
-              new DeleteProjectUseCase(projects, projectInitializerApi),
+              new DeleteProjectUseCase(
+                projects,
+                projectInitializerApi,
+                eventEmitter,
+              ),
             ),
         },
         {

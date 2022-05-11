@@ -14,6 +14,7 @@ import { UseCasesProxyConversationModule } from '../usecases-proxy/conversation/
 import { UseCasesProxyMessageModule } from '../usecases-proxy/message/use-cases-proxy-message.module';
 import { ProjectEventHandlers } from './project/project.event-handlers';
 import { ConversationEventHandlers } from './conversation/conversation.event-handlers';
+import { GroupEventHandlers } from './group/group.event-handlers';
 
 @Module({
   imports: [
@@ -46,6 +47,10 @@ import { ConversationEventHandlers } from './conversation/conversation.event-han
     UseCasesProxyConversationModule.register(),
     UseCasesProxyMessageModule.register(),
   ],
-  providers: [ProjectEventHandlers, ConversationEventHandlers],
+  providers: [
+    ProjectEventHandlers,
+    ConversationEventHandlers,
+    GroupEventHandlers,
+  ],
 })
 export class EventsModule {}
