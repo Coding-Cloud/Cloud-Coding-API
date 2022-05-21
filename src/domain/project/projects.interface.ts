@@ -31,4 +31,10 @@ export interface Projects {
     userId: string,
     projectName: string,
   ): Promise<Project[]>;
+
+  getProjects(
+    search: string,
+    limit: number,
+    offset: number,
+  ): Promise<Project[]>;
 }

@@ -151,6 +151,32 @@ export class TypeormProjectsRepository implements Projects {
       .getMany();
   }
 
+  async getProjects(
+    search: string,
+    limit: number,
+    offset: number,
+  ): Promise<Project[]> {
+    try {
+      const query = this.projectEntityRepository
+        .createQueryBuilder()
+        .where('ProjectEntity.globalVisibility=:visibility', {
+          visibility: ProjectVisibility.PUBLIC,
+        });
+      if (search) {
+        query.andWhere('SIMILARITY(ProjectEntity.name, :search) > 0.2', {
+          search,
+        });
+      }
+      const projectEntities = await query.limit(limit).offset(offset).getMany();
+      return projectEntities.map((projectEntity) =>
+        ProjectAdapter.toProject(projectEntity),
+      );
+    } catch (e) {
+      Logger.error(e);
+      throw new InternalServerErrorException();
+    }
+  }
+
   async findVisibleProjects(memberId: string): Promise<Project[]> {
     try {
       const projectEntities = await this.projectEntityRepository
