@@ -39,6 +39,7 @@ import { ReadTreeStructureProjectUseCase } from '../../../../usecases/project/re
 import { GetProjectFileContentUseCase } from '../../../../usecases/project/get-project-file-content.usecase';
 import { RemoveProjectFromGroupUseCase } from '../../../../usecases/project/remove-project-from-group.usecase';
 import { GetPublicProjectsUseCase } from '../../../../usecases/project/get-public-projects-use.case';
+import { ProjectList } from './dto/project-list.dto';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -204,10 +205,11 @@ export class ProjectsController {
     @Query('search') search?: string,
     @Query('limit') limit?: number,
     @Query('offset') offset?: number,
-  ): Promise<Project[]> {
-    return this.getPublicProjects
+  ): Promise<ProjectList> {
+    const [projects, totalResults] = await this.getPublicProjects
       .getInstance()
       .getProjects(search, limit, offset);
+    return { projects, totalResults };
   }
 
   @Patch('/:uniqueName/initialised')

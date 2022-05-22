@@ -155,7 +155,7 @@ export class TypeormProjectsRepository implements Projects {
     search: string,
     limit: number,
     offset: number,
-  ): Promise<Project[]> {
+  ): Promise<[Project[], number]> {
     try {
       const query = this.projectEntityRepository
         .createQueryBuilder()
@@ -167,10 +167,16 @@ export class TypeormProjectsRepository implements Projects {
           search,
         });
       }
-      const projectEntities = await query.limit(limit).offset(offset).getMany();
-      return projectEntities.map((projectEntity) =>
-        ProjectAdapter.toProject(projectEntity),
-      );
+      const projectEntities = await query
+        .limit(limit ?? 25)
+        .offset(offset ?? 0)
+        .getManyAndCount();
+      return [
+        projectEntities.map((projectEntity) =>
+          ProjectAdapter.toProject(projectEntity[0]),
+        ),
+        projectEntities[1],
+      ];
     } catch (e) {
       Logger.error(e);
       throw new InternalServerErrorException();

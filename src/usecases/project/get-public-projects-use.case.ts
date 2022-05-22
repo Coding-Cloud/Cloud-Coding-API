@@ -5,10 +5,10 @@ export class GetPublicProjectsUseCase {
   constructor(private readonly projects: Projects) {}
 
   async getProjects(
-    search: string,
-    limit: number,
-    offset: number,
-  ): Promise<Project[]> {
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[Project[], number]> {
     return this.projects.getProjects(search, limit, offset);
   }
 }

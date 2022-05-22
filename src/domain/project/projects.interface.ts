@@ -33,8 +33,8 @@ export interface Projects {
   ): Promise<Project[]>;
 
   getProjects(
-    search: string,
-    limit: number,
-    offset: number,
-  ): Promise<Project[]>;
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[Project[], number]>;
 }
