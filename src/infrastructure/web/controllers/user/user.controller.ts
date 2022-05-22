@@ -15,6 +15,7 @@ import { UserDto } from './dto/user-dto';
 import { UsernameDto } from './dto/username-dto';
 import { SearchUsersUseCases } from '../../../../usecases/user/search-users.usecase';
 import { GetUsersUseCases } from '../../../../usecases/user/get-users.usecase';
+import { UserList } from './dto/user-list.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -87,19 +88,22 @@ export class UserController {
     @Query('search') search: string,
     @Query('limit') limit?: number,
     @Query('offset') offset?: number,
-  ): Promise<UserDto[]> {
-    const users = await this.getUsers
+  ): Promise<UserList> {
+    const [users, totalResults] = await this.getUsers
       .getInstance()
-      .getUsers(search, limit || 25, offset || 0);
-    return users.map((user) => {
-      return {
-        id: user.id,
-        username: user.username,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        birthdate: user.birthdate,
-        email: user.email,
-      };
-    });
+      .getUsers(search, limit, offset);
+    return {
+      totalResults,
+      users: users.map((user) => {
+        return {
+          id: user.id,
+          username: user.username,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          birthdate: user.birthdate,
+          email: user.email,
+        };
+      }),
+    };
   }
 }

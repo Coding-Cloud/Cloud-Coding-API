@@ -19,5 +19,9 @@ export interface Users {
 
   searchUsers(search: string): Promise<User[]>;
 
-  getUsers(search: string, limit: number, offset: number): Promise<User[]>;
+  getUsers(
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[User[], number]>;
 }

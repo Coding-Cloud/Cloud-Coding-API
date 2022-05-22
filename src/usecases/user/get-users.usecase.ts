@@ -5,10 +5,10 @@ export class GetUsersUseCases {
   constructor(private readonly users: Users) {}
 
   async getUsers(
-    search: string,
-    limit: number,
-    offset: number,
-  ): Promise<User[]> {
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[User[], number]> {
     return this.users.getUsers(search, limit, offset);
   }
 }

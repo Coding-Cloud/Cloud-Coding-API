@@ -132,10 +132,10 @@ export class TypeormUsersRepository implements Users {
   }
 
   async getUsers(
-    search: string,
-    limit: number,
-    offset: number,
-  ): Promise<User[]> {
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[User[], number]> {
     try {
       const query = this.userEntityRepository.createQueryBuilder();
       if (search) {
@@ -149,8 +149,14 @@ export class TypeormUsersRepository implements Users {
             search,
           });
       }
-      const userEntities = await query.limit(limit).offset(offset).getMany();
-      return userEntities.map((userEntity) => UserAdapter.toUser(userEntity));
+      const userEntities = await query
+        .limit(limit ?? 25)
+        .offset(offset ?? 0)
+        .getManyAndCount();
+      return [
+        userEntities[0].map((userEntity) => UserAdapter.toUser(userEntity)),
+        userEntities[1],
+      ];
     } catch (error) {
       Logger.error(error);
       throw new InternalServerErrorException();
