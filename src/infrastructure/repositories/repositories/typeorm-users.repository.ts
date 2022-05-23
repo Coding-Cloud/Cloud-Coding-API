@@ -130,4 +130,36 @@ export class TypeormUsersRepository implements Users {
       throw new InternalServerErrorException();
     }
   }
+
+  async getUsers(
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[User[], number]> {
+    try {
+      const query = this.userEntityRepository.createQueryBuilder();
+      if (search) {
+        query
+          .where('SIMILARITY(UserEntity.username, :search) > 0.2', { search })
+          .orWhere('SIMILARITY(UserEntity.email, :search) > 0.2', { search })
+          .orWhere('SIMILARITY(UserEntity.firstname, :search) > 0.2', {
+            search,
+          })
+          .orWhere('SIMILARITY(UserEntity.lastname, :search) > 0.2', {
+            search,
+          });
+      }
+      const userEntities = await query
+        .limit(limit ?? 25)
+        .offset(offset ?? 0)
+        .getManyAndCount();
+      return [
+        userEntities[0].map((userEntity) => UserAdapter.toUser(userEntity)),
+        userEntities[1],
+      ];
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
 }
