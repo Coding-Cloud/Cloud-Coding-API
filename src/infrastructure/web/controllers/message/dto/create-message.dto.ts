@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsUUID,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class CreateMessageDTO {
   @IsString()
@@ -9,6 +15,7 @@ export class CreateMessageDTO {
   content: string;
 
   @IsUUID()
+  @IsOptional()
   @ApiProperty()
   assetId: string;
 }
