@@ -152,9 +152,9 @@ export class TypeormProjectsRepository implements Projects {
   }
 
   async getProjects(
-    search: string,
-    limit: number,
-    offset: number,
+    search?: string,
+    limit?: number,
+    offset?: number,
   ): Promise<[Project[], number]> {
     try {
       const query = this.projectEntityRepository
@@ -172,8 +172,8 @@ export class TypeormProjectsRepository implements Projects {
         .offset(offset ?? 0)
         .getManyAndCount();
       return [
-        projectEntities.map((projectEntity) =>
-          ProjectAdapter.toProject(projectEntity[0]),
+        projectEntities[0].map((projectEntity) =>
+          ProjectAdapter.toProject(projectEntity),
         ),
         projectEntities[1],
       ];
