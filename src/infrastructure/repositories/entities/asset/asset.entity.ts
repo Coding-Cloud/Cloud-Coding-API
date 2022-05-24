@@ -18,9 +18,6 @@ export class AssetEntity {
   s3URL: string;
 
   @Column({ nullable: true })
-  postId?: string;
-
-  @Column({ nullable: true })
   commentId?: string;
 
   @CreateDateColumn()

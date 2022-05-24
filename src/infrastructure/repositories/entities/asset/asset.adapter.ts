@@ -3,12 +3,11 @@ import { Asset } from '../../../../domain/asset/asset';
 
 export default class AssetAdapter {
   static toAsset(asset: AssetEntity): Asset {
-    const { id, name, s3URL, postId, commentId, createdAt } = asset;
+    const { id, name, s3URL, commentId, createdAt } = asset;
     return {
       id,
       name,
       s3URL,
-      postId,
       commentId,
       createdAt,
     };

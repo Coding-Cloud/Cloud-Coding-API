@@ -15,16 +15,10 @@ export class CommentEntity {
   ownerId: string;
 
   @Column('uuid', { nullable: false })
-  postId: string;
+  projectId: string;
 
   @Column({ nullable: false })
   content: string;
-
-  @Column({ nullable: true })
-  startLine?: number;
-
-  @Column({ nullable: true })
-  endLine?: number;
 
   @CreateDateColumn()
   createdAt: Date;

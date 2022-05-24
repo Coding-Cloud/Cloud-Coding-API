@@ -2,7 +2,9 @@ import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/creat
 import { Comment } from './comment';
 
 export interface Comments {
-  createUser(createUserDTO: CreateUserDTO): Promise<void>;
+  findProjectComments(createUserDTO: CreateUserDTO): Promise<Comment[]>;
 
-  findByUserId(userId: string): Promise<Comment>;
+  createComment(createUserDTO: CreateUserDTO): Promise<string>;
+
+  deleteComment(): Promise<void>;
 }
