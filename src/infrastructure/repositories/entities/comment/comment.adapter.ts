@@ -3,15 +3,12 @@ import { Comment } from '../../../../domain/comment/comment';
 
 export default class CommentAdapter {
   static toComment(comment: CommentEntity): Comment {
-    const { id, ownerId, content, startLine, endLine, postId, createdAt } =
-      comment;
+    const { id, ownerId, content, projectId, createdAt } = comment;
     return {
       id,
       ownerId,
       content,
-      startLine,
-      endLine,
-      postId,
+      projectId,
       createdAt,
     };
   }
