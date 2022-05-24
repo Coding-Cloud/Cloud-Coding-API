@@ -17,30 +17,48 @@ export class TypeormFollowersRepository implements Followers {
     private readonly followerEntityRepository: Repository<FollowerEntity>,
   ) {}
 
-  async findFollowersById(followedId: string): Promise<Follower[]> {
+  async findFollowersById(
+    followedId: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[Follower[], number]> {
     try {
       const followerEntities = await this.followerEntityRepository
         .createQueryBuilder()
         .where('FollowerEntity.followedId=:followedId', { followedId })
-        .getMany();
-      return followerEntities.map((followerEntity) =>
-        FollowerAdapter.toFollower(followerEntity),
-      );
+        .limit(limit ?? 25)
+        .offset(offset ?? 0)
+        .getManyAndCount();
+      return [
+        followerEntities[0].map((followerEntity) =>
+          FollowerAdapter.toFollower(followerEntity),
+        ),
+        followerEntities[1],
+      ];
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();
     }
   }
 
-  async findFollowsById(followerId: string): Promise<Follower[]> {
+  async findFollowsById(
+    followerId: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[Follower[], number]> {
     try {
       const followerEntities = await this.followerEntityRepository
         .createQueryBuilder()
         .where('FollowerEntity.followerId=:followerId', { followerId })
-        .getMany();
-      return followerEntities.map((followerEntity) =>
-        FollowerAdapter.toFollower(followerEntity),
-      );
+        .limit(limit ?? 25)
+        .offset(offset ?? 0)
+        .getManyAndCount();
+      return [
+        followerEntities[0].map((followerEntity) =>
+          FollowerAdapter.toFollower(followerEntity),
+        ),
+        followerEntities[1],
+      ];
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();
