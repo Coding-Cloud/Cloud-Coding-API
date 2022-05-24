@@ -30,6 +30,7 @@ import { RemoveProjectFromGroupUseCase } from '../../../usecases/project/remove-
 import { NameGeneratorModule } from '../../name-generator/name-generator.module';
 import { NameGenerator } from '../../../domain/name-generator.interface';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { GetPublicProjectsUseCase } from '../../../usecases/project/get-public-projects-use.case';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ export class UseCasesProxyProjectModule {
   static FIND_GROUP_PROJECTS_USE_CASES_PROXY = 'findGroupProjectsUseCaseProxy';
   static FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY =
     'findMemberVisibleProjectsUseCaseProxy';
+  static GET_PUBLIC_PROJECTS_USER_CASE_PROXY = 'getPublicProjectsUseCaseProxy';
   static REMOVE_PROJECT_FROM_GROUP_USE_CASES_PROXY =
     'removeProjectFromGroupUseCaseProxy';
   static DELETE_PROJECT_USE_CASES_PROXY = 'deleteProjectUseCaseProxy';
@@ -226,6 +228,13 @@ export class UseCasesProxyProjectModule {
           useFactory: (projects: TypeormProjectsRepository) =>
             new UseCaseProxy(new SearchUserProjectsUseCase(projects)),
         },
+        {
+          inject: [TypeormProjectsRepository],
+          provide:
+            UseCasesProxyProjectModule.GET_PUBLIC_PROJECTS_USER_CASE_PROXY,
+          useFactory: (projects: TypeormProjectsRepository) =>
+            new UseCaseProxy(new GetPublicProjectsUseCase(projects)),
+        },
       ],
       exports: [
         UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
@@ -233,6 +242,7 @@ export class UseCasesProxyProjectModule {
         UseCasesProxyProjectModule.FIND_OWNED_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.FIND_GROUP_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.GET_PUBLIC_PROJECTS_USER_CASE_PROXY,
         UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.REMOVE_PROJECT_FROM_GROUP_USE_CASES_PROXY,
         UseCasesProxyProjectModule.UPDATE_PROJECT_USE_CASES_PROXY,

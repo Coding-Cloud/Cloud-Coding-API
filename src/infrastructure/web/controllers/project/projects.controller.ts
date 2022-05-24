@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { UseCasesProxyProjectModule } from '../../../usecases-proxy/project/use-cases-proxy-project.module';
 import { CreateProjectUseCase } from '../../../../usecases/project/create-project.usecase';
@@ -38,6 +38,8 @@ import { SearchUserProjectsUseCase } from '../../../../usecases/project/search-u
 import { ReadTreeStructureProjectUseCase } from '../../../../usecases/project/read-tree-structure-project.usecase';
 import { GetProjectFileContentUseCase } from '../../../../usecases/project/get-project-file-content.usecase';
 import { RemoveProjectFromGroupUseCase } from '../../../../usecases/project/remove-project-from-group.usecase';
+import { GetPublicProjectsUseCase } from '../../../../usecases/project/get-public-projects-use.case';
+import { ProjectList } from './dto/project-list.dto';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -51,6 +53,8 @@ export class ProjectsController {
     private readonly findOwnedProjects: UseCaseProxy<FindOwnedProjectsUseCase>,
     @Inject(UseCasesProxyProjectModule.FIND_GROUP_PROJECTS_USE_CASES_PROXY)
     private readonly findGroupProjects: UseCaseProxy<FindGroupProjectsUseCase>,
+    @Inject(UseCasesProxyProjectModule.GET_PUBLIC_PROJECTS_USER_CASE_PROXY)
+    private readonly getPublicProjects: UseCaseProxy<GetPublicProjectsUseCase>,
     @Inject(UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY)
     private readonly deleteProject: UseCaseProxy<DeleteProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.CHANGE_PROJECT_GROUP_USE_CASES_PROXY)
@@ -172,7 +176,7 @@ export class ProjectsController {
 
   @Get('/:userId/projects')
   @UseGuards(AuthGuard)
-  async getProjects(@Param('userId') userId: string): Promise<Project[]> {
+  async getUserProjects(@Param('userId') userId: string): Promise<Project[]> {
     return this.findVisibleProjects.getInstance().findVisibleProjects(userId);
   }
 
@@ -189,6 +193,23 @@ export class ProjectsController {
     @Param('projectId') projectId: string,
   ): Promise<void> {
     return this.removeFromGroup.getInstance().removeProjectFromGroup(projectId);
+  }
+
+  @Get('')
+  @UseGuards(AuthGuard)
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'offset', required: false })
+  @ApiOperation({ summary: 'Get paginated projects list' })
+  async getProjects(
+    @Query('search') search?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+  ): Promise<ProjectList> {
+    const [projects, totalResults] = await this.getPublicProjects
+      .getInstance()
+      .getProjects(search, limit, offset);
+    return { projects, totalResults };
   }
 
   @Patch('/:uniqueName/initialised')
