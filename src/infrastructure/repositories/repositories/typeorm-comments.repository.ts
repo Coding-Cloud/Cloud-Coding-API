@@ -9,6 +9,7 @@ import { Comment } from '../../../domain/comment/comment';
 import { GroupMembershipEntity } from '../entities/group-membership/group-membership.entity';
 import { ProjectEntity } from '../entities/project/project.entity';
 import { ProjectVisibility } from '../../../domain/project/project-visibility.enum';
+import { GroupEntity } from '../entities/group/group.entity';
 
 export class TypeormCommentsRepository implements Comments {
   constructor(
@@ -87,10 +88,26 @@ export class TypeormCommentsRepository implements Comments {
           'ProjectEntity',
           'ProjectEntity.groupId = GroupMembershipEntity.groupId',
         )
+        .leftJoin(
+          GroupEntity,
+          'GroupEntity',
+          'GroupEntity.ownerId = CommentEntity.ownerId',
+        )
+        .leftJoin(
+          ProjectEntity,
+          'ProjectEntity2',
+          'ProjectEntity2.groupId = GroupEntity.id',
+        )
         .where('CommentEntity.ownerId=:userId', { userId })
-        .andWhere('ProjectEntity.globalVisibility=:visibility', {
-          visibility: ProjectVisibility.PUBLIC,
-        });
+        .andWhere((q) =>
+          q
+            .where('ProjectEntity.globalVisibility=:visibility', {
+              visibility: ProjectVisibility.PUBLIC,
+            })
+            .orWhere('ProjectEntity2.globalVisibility=:visibility', {
+              visibility: ProjectVisibility.PUBLIC,
+            }),
+        );
       if (search) {
         query.andWhere('SIMILARITY(CommentEntity.content, :search) > 0.2', {
           search,
