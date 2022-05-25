@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  InternalServerErrorException,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comments } from '../../../domain/comment/comments.interface';
@@ -33,7 +28,7 @@ export class TypeormCommentsRepository implements Comments {
       return comment.id;
     } catch (error) {
       Logger.error(error);
-      throw new InternalServerErrorException();
+      throw new BadRequestException();
     }
   }
 

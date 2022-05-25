@@ -1,8 +1,10 @@
 import {
+  Body,
   Controller,
   Get,
   Inject,
   Param,
+  Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -13,6 +15,10 @@ import { UseCasesProxyCommentModule } from '../../../usecases-proxy/comment/use-
 import { FindProjectCommentsUseCase } from '../../../../usecases/comment/find-project-comments.usecase';
 import { CommentListDto } from './dto/comment-list.dto';
 import { FindUserPublicCommentsUseCase } from '../../../../usecases/comment/find-user-comments.usecase';
+import { GetUser } from '../decorators/get-user.decorator';
+import { User } from '../../../../domain/user/user';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { AddProjectCommentUseCase } from '../../../../usecases/comment/add-project-comment.usecase';
 
 @Controller('comments')
 @ApiTags('comments')
@@ -25,6 +31,8 @@ export class CommentsController {
       UseCasesProxyCommentModule.FIND_USER_PUBLIC_COMMENTS_USE_CASES_PROXY,
     )
     private readonly findUserPublicComments: UseCaseProxy<FindUserPublicCommentsUseCase>,
+    @Inject(UseCasesProxyCommentModule.ADD_PROJECT_COMMENT_USE_CASES_PROXY)
+    private readonly addProjectComment: UseCaseProxy<AddProjectCommentUseCase>,
   ) {}
 
   @ApiOperation({ summary: 'Get comments of project' })
@@ -53,5 +61,18 @@ export class CommentsController {
       .getInstance()
       .findUserPublicComments(userId, search, limit, offset);
     return { comments, totalResults };
+  }
+
+  @ApiOperation({ summary: 'Get comments of project' })
+  @Post()
+  async addComment(
+    @GetUser() user: User,
+    @Body() createCommentDto: CreateCommentDto,
+  ): Promise<string> {
+    return await this.addProjectComment.getInstance().addProjectCommentUseCase({
+      ownerId: user.id,
+      projectId: createCommentDto.projectId,
+      content: createCommentDto.content,
+    });
   }
 }
