@@ -4,7 +4,7 @@ import { CreateCommentCandidate } from '../../usecases/comment/candidates/create
 export interface Comments {
   findProjectComments(projectId: string): Promise<Comment[]>;
 
-  createComment(createUserDTO: CreateCommentCandidate): Promise<string>;
+  createComment(createCommentDTO: CreateCommentCandidate): Promise<string>;
 
   deleteComment(commentId: string): Promise<void>;
 }
