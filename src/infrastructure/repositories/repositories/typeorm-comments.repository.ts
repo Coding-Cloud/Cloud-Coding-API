@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   InternalServerErrorException,
   Logger,
   NotFoundException,
@@ -65,7 +66,7 @@ export class TypeormCommentsRepository implements Comments {
       ];
     } catch (error) {
       Logger.error(error);
-      throw new InternalServerErrorException();
+      throw new BadRequestException();
     }
   }
 
