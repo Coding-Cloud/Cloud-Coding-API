@@ -11,6 +11,9 @@ import { CreateCommentCandidate } from '../../../usecases/comment/candidates/cre
 import { CommentEntity } from '../entities/comment/comment.entity';
 import CommentAdapter from '../entities/comment/comment.adapter';
 import { Comment } from '../../../domain/comment/comment';
+import { GroupMembershipEntity } from '../entities/group-membership/group-membership.entity';
+import { ProjectEntity } from '../entities/project/project.entity';
+import { ProjectVisibility } from '../../../domain/project/project-visibility.enum';
 
 export class TypeormCommentsRepository implements Comments {
   constructor(
@@ -79,7 +82,20 @@ export class TypeormCommentsRepository implements Comments {
     try {
       const query = this.commentEntityRepository
         .createQueryBuilder()
-        .where('CommentEntity.ownerId=:userId', { userId });
+        .leftJoin(
+          GroupMembershipEntity,
+          'GroupMembershipEntity',
+          'GroupMembershipEntity.userId = CommentEntity.ownerId',
+        )
+        .leftJoin(
+          ProjectEntity,
+          'ProjectEntity',
+          'ProjectEntity.groupId = GroupMembershipEntity.groupId',
+        )
+        .where('CommentEntity.ownerId=:userId', { userId })
+        .andWhere('ProjectEntity.globalVisibility=:visibility', {
+          visibility: ProjectVisibility.PUBLIC,
+        });
       if (search) {
         query.andWhere('SIMILARITY(CommentEntity.content, :search) > 0.2', {
           search,
