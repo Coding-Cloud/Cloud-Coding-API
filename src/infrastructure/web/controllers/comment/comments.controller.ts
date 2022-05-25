@@ -21,6 +21,7 @@ import { User } from '../../../../domain/user/user';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { AddProjectCommentUseCase } from '../../../../usecases/comment/add-project-comment.usecase';
 import { DeleteProjectCommentUseCase } from '../../../../usecases/comment/delete-project-comment.usecase';
+import { IsCommentOwnerGuard } from './comment-owner.guards';
 
 @Controller('comments')
 @ApiTags('comments')
@@ -81,6 +82,7 @@ export class CommentsController {
   }
 
   @ApiOperation({ summary: 'Delete comment' })
+  @UseGuards(IsCommentOwnerGuard)
   @Delete('/:commentId')
   async deleteComment(@Param('commentId') commentId: string): Promise<void> {
     return await this.deleteProjectComment
