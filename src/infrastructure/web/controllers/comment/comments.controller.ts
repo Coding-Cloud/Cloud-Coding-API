@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -19,6 +20,7 @@ import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { AddProjectCommentUseCase } from '../../../../usecases/comment/add-project-comment.usecase';
+import { DeleteProjectCommentUseCase } from '../../../../usecases/comment/delete-project-comment.usecase';
 
 @Controller('comments')
 @ApiTags('comments')
@@ -33,6 +35,8 @@ export class CommentsController {
     private readonly findUserPublicComments: UseCaseProxy<FindUserPublicCommentsUseCase>,
     @Inject(UseCasesProxyCommentModule.ADD_PROJECT_COMMENT_USE_CASES_PROXY)
     private readonly addProjectComment: UseCaseProxy<AddProjectCommentUseCase>,
+    @Inject(UseCasesProxyCommentModule.DELETE_PROJECT_COMMENT_USE_CASES_PROXY)
+    private readonly deleteProjectComment: UseCaseProxy<DeleteProjectCommentUseCase>,
   ) {}
 
   @ApiOperation({ summary: 'Get comments of project' })
@@ -63,7 +67,7 @@ export class CommentsController {
     return { comments, totalResults };
   }
 
-  @ApiOperation({ summary: 'Get comments of project' })
+  @ApiOperation({ summary: 'Add new comment' })
   @Post()
   async addComment(
     @GetUser() user: User,
@@ -74,5 +78,13 @@ export class CommentsController {
       projectId: createCommentDto.projectId,
       content: createCommentDto.content,
     });
+  }
+
+  @ApiOperation({ summary: 'Delete comment' })
+  @Delete('/:commentId')
+  async deleteComment(@Param('commentId') commentId: string): Promise<void> {
+    return await this.deleteProjectComment
+      .getInstance()
+      .deleteProjectCommentUseCase(commentId);
   }
 }

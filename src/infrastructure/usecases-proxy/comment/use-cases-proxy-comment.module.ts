@@ -5,6 +5,7 @@ import { FindProjectCommentsUseCase } from '../../../usecases/comment/find-proje
 import { TypeormCommentsRepository } from '../../repositories/repositories/typeorm-comments.repository';
 import { FindUserPublicCommentsUseCase } from '../../../usecases/comment/find-user-comments.usecase';
 import { AddProjectCommentUseCase } from '../../../usecases/comment/add-project-comment.usecase';
+import { DeleteProjectCommentUseCase } from '../../../usecases/comment/delete-project-comment.usecase';
 
 @Module({
   imports: [RepositoriesModule],
@@ -15,6 +16,8 @@ export class UseCasesProxyCommentModule {
   static FIND_USER_PUBLIC_COMMENTS_USE_CASES_PROXY =
     'findUserCommentsUseCaseProxy';
   static ADD_PROJECT_COMMENT_USE_CASES_PROXY = 'addProjectCommentUseCaseProxy';
+  static DELETE_PROJECT_COMMENT_USE_CASES_PROXY =
+    'deleteProjectCommentUseCaseProxy';
 
   static register(): DynamicModule {
     return {
@@ -41,11 +44,19 @@ export class UseCasesProxyCommentModule {
           useFactory: (comments: TypeormCommentsRepository) =>
             new UseCaseProxy(new AddProjectCommentUseCase(comments)),
         },
+        {
+          inject: [TypeormCommentsRepository],
+          provide:
+            UseCasesProxyCommentModule.DELETE_PROJECT_COMMENT_USE_CASES_PROXY,
+          useFactory: (comments: TypeormCommentsRepository) =>
+            new UseCaseProxy(new DeleteProjectCommentUseCase(comments)),
+        },
       ],
       exports: [
         UseCasesProxyCommentModule.FIND_PROJECT_COMMENTS_USE_CASES_PROXY,
         UseCasesProxyCommentModule.FIND_USER_PUBLIC_COMMENTS_USE_CASES_PROXY,
         UseCasesProxyCommentModule.ADD_PROJECT_COMMENT_USE_CASES_PROXY,
+        UseCasesProxyCommentModule.DELETE_PROJECT_COMMENT_USE_CASES_PROXY,
       ],
     };
   }
