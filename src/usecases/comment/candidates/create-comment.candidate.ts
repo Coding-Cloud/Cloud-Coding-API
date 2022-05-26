@@ -1,7 +1,5 @@
-export class Comment {
-  id: string;
+export class CreateCommentCandidate {
   ownerId: string;
   projectId: string;
   content: string;
-  createdAt: Date;
 }
