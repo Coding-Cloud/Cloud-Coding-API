@@ -6,9 +6,9 @@ export class FindUserPublicCommentsUseCase {
 
   public findUserPublicComments(
     userId: string,
-    search: string,
-    limit: number,
-    offset: number,
+    search?: string,
+    limit?: number,
+    offset?: number,
   ): Promise<[Comment[], number]> {
     return this.comments.findUserPublicComments(userId, search, limit, offset);
   }

@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { AuthGuard } from '../auth/auth.guards';
 import { UseCasesProxyCommentModule } from '../../../usecases-proxy/comment/use-cases-proxy-comment.module';
@@ -41,12 +41,15 @@ export class CommentsController {
   ) {}
 
   @ApiOperation({ summary: 'Get comments of project' })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'offset', required: false })
   @Get('/project/:projectId')
   async findCommentsByProjectId(
     @Param('projectId') projectId: string,
-    @Query('search') search: string,
-    @Query('limit') limit: number,
-    @Query('offset') offset: number,
+    @Query('search') search?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
   ): Promise<CommentListDto> {
     const [comments, totalResults] = await this.findProjectComments
       .getInstance()
@@ -55,12 +58,15 @@ export class CommentsController {
   }
 
   @ApiOperation({ summary: 'Get public comments of user' })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'offset', required: false })
   @Get('/user/:userId')
   async findCommentsByUserId(
     @Param('userId') userId: string,
-    @Query('search') search: string,
-    @Query('limit') limit: number,
-    @Query('offset') offset: number,
+    @Query('search') search?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
   ): Promise<CommentListDto> {
     const [comments, totalResults] = await this.findUserPublicComments
       .getInstance()

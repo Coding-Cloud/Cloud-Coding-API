@@ -6,9 +6,9 @@ export class FindProjectCommentsUseCase {
 
   public findProjectComments(
     projectId: string,
-    search: string,
-    limit: number,
-    offset: number,
+    search?: string,
+    limit?: number,
+    offset?: number,
   ): Promise<[Comment[], number]> {
     return this.comments.findProjectComments(projectId, search, limit, offset);
   }

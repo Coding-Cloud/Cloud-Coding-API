@@ -10,16 +10,16 @@ export interface Comments {
 
   findProjectComments(
     projectId: string,
-    search: string,
-    limit: number,
-    offset: number,
+    search?: string,
+    limit?: number,
+    offset?: number,
   ): Promise<[Comment[], number]>;
 
   findUserPublicComments(
     userId: string,
-    search: string,
-    limit: number,
-    offset: number,
+    search?: string,
+    limit?: number,
+    offset?: number,
   ): Promise<[Comment[], number]>;
 
   deleteComment(commentId: string): Promise<void>;

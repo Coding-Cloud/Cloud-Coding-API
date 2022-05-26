@@ -39,9 +39,9 @@ export class TypeormCommentsRepository implements Comments {
 
   async findProjectComments(
     projectId: string,
-    search: string,
-    limit: number,
-    offset: number,
+    search?: string,
+    limit?: number,
+    offset?: number,
   ): Promise<[Comment[], number]> {
     try {
       const query = this.commentEntityRepository
@@ -71,9 +71,9 @@ export class TypeormCommentsRepository implements Comments {
 
   async findUserPublicComments(
     userId: string,
-    search: string,
-    limit: number,
-    offset: number,
+    search?: string,
+    limit?: number,
+    offset?: number,
   ): Promise<[Comment[], number]> {
     try {
       const query = this.commentEntityRepository
@@ -84,30 +84,19 @@ export class TypeormCommentsRepository implements Comments {
           'GroupMembershipEntity.userId = CommentEntity.ownerId',
         )
         .leftJoin(
-          ProjectEntity,
-          'ProjectEntity',
-          'ProjectEntity.groupId = GroupMembershipEntity.groupId',
-        )
-        .leftJoin(
           GroupEntity,
           'GroupEntity',
           'GroupEntity.ownerId = CommentEntity.ownerId',
         )
         .leftJoin(
           ProjectEntity,
-          'ProjectEntity2',
-          'ProjectEntity2.groupId = GroupEntity.id',
+          'ProjectEntity',
+          'ProjectEntity.groupId = GroupMembershipEntity.groupId OR ProjectEntity.groupId = GroupEntity.id',
         )
         .where('CommentEntity.ownerId=:userId', { userId })
-        .andWhere((q) =>
-          q
-            .where('ProjectEntity.globalVisibility=:visibility', {
-              visibility: ProjectVisibility.PUBLIC,
-            })
-            .orWhere('ProjectEntity2.globalVisibility=:visibility', {
-              visibility: ProjectVisibility.PUBLIC,
-            }),
-        );
+        .andWhere('ProjectEntity.globalVisibility=:visibility', {
+          visibility: ProjectVisibility.PUBLIC,
+        });
       if (search) {
         query.andWhere('SIMILARITY(CommentEntity.content, :search) > 0.2', {
           search,
