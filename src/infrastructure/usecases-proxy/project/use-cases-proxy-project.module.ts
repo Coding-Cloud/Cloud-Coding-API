@@ -9,7 +9,7 @@ import { InitialisedProjectUseCase } from '../../../usecases/project/initialised
 import { ProjectInitializerModule } from '../../project-initializer/project-initializer.module';
 import { CodeRunnerModule } from '../../code-runner/code-runner.module';
 import { ProjectInitializerApi } from '../../project-initializer/project-initializer.abstract';
-import { HttpModule } from '@nestjs/axios';
+import { HttpModule, HttpService } from "@nestjs/axios";
 import { ProjectVersioningModule } from '../../project-versioning/project-versioning.module';
 import { CodeWriterModule } from 'src/infrastructure/code-writer/code-writer.module';
 import { CodeWriter } from 'src/domain/code-writer.abstract';
@@ -31,6 +31,7 @@ import { NameGeneratorModule } from '../../name-generator/name-generator.module'
 import { NameGenerator } from '../../../domain/name-generator.interface';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GetPublicProjectsUseCase } from '../../../usecases/project/get-public-projects-use.case';
+import { CheckHealthProjectPathUsecase } from '../../../usecases/project/check-health-project-path.usecase';
 
 @Module({
   imports: [
@@ -67,6 +68,8 @@ export class UseCasesProxyProjectModule {
   static READ_PROJECT_FILE_USE_CASES_PROXY = 'readProjectFileUseCaseProxy';
   static SEARCH_USER_PROJECTS_USE_CASES_PROXY =
     'searchUserProjectsUseCaseProxy';
+  static CHECK_HEALTH_PROJECT_PATH_USE_CASES_PROXY =
+    'checkHealthProjectPathUseCaseProxy';
 
   static register(): DynamicModule {
     return {
@@ -233,6 +236,12 @@ export class UseCasesProxyProjectModule {
           useFactory: (projects: TypeormProjectsRepository) =>
             new UseCaseProxy(new GetPublicProjectsUseCase(projects)),
         },
+        {
+          inject: [HttpService],
+          provide:
+            UseCasesProxyProjectModule.CHECK_HEALTH_PROJECT_PATH_USE_CASES_PROXY,
+          useFactory: (httpService: HttpService) => new UseCaseProxy(new CheckHealthProjectPathUsecase(httpService)),
+        },
       ],
       exports: [
         UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
@@ -251,6 +260,7 @@ export class UseCasesProxyProjectModule {
         UseCasesProxyProjectModule.READ_TREE_STRUCTURE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.SEARCH_USER_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.READ_PROJECT_FILE_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.CHECK_HEALTH_PROJECT_PATH_USE_CASES_PROXY,
       ],
     };
   }

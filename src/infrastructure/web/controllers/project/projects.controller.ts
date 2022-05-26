@@ -40,6 +40,9 @@ import { GetProjectFileContentUseCase } from '../../../../usecases/project/get-p
 import { RemoveProjectFromGroupUseCase } from '../../../../usecases/project/remove-project-from-group.usecase';
 import { GetPublicProjectsUseCase } from '../../../../usecases/project/get-public-projects-use.case';
 import { ProjectList } from './dto/project-list.dto';
+import { FindProjectByUniqueNameDto } from './dto/find-project-by-unique-name.dto';
+import { CheckHealthProjectPathUsecase } from '../../../../usecases/project/check-health-project-path.usecase';
+import { ProjectPathDto } from './dto/project-path.dto';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -81,6 +84,10 @@ export class ProjectsController {
     private readonly searchByName: UseCaseProxy<SearchUserProjectsUseCase>,
     @Inject(UseCasesProxyProjectModule.READ_PROJECT_FILE_USE_CASES_PROXY)
     private readonly getProjectFileContent: UseCaseProxy<GetProjectFileContentUseCase>,
+    @Inject(
+      UseCasesProxyProjectModule.CHECK_HEALTH_PROJECT_PATH_USE_CASES_PROXY,
+    )
+    private readonly checkHealthProjectPath: UseCaseProxy<CheckHealthProjectPathUsecase>,
   ) {}
 
   @Post()
@@ -137,6 +144,23 @@ export class ProjectsController {
     @Param('uniqueName') uniqueName: string,
   ): Promise<Project> {
     return this.findProject.getInstance().findProjectBy({ uniqueName });
+  }
+
+  @Get('/unique-name/:uniqueName/check-health')
+  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'check health for an url of a project' })
+  async checkProjectIsReachable(
+    @Param() params: FindProjectByUniqueNameDto,
+    @Query() queryParams: ProjectPathDto,
+  ): Promise<{ reachable: boolean }> {
+    const urlIsReachable = await this.checkHealthProjectPath
+      .getInstance()
+      .checkHealth({
+        projectUniqueName: params.uniqueName,
+        path: queryParams.path,
+      });
+
+    return { reachable: urlIsReachable };
   }
 
   @Get('/:id/name')
