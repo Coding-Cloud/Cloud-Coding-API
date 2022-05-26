@@ -5,6 +5,7 @@ import {
   Get,
   Inject,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -22,6 +23,8 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { AddProjectCommentUseCase } from '../../../../usecases/comment/add-project-comment.usecase';
 import { DeleteProjectCommentUseCase } from '../../../../usecases/comment/delete-project-comment.usecase';
 import { IsCommentOwnerGuard } from './comment-owner.guards';
+import { UpdateCommentUseCase } from '../../../../usecases/comment/update-coment.usecase';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Controller('comments')
 @ApiTags('comments')
@@ -36,6 +39,8 @@ export class CommentsController {
     private readonly findUserPublicComments: UseCaseProxy<FindUserPublicCommentsUseCase>,
     @Inject(UseCasesProxyCommentModule.ADD_PROJECT_COMMENT_USE_CASES_PROXY)
     private readonly addProjectComment: UseCaseProxy<AddProjectCommentUseCase>,
+    @Inject(UseCasesProxyCommentModule.UPDATE_COMMENT_USE_CASES_PROXY)
+    private readonly updateComment: UseCaseProxy<UpdateCommentUseCase>,
     @Inject(UseCasesProxyCommentModule.DELETE_PROJECT_COMMENT_USE_CASES_PROXY)
     private readonly deleteProjectComment: UseCaseProxy<DeleteProjectCommentUseCase>,
   ) {}
@@ -94,5 +99,17 @@ export class CommentsController {
     return await this.deleteProjectComment
       .getInstance()
       .deleteProjectCommentUseCase(commentId);
+  }
+
+  @ApiOperation({ summary: 'Delete comment' })
+  @UseGuards(IsCommentOwnerGuard)
+  @Patch('/:commentId')
+  async editComment(
+    @Param('commentId') commentId: string,
+    @Body() commentDto: UpdateCommentDto,
+  ): Promise<void> {
+    return await this.updateComment
+      .getInstance()
+      .updateComment(commentId, { content: commentDto.content });
   }
 }

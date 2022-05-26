@@ -10,6 +10,7 @@ import { GroupMembershipEntity } from '../entities/group-membership/group-member
 import { ProjectEntity } from '../entities/project/project.entity';
 import { ProjectVisibility } from '../../../domain/project/project-visibility.enum';
 import { GroupEntity } from '../entities/group/group.entity';
+import { UpdateCommentCandidate } from '../../../usecases/comment/candidates/update-comment.candidate';
 
 export class TypeormCommentsRepository implements Comments {
   constructor(
@@ -125,6 +126,21 @@ export class TypeormCommentsRepository implements Comments {
       return CommentAdapter.toComment(commentEntity);
     } catch (e) {
       throw new NotFoundException();
+    }
+  }
+
+  async updateComment(
+    commentId: string,
+    commentCandidate: UpdateCommentCandidate,
+  ): Promise<void> {
+    const updatedComment = this.commentEntityRepository.create({
+      ...commentCandidate,
+    });
+    try {
+      await this.commentEntityRepository.update(commentId, updatedComment);
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException();
     }
   }
 }
