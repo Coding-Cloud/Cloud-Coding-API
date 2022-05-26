@@ -13,6 +13,7 @@ import { UseCaseProxy } from '../usecases-proxy';
 import { SearchUsersUseCases } from '../../../usecases/user/search-users.usecase';
 import { UpdateUserUseCases } from '../../../usecases/user/update-user.usecase';
 import { UpdateUserPasswordUseCases } from '../../../usecases/user/update-user-password.usecase';
+import { IsProjectMemberUseCase } from '../../../usecases/user/is-project-member.usecase';
 
 @Module({
   imports: [RepositoriesModule, EncryptModule, JwtEncryptModule, EncryptModule],
@@ -25,6 +26,7 @@ export class UsecasesProxyUserModule {
   static UPDATE_USER_PASSWORD_USE_CASES_PROXY =
     'updateUserPasswordUseCasesProxy';
   static SEARCH_USERS_USE_CASES_PROXY = 'searchUsersUseCasesProxy';
+  static IS_PROJECT_MEMBER_USE_CASES_PROXY = 'isProjectMemberUseCasesProxy';
 
   static register(): DynamicModule {
     return {
@@ -78,6 +80,12 @@ export class UsecasesProxyUserModule {
           useFactory: (users: TypeormUsersRepository) =>
             new UseCaseProxy(new SearchUsersUseCases(users)),
         },
+        {
+          inject: [TypeormUsersRepository],
+          provide: UsecasesProxyUserModule.IS_PROJECT_MEMBER_USE_CASES_PROXY,
+          useFactory: (users: TypeormUsersRepository) =>
+            new UseCaseProxy(new IsProjectMemberUseCase(users)),
+        },
       ],
       exports: [
         UsecasesProxyUserModule.SIGNIN_USE_CASES_PROXY,
@@ -86,6 +94,7 @@ export class UsecasesProxyUserModule {
         UsecasesProxyUserModule.UPDATE_USER_PASSWORD_USE_CASES_PROXY,
         UsecasesProxyUserModule.UPDATE_USER_USE_CASES_PROXY,
         UsecasesProxyUserModule.SEARCH_USERS_USE_CASES_PROXY,
+        UsecasesProxyUserModule.IS_PROJECT_MEMBER_USE_CASES_PROXY,
       ],
     };
   }

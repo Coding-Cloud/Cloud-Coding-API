@@ -25,6 +25,7 @@ import { DeleteProjectCommentUseCase } from '../../../../usecases/comment/delete
 import { IsCommentOwnerGuard } from './comment-owner.guards';
 import { UpdateCommentUseCase } from '../../../../usecases/comment/update-coment.usecase';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { CanCommentGuard } from './can-comment.guards';
 
 @Controller('comments')
 @ApiTags('comments')
@@ -81,6 +82,7 @@ export class CommentsController {
 
   @ApiOperation({ summary: 'Add new comment' })
   @Post()
+  @UseGuards(CanCommentGuard)
   async addComment(
     @GetUser() user: User,
     @Body() createCommentDto: CreateCommentDto,

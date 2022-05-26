@@ -18,4 +18,6 @@ export interface Users {
   findUserByResetPassword(token: string): Promise<User>;
 
   searchUsers(search: string): Promise<User[]>;
+
+  isProjectMember(userId: string, projectId): Promise<boolean>;
 }
