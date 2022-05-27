@@ -21,7 +21,9 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const bearerToken = request.headers['authorization'];
+    const bearerToken = request.headers
+      ? request.headers['authorization']
+      : request.handshake.headers['authorization'];
     if (bearerToken !== undefined) {
       const token = bearerToken.replace('Bearer ', '');
       const session = await this.getSessionUseCaseProxy
@@ -33,11 +35,8 @@ export class AuthGuard implements CanActivate {
           .getUserById(session.userId);
         request.user = user;
         return true;
-      } else {
-        return false;
       }
-    } else {
-      return false;
     }
+    return false;
   }
 }
