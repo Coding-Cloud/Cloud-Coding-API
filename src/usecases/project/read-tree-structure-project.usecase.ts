@@ -9,6 +9,7 @@ export class ReadTreeStructureProjectUseCase {
     '.angular',
     '.git',
     'node_modules',
+    '.pnpm-store',
   ];
 
   constructor(private readonly codeWriter: CodeWriter) {}
