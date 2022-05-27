@@ -10,6 +10,7 @@ import { Messages } from '../../../domain/message/messages.interface';
 import { MessageEntity } from '../entities/message/message.entity';
 import { Message } from '../../../domain/message/message';
 import MessageAdapter from '../entities/message/message.adapter';
+import { CreateMessageCandidate } from '../../../usecases/message/candidates/create-message.candidate';
 
 export class TypeormMessagesRepository implements Messages {
   constructor(
@@ -17,7 +18,11 @@ export class TypeormMessagesRepository implements Messages {
     private readonly messageEntityRepository: Repository<MessageEntity>,
   ) {}
 
-  async createMessage(message: Message): Promise<string> {
+  async findById(id: string): Promise<Message> {
+    return await this.messageEntityRepository.findOne(id);
+  }
+
+  async createMessage(message: CreateMessageCandidate): Promise<string> {
     try {
       const messageCreationEntity = this.messageEntityRepository.create({
         ...message,
@@ -37,13 +42,19 @@ export class TypeormMessagesRepository implements Messages {
     }
   }
 
-  async findByConversation(conversationId: string): Promise<Message[]> {
+  async findByConversation(
+    conversationId: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<Message[]> {
     try {
       const conversationEntities = await this.messageEntityRepository
         .createQueryBuilder()
         .where('MessageEntity.conversationId=:conversationId', {
           conversationId,
         })
+        .limit(limit ?? 25)
+        .offset(offset ?? 0)
         .getMany();
       return conversationEntities.map((conversationEntity) =>
         MessageAdapter.toMessage(conversationEntity),

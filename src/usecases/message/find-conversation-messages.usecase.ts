@@ -4,7 +4,15 @@ import { Message } from '../../domain/message/message';
 export class FindConversationMessagesUseCase {
   constructor(private readonly messages: Messages) {}
 
-  async findByConversation(conversationId: string): Promise<Message[]> {
-    return await this.messages.findByConversation(conversationId);
+  async findByConversation(
+    conversationId: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<Message[]> {
+    return await this.messages.findByConversation(
+      conversationId,
+      limit,
+      offset,
+    );
   }
 }
