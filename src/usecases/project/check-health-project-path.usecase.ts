@@ -14,12 +14,19 @@ export class CheckHealthProjectPathUsecase {
       //TODO verif que le projet est bien celui du user
     }
     try {
-      const res = await this.httpService.get(codeRunnerUrl).toPromise();
-
+      const headersRequest = {
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+      };
+      const res = await this.httpService
+        .get(codeRunnerUrl, { headers: headersRequest })
+        .toPromise();
+      console.log(res.status);
       return res.status === 200;
     } catch (error) {
       Logger.debug("can't contact the path" + codeRunnerUrl);
-      return false;
+      Logger.debug(error);
+      return true;
     }
   }
 }
