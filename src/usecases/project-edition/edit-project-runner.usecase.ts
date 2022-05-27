@@ -2,13 +2,13 @@ import * as fs from 'fs';
 import { CodeWriter } from 'src/domain/code-writer.abstract';
 import { FolderStatus } from 'src/domain/folder/folder-status.enum';
 import { EditProject } from './types/edit-project';
+import { Logger } from "@nestjs/common";
 
 export class EditProjectRunnerUseCase {
   constructor(private readonly codeWriter: CodeWriter) {}
 
   async editProject(editsProject: EditProject[]): Promise<void> {
     editsProject.forEach(async (editProject) => {
-      console.log(editProject);
       if (
         editProject.folderStatus === FolderStatus.CREATED ||
         editProject.folderStatus === FolderStatus.MODIFIED
@@ -48,8 +48,7 @@ export class EditProjectRunnerUseCase {
 
   private async createProjectElement(editProject: EditProject) {
     if (editProject.type === 'file') {
-      console.log(editProject.fullPath);
-      console.log("created");
+      Logger.debug('created');
       await this.codeWriter.createFile('', editProject.fullPath);
     } else if (editProject.type === 'folder') {
       await this.codeWriter.createDir(editProject.fullPath);

@@ -109,10 +109,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
                 await this.stopProject
                   .getInstance()
                   .stopProjectRunner(projectId);
-                console.log('ça timeout');
+                Logger.log('ça timeout');
               }, 300_000);
               Logger.log('on déclenche le timeout dans 5 minutes');
-              Logger.log(room);
               addDisconnectigProjectTimeout(room, timeOut);
             }
             deleteConnectedUsers(room, client.data.username);

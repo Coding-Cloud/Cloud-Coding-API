@@ -8,8 +8,6 @@ export class DeleteProjectFolderRunnerUseCase {
     if (deleteFolder.type === 'file') {
       await this.codeWriter.deleteFile(deleteFolder.path);
     } else if (deleteFolder.type === 'dir') {
-      console.log('on passe bien ici');
-      console.log(deleteFolder.path);
       await this.codeWriter.deleteDirectory(deleteFolder.path);
     }
   }
