@@ -112,9 +112,9 @@ export class MessagingGateway {
     @MessageBody() messageId: string,
   ): Promise<void> {
     try {
-      const conversationId = client.handshake.query.conversationId as string;
+      const message = await this.findMessage.getInstance().findById(messageId);
       await this.deleteMessage.getInstance().deleteMessage(messageId);
-      this.server.to(conversationId).emit('messageDeleted', messageId);
+      this.server.to(message.conversationId).emit('messageDeleted', messageId);
     } catch (e) {
       Logger.error(e);
     }
