@@ -117,7 +117,6 @@ export class TypeormUserSocketsRepository implements UserSockets {
         UserSocketAdapter.toUserSocket(userSocketEntity),
       );
     } catch (e) {
-      console.log(e);
       Logger.error(e);
     }
   }
