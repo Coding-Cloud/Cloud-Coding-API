@@ -78,7 +78,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       client.join(projectId);
       addConnectedUsers(projectId, username);
       client.data.username = username;
-      this.sendUserInRoom(projectId);
       this.checkCodeRunnerStatus(projectId, client);
       deleteDisconnectigProjectTimeout(projectId);
 
@@ -217,6 +216,14 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     client.rooms.forEach(async (room) => {
       this.sendLogsToClient(room);
     });
+  }
+
+  @SubscribeMessage('socketReadyToReceiveDevelopers')
+  async readyToReceiveDevelopers(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { projectId: string },
+  ): Promise<void> {
+    this.sendUserInRoom(body.projectId);
   }
 
   private broadcastEditProject(
