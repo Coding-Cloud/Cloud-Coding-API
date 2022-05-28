@@ -122,7 +122,13 @@ export class MessagingGateway {
     try {
       const message = await this.findMessage.getInstance().findById(messageId);
       await this.deleteMessage.getInstance().deleteMessage(messageId);
-      this.server.to(message.conversationId).emit('messageDeleted', messageId);
+
+      const userSockets = await this.findUserSocket
+        .getInstance()
+        .findConversationUserSockets(message.conversationId);
+      userSockets.forEach((userSocket) =>
+        this.server.to(userSocket.socketId).emit('messageDeleted', messageId),
+      );
     } catch (e) {
       Logger.error(e);
     }
