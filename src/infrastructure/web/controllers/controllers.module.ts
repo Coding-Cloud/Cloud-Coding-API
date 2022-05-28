@@ -23,6 +23,8 @@ import { ConversationsController } from './conversation/conversations.controller
 import { UseCasesProxyMessageModule } from '../../usecases-proxy/message/use-cases-proxy-message.module';
 import { MessagesController } from './message/messages.controller';
 import { UserController } from './user/user.controller';
+import { UseCasesProxyCommentModule } from '../../usecases-proxy/comment/use-cases-proxy-comment.module';
+import { CommentsController } from './comment/comments.controller';
 
 @Module({
   imports: [
@@ -38,9 +40,11 @@ import { UserController } from './user/user.controller';
     UseCasesProxyFriendshipModule.register(),
     UseCasesProxyConversationModule.register(),
     UseCasesProxyMessageModule.register(),
+    UseCasesProxyCommentModule.register(),
   ],
   controllers: [
     AuthController,
+    CommentsController,
     ConversationsController,
     FollowersController,
     FriendRequestsController,

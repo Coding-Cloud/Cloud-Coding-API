@@ -13,6 +13,9 @@ import { User } from 'src/domain/user/user';
 import UserAdapter from 'src/infrastructure/repositories/entities/user/user.adapter';
 import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/create-user.dto';
 import { UpdateUserCandidate } from 'src/usecases/user/candidates/update-user.candidate';
+import { GroupMembershipEntity } from '../entities/group-membership/group-membership.entity';
+import { GroupEntity } from '../entities/group/group.entity';
+import { ProjectEntity } from '../entities/project/project.entity';
 
 export class TypeormUsersRepository implements Users {
   constructor(
@@ -161,5 +164,33 @@ export class TypeormUsersRepository implements Users {
       Logger.error(error);
       throw new InternalServerErrorException();
     }
+  }
+
+  async isProjectMember(userId: string, projectId): Promise<boolean> {
+    const user = await this.userEntityRepository
+      .createQueryBuilder()
+      .leftJoin(
+        GroupMembershipEntity,
+        'GroupMembershipEntity',
+        'GroupMembershipEntity.userId = UserEntity.id',
+      )
+      .leftJoin(
+        GroupEntity,
+        'GroupEntity',
+        'GroupEntity.id = GroupMembershipEntity.groupId',
+      )
+      .leftJoin(
+        ProjectEntity,
+        'ProjectEntity',
+        'ProjectEntity.groupId = GroupEntity.id',
+      )
+      .where('ProjectEntity.id=:projectId', { projectId })
+      .andWhere((q) =>
+        q
+          .where('GroupEntity.ownerId=:userId', { userId })
+          .orWhere('GroupMembershipEntity.userId=:userId', { userId }),
+      )
+      .getOne();
+    return user !== null && user !== undefined;
   }
 }
