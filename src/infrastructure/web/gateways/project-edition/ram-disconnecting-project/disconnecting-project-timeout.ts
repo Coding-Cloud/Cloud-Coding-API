@@ -4,7 +4,6 @@ export const disconnectingProjectTimeout = new Map<string, NodeJS.Timeout[]>();
 
 export const deleteDisconnectigProjectTimeout = (room: string) => {
   Logger.log('on passe dans le delete');
-  console.log(disconnectingProjectTimeout);
   if (disconnectingProjectTimeout.has(room)) {
     Logger.log('on rentre bien clean le timeout');
     Logger.log(disconnectingProjectTimeout.get(room));

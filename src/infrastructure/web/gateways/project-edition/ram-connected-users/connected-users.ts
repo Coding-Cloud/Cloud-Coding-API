@@ -29,8 +29,6 @@ export const deleteConnectedUsers = (room: string, username: string) => {
     const connectedUsersFilter = conectedUsers
       .get(room)
       .filter((usernameFromMap) => usernameFromMap !== username);
-    console.log(connectedUsersFilter);
-
     conectedUsers.set(room, connectedUsersFilter);
   }
 };

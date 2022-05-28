@@ -17,7 +17,7 @@ export class MessageEntity {
   @Column('uuid', { nullable: false })
   userId: string;
 
-  @Column('uuid', { nullable: false })
+  @Column('uuid', { nullable: true })
   assetId: string;
 
   @Column('uuid', { nullable: false })

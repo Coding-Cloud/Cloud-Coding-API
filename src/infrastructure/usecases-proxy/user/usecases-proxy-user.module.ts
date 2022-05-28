@@ -13,6 +13,7 @@ import { UseCaseProxy } from '../usecases-proxy';
 import { SearchUsersUseCases } from '../../../usecases/user/search-users.usecase';
 import { UpdateUserUseCases } from '../../../usecases/user/update-user.usecase';
 import { UpdateUserPasswordUseCases } from '../../../usecases/user/update-user-password.usecase';
+import { GetUsersUseCases } from '../../../usecases/user/get-users.usecase';
 import { IsProjectMemberUseCase } from '../../../usecases/user/is-project-member.usecase';
 
 @Module({
@@ -22,6 +23,7 @@ export class UsecasesProxyUserModule {
   static SIGNIN_USE_CASES_PROXY = 'signinUseCasesProxy';
   static SIGNUP_USE_CASES_PROXY = 'signupUseCasesProxy';
   static GET_USER_USE_CASES_PROXY = 'getUserUseCasesProxy';
+  static GET_USERS_USE_CASES_PROXY = 'getUsersUseCasesProxy';
   static UPDATE_USER_USE_CASES_PROXY = 'updateUserUseCasesProxy';
   static UPDATE_USER_PASSWORD_USE_CASES_PROXY =
     'updateUserPasswordUseCasesProxy';
@@ -82,6 +84,12 @@ export class UsecasesProxyUserModule {
         },
         {
           inject: [TypeormUsersRepository],
+          provide: UsecasesProxyUserModule.GET_USERS_USE_CASES_PROXY,
+          useFactory: (users: TypeormUsersRepository) =>
+            new UseCaseProxy(new GetUsersUseCases(users)),
+        },
+        {
+          inject: [TypeormUsersRepository],
           provide: UsecasesProxyUserModule.IS_PROJECT_MEMBER_USE_CASES_PROXY,
           useFactory: (users: TypeormUsersRepository) =>
             new UseCaseProxy(new IsProjectMemberUseCase(users)),
@@ -91,6 +99,7 @@ export class UsecasesProxyUserModule {
         UsecasesProxyUserModule.SIGNIN_USE_CASES_PROXY,
         UsecasesProxyUserModule.SIGNUP_USE_CASES_PROXY,
         UsecasesProxyUserModule.GET_USER_USE_CASES_PROXY,
+        UsecasesProxyUserModule.GET_USERS_USE_CASES_PROXY,
         UsecasesProxyUserModule.UPDATE_USER_PASSWORD_USE_CASES_PROXY,
         UsecasesProxyUserModule.UPDATE_USER_USE_CASES_PROXY,
         UsecasesProxyUserModule.SEARCH_USERS_USE_CASES_PROXY,

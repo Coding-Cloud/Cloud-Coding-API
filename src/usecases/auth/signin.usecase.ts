@@ -22,8 +22,8 @@ export class SignInUseCases {
 
     if (user && (await this.encrypt.compare(password, user.password))) {
       const payload: JwtPayload = { username };
-      const accessToken: string = await this.jwtEncrypt.sign(payload);
-      this.sessions.createSession(user.id, accessToken);
+      const accessToken: string = this.jwtEncrypt.sign(payload);
+      await this.sessions.createSession(user.id, accessToken);
       return { accessToken };
     } else {
       throw new UnauthorizedException('Please check your login credentials');

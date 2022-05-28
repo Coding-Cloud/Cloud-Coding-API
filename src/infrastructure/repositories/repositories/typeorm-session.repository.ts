@@ -32,10 +32,7 @@ export class TypeormSessionsRepository implements Sessions {
     const sessionEntity = await this.sessionEntityRepository.findOne({
       token,
     });
-
-    return sessionEntity === null
-      ? null
-      : SessionAdapter.toSession(sessionEntity);
+    return sessionEntity ? SessionAdapter.toSession(sessionEntity) : null;
   }
 
   async deleteByToken(token: string): Promise<void> {

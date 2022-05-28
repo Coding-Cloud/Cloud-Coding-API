@@ -5,7 +5,15 @@ export interface Followers {
 
   unfollowUser(followerId: string, followedId: string): Promise<void>;
 
-  findFollowsById(followerId: string): Promise<Follower[]>;
+  findFollowsById(
+    followerId: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[Follower[], number]>;
 
-  findFollowersById(followedId: string): Promise<Follower[]>;
+  findFollowersById(
+    followedId: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[Follower[], number]>;
 }

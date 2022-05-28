@@ -1,5 +1,12 @@
-import { Controller, Get, Inject, Param, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { AuthGuard } from '../auth/auth.guards';
 import { UsecasesProxyUserModule } from '../../../usecases-proxy/user/usecases-proxy-user.module';
@@ -7,6 +14,8 @@ import { GetUserUseCases } from '../../../../usecases/user/get-user.usecase';
 import { UserDto } from './dto/user-dto';
 import { UsernameDto } from './dto/username-dto';
 import { SearchUsersUseCases } from '../../../../usecases/user/search-users.usecase';
+import { GetUsersUseCases } from '../../../../usecases/user/get-users.usecase';
+import { UserList } from './dto/user-list.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -17,6 +26,8 @@ export class UserController {
     private readonly getUserById: UseCaseProxy<GetUserUseCases>,
     @Inject(UsecasesProxyUserModule.SEARCH_USERS_USE_CASES_PROXY)
     private readonly searchUsers: UseCaseProxy<SearchUsersUseCases>,
+    @Inject(UsecasesProxyUserModule.GET_USERS_USE_CASES_PROXY)
+    private readonly getUsers: UseCaseProxy<GetUsersUseCases>,
   ) {}
 
   @ApiOperation({ summary: 'Get user by id' })
@@ -55,5 +66,44 @@ export class UserController {
         email: user.email,
       };
     });
+  }
+
+  @ApiOperation({ summary: 'Get a paginated list of users' })
+  @ApiQuery({
+    name: 'search',
+    type: String,
+    description: 'Data concerning the user to search',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'offset',
+    required: false,
+  })
+  @Get('/')
+  async getAll(
+    @Query('search') search: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+  ): Promise<UserList> {
+    const [users, totalResults] = await this.getUsers
+      .getInstance()
+      .getUsers(search, limit, offset);
+    return {
+      totalResults,
+      users: users.map((user) => {
+        return {
+          id: user.id,
+          username: user.username,
+          firstname: user.firstname,
+          lastname: user.lastname,
+          birthdate: user.birthdate,
+          email: user.email,
+        };
+      }),
+    };
   }
 }
