@@ -40,6 +40,7 @@ import { GetProjectFileContentUseCase } from '../../../../usecases/project/get-p
 import { RemoveProjectFromGroupUseCase } from '../../../../usecases/project/remove-project-from-group.usecase';
 import { GetPublicProjectsUseCase } from '../../../../usecases/project/get-public-projects-use.case';
 import { ProjectList } from './dto/project-list.dto';
+import { JoinedProjectsUseCase } from '../../../../usecases/project/joined-projects.usecase';
 
 @Controller('projects')
 @ApiTags('projects')
@@ -55,6 +56,8 @@ export class ProjectsController {
     private readonly findGroupProjects: UseCaseProxy<FindGroupProjectsUseCase>,
     @Inject(UseCasesProxyProjectModule.GET_PUBLIC_PROJECTS_USER_CASE_PROXY)
     private readonly getPublicProjects: UseCaseProxy<GetPublicProjectsUseCase>,
+    @Inject(UseCasesProxyProjectModule.FIND_JOINED_PROJECTS_USE_CASES_PROXY)
+    private readonly findJoinedProjects: UseCaseProxy<JoinedProjectsUseCase>,
     @Inject(UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY)
     private readonly deleteProject: UseCaseProxy<DeleteProjectUseCase>,
     @Inject(UseCasesProxyProjectModule.CHANGE_PROJECT_GROUP_USE_CASES_PROXY)
@@ -83,6 +86,7 @@ export class ProjectsController {
     private readonly getProjectFileContent: UseCaseProxy<GetProjectFileContentUseCase>,
   ) {}
 
+  @ApiOperation({ summary: 'Create a project' })
   @Post()
   @UseGuards(AuthGuard)
   create(
@@ -101,12 +105,21 @@ export class ProjectsController {
     return this.createProject.getInstance().createProject(projectCandidate);
   }
 
+  @ApiOperation({ summary: "Get current user's owned projects" })
   @Get('/owned')
   @UseGuards(AuthGuard)
   findProjectByCreatorId(@GetUser() user: User): Promise<Project[]> {
     return this.findOwnedProjects.getInstance().findProjectByCreatorId(user.id);
   }
 
+  @ApiOperation({ summary: "Get current user's joined projects" })
+  @Get('/joined')
+  @UseGuards(AuthGuard)
+  findJoinedProject(@GetUser() user: User): Promise<Project[]> {
+    return this.findJoinedProjects.getInstance().getJoinedProjects(user.id);
+  }
+
+  @ApiOperation({ summary: 'Search a project' })
   @Get('/search')
   @UseGuards(AuthGuard)
   async searchUserProjectsByName(
@@ -118,12 +131,14 @@ export class ProjectsController {
       .searchUserProjectsByName(user.id, name);
   }
 
+  @ApiOperation({ summary: "Get group's projects" })
   @Get('/group/:groupId')
   @UseGuards(AuthGuard)
   findProjectByGroupId(@Param('groupId') groupId: string): Promise<Project[]> {
     return this.findGroupProjects.getInstance().findGroupProjects(groupId);
   }
 
+  @ApiOperation({ summary: 'Get a project by id' })
   @Get('/:id')
   @UseGuards(AuthGuard)
   findProjectById(@Param('id') id: string): Promise<Project> {

@@ -31,6 +31,7 @@ import { NameGeneratorModule } from '../../name-generator/name-generator.module'
 import { NameGenerator } from '../../../domain/name-generator.interface';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { GetPublicProjectsUseCase } from '../../../usecases/project/get-public-projects-use.case';
+import { JoinedProjectsUseCase } from '../../../usecases/project/joined-projects.usecase';
 
 @Module({
   imports: [
@@ -51,6 +52,8 @@ export class UseCasesProxyProjectModule {
   static FIND_GROUP_PROJECTS_USE_CASES_PROXY = 'findGroupProjectsUseCaseProxy';
   static FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY =
     'findMemberVisibleProjectsUseCaseProxy';
+  static FIND_JOINED_PROJECTS_USE_CASES_PROXY =
+    'findJoinedProjectsUseCaseProxy';
   static GET_PUBLIC_PROJECTS_USER_CASE_PROXY = 'getPublicProjectsUseCaseProxy';
   static REMOVE_PROJECT_FROM_GROUP_USE_CASES_PROXY =
     'removeProjectFromGroupUseCaseProxy';
@@ -233,6 +236,13 @@ export class UseCasesProxyProjectModule {
           useFactory: (projects: TypeormProjectsRepository) =>
             new UseCaseProxy(new GetPublicProjectsUseCase(projects)),
         },
+        {
+          inject: [TypeormProjectsRepository],
+          provide:
+            UseCasesProxyProjectModule.FIND_JOINED_PROJECTS_USE_CASES_PROXY,
+          useFactory: (projects: TypeormProjectsRepository) =>
+            new UseCaseProxy(new JoinedProjectsUseCase(projects)),
+        },
       ],
       exports: [
         UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY,
@@ -240,6 +250,7 @@ export class UseCasesProxyProjectModule {
         UseCasesProxyProjectModule.FIND_OWNED_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.FIND_GROUP_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.FIND_MEMBER_VISIBLE_PROJECTS_USE_CASES_PROXY,
+        UseCasesProxyProjectModule.FIND_JOINED_PROJECTS_USE_CASES_PROXY,
         UseCasesProxyProjectModule.GET_PUBLIC_PROJECTS_USER_CASE_PROXY,
         UseCasesProxyProjectModule.DELETE_PROJECT_USE_CASES_PROXY,
         UseCasesProxyProjectModule.REMOVE_PROJECT_FROM_GROUP_USE_CASES_PROXY,
