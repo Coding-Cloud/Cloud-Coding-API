@@ -15,14 +15,17 @@ import { CreateFriendshipUseCase } from '../../../usecases/friendship/create-fri
   imports: [RepositoriesModule, UseCasesProxyFriendshipModule.register()],
 })
 export class UseCasesProxyFriendRequestModule {
-  static ACCEPT_FRIEND_REQUEST_USE_CASES_PROXY = 'followUserUseCaseProxy';
-  static REJECT_FRIEND_REQUEST_USE_CASES_PROXY = 'unfollowUserUseCaseProxy';
-  static SEND_FRIEND_REQUEST_USE_CASES_PROXY = 'findUserFollowersUseCaseProxy';
+  static ACCEPT_FRIEND_REQUEST_USE_CASES_PROXY =
+    'acceptFriendRequestUseCaseProxy';
+  static REJECT_FRIEND_REQUEST_USE_CASES_PROXY =
+    'rejectFriendRequestUseCaseProxy';
+  static SEND_FRIEND_REQUEST_USE_CASES_PROXY = 'sendFriendRequestUseCaseProxy';
   static CANCEL_FRIEND_REQUEST_USE_CASES_PROXY =
-    'findUserFollowingsUseCaseProxy';
-  static FIND_SENT_FRIEND_REQUEST_USE_CASES_PROXY = 'unfollowUserUseCaseProxy';
+    'cancelFriendRequestUseCaseProxy';
+  static FIND_SENT_FRIEND_REQUEST_USE_CASES_PROXY =
+    'findSentRequestsUseCaseProxy';
   static FIND_RECEIVED_FRIEND_REQUEST_USE_CASES_PROXY =
-    'findUserFollowersUseCaseProxy';
+    'findReceivedRequestsUseCaseProxy';
 
   static register(): DynamicModule {
     return {

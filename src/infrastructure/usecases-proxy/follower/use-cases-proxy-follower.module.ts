@@ -6,6 +6,7 @@ import { TypeormFollowersRepository } from '../../repositories/repositories/type
 import { UnfollowUserUseCase } from '../../../usecases/follower/leave-project.usecase';
 import { FindUserFollowersUseCase } from '../../../usecases/follower/find-followers.usecase';
 import { FindUserFollowingsUseCase } from '../../../usecases/follower/find-followings.usecase';
+import { IsFollowingUseCase } from '../../../usecases/follower/is-following.usecase';
 
 @Module({
   imports: [RepositoriesModule],
@@ -16,6 +17,7 @@ export class UseCasesProxyFollowerModule {
   static FIND_USER_FOLLOWERS_USE_CASES_PROXY = 'findUserFollowersUseCaseProxy';
   static FIND_USER_FOLLOWINGS_USE_CASES_PROXY =
     'findUserFollowingsUseCaseProxy';
+  static IS_FOLLOWING_USE_CASES_PROXY = 'isFollowingUseCaseProxy';
 
   static register(): DynamicModule {
     return {
@@ -47,12 +49,19 @@ export class UseCasesProxyFollowerModule {
           useFactory: (followers: TypeormFollowersRepository) =>
             new UseCaseProxy(new FindUserFollowingsUseCase(followers)),
         },
+        {
+          inject: [TypeormFollowersRepository],
+          provide: UseCasesProxyFollowerModule.IS_FOLLOWING_USE_CASES_PROXY,
+          useFactory: (followers: TypeormFollowersRepository) =>
+            new UseCaseProxy(new IsFollowingUseCase(followers)),
+        },
       ],
       exports: [
         UseCasesProxyFollowerModule.FOLLOW_USER_USE_CASES_PROXY,
         UseCasesProxyFollowerModule.UNFOLLOW_USER_USE_CASES_PROXY,
         UseCasesProxyFollowerModule.FIND_USER_FOLLOWERS_USE_CASES_PROXY,
         UseCasesProxyFollowerModule.FIND_USER_FOLLOWINGS_USE_CASES_PROXY,
+        UseCasesProxyFollowerModule.IS_FOLLOWING_USE_CASES_PROXY,
       ],
     };
   }

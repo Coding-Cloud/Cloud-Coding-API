@@ -86,4 +86,13 @@ export class TypeormFollowersRepository implements Followers {
   async unfollowUser(followerId: string, followedId: string): Promise<void> {
     await this.followerEntityRepository.delete({ followerId, followedId });
   }
+
+  async isFollowing(followerId: string, followedId: string): Promise<boolean> {
+    const follower = await this.followerEntityRepository
+      .createQueryBuilder()
+      .where('FollowerEntity.followerId=:followerId', { followerId })
+      .andWhere('FollowerEntity.followedId=:followedId', { followedId })
+      .getOne();
+    return follower !== null && follower !== undefined;
+  }
 }
