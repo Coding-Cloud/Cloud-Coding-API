@@ -27,6 +27,8 @@ import { TypeormConversationsRepository } from './repositories/typeorm-conversat
 import { TypeormMessagesRepository } from './repositories/typeorm-messages.repository';
 import { MessageEntity } from './entities/message/message.entity';
 import { ProjectUserAccessEntity } from './entities/project-user-access/project-user-access.entity';
+import { TypeormUserSocketsRepository } from './repositories/typeorm-user-socket.repository';
+import { UserSocketEntity } from './entities/user-socket/user-socket.entity';
 
 @Module({
   imports: [
@@ -46,6 +48,7 @@ import { ProjectUserAccessEntity } from './entities/project-user-access/project-
       GroupMembershipEntity,
       MessageEntity,
       ProjectUserAccessEntity,
+      UserSocketEntity,
     ]),
     EncryptModule,
   ],
@@ -61,6 +64,7 @@ import { ProjectUserAccessEntity } from './entities/project-user-access/project-
     TypeormFriendshipsRepository,
     TypeormConversationsRepository,
     TypeormMessagesRepository,
+    TypeormUserSocketsRepository,
   ],
   exports: [
     TypeormUsersRepository,
@@ -74,6 +78,7 @@ import { ProjectUserAccessEntity } from './entities/project-user-access/project-
     TypeormFriendshipsRepository,
     TypeormConversationsRepository,
     TypeormMessagesRepository,
+    TypeormUserSocketsRepository,
   ],
 })
 export class RepositoriesModule {}

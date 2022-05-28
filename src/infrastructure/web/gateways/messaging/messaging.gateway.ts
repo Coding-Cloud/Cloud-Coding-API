@@ -21,9 +21,11 @@ import { FindUserConversationsUseCase } from '../../../../usecases/conversation/
 import { GetMessagesDto } from './dto/get-messages.dto';
 import { GetConversationsDto } from './dto/get-conversations.dto';
 import { FindMessageUseCase } from '../../../../usecases/message/find-message.usecase';
+import { UseCasesProxyUserSocketModule } from '../../../usecases-proxy/user-socket/usecase-proxy-user-socket.module';
+import { FindUserSocketUseCases } from '../../../../usecases/user-socket/find-user-socket.usecases';
 
 @UseGuards(AuthGuard)
-@WebSocketGateway({ namespace: 'messaging' })
+@WebSocketGateway({ namespace: 'social-network' })
 @Injectable()
 export class MessagingGateway {
   @WebSocketServer()
@@ -44,6 +46,8 @@ export class MessagingGateway {
     private readonly deleteMessage: UseCaseProxy<DeleteMessageUseCase>,
     @Inject(UseCasesProxyMessageModule.FIND_MESSAGE_USE_CASES_PROXY)
     private readonly findMessage: UseCaseProxy<FindMessageUseCase>,
+    @Inject(UseCasesProxyUserSocketModule.FIND_USER_SOCKET_USE_CASES_PROXY)
+    private readonly findUserSocket: UseCaseProxy<FindUserSocketUseCases>,
   ) {}
 
   @SubscribeMessage('getMessages')
@@ -76,7 +80,6 @@ export class MessagingGateway {
           getConversationDto.limit,
           getConversationDto.offset,
         );
-      conversations.forEach((conversation) => client.join(conversation.id));
       client.emit('conversations', conversations);
     } catch (e) {
       Logger.error(e);
@@ -100,7 +103,12 @@ export class MessagingGateway {
         .getInstance()
         .createMessage(messageCandidate);
       const message = await this.findMessage.getInstance().findById(messageId);
-      this.server.to(messageDTO.conversationId).emit('messageCreated', message);
+      const userSockets = await this.findUserSocket
+        .getInstance()
+        .findConversationUserSockets(messageDTO.conversationId);
+      userSockets.forEach((userSocket) =>
+        this.server.to(userSocket.socketId).emit('messageCreated', message),
+      );
     } catch (e) {
       Logger.error(e);
     }
