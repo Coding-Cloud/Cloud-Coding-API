@@ -261,6 +261,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     client.rooms.forEach(async (room) => {
       this.server.to(room).emit('siteIsReady');
     });
+    client.rooms.forEach(async (room) => {
+      this.sendLogsToClient(room);
+    });
   }
 
   private async sendLogsToClient(room: string): Promise<void> {
