@@ -29,6 +29,7 @@ import { MessageEntity } from './entities/message/message.entity';
 import { ProjectUserAccessEntity } from './entities/project-user-access/project-user-access.entity';
 import { TypeormUserSocketsRepository } from './repositories/typeorm-user-socket.repository';
 import { UserSocketEntity } from './entities/user-socket/user-socket.entity';
+import { TypeormCommentsRepository } from './repositories/typeorm-comments.repository';
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { UserSocketEntity } from './entities/user-socket/user-socket.entity';
     TypeormFriendshipsRepository,
     TypeormConversationsRepository,
     TypeormMessagesRepository,
+    TypeormCommentsRepository,
     TypeormUserSocketsRepository,
   ],
   exports: [
@@ -78,6 +80,7 @@ import { UserSocketEntity } from './entities/user-socket/user-socket.entity';
     TypeormFriendshipsRepository,
     TypeormConversationsRepository,
     TypeormMessagesRepository,
+    TypeormCommentsRepository,
     TypeormUserSocketsRepository,
   ],
 })

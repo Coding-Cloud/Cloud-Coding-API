@@ -24,4 +24,6 @@ export interface Users {
     limit?: number,
     offset?: number,
   ): Promise<[User[], number]>;
+
+  isProjectMember(userId: string, projectId): Promise<boolean>;
 }

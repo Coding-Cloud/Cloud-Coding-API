@@ -221,4 +221,26 @@ export class TypeormProjectsRepository implements Projects {
       throw new BadRequestException();
     }
   }
+
+  async getJoinedProjects(userId: string): Promise<Project[]> {
+    const projectEntities = await this.projectEntityRepository
+      .createQueryBuilder()
+      .leftJoin(
+        GroupEntity,
+        'GroupEntity',
+        'GroupEntity.id = ProjectEntity.groupId',
+      )
+      .leftJoin(
+        GroupMembershipEntity,
+        'GroupMembershipEntity',
+        'GroupMembershipEntity.groupId = ProjectEntity.groupId',
+      )
+      .where('ProjectEntity.creatorId=:userId', { userId })
+      .orWhere('GroupMembershipEntity.userId=:userId', { userId })
+      .orWhere('GroupEntity.ownerId=:userId', { userId })
+      .getMany();
+    return projectEntities.map((projectEntity) =>
+      ProjectAdapter.toProject(projectEntity),
+    );
+  }
 }
