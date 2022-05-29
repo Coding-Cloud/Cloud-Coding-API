@@ -37,4 +37,6 @@ export interface Projects {
     limit?: number,
     offset?: number,
   ): Promise<[Project[], number]>;
+
+  getJoinedProjects(userId: string): Promise<Project[]>;
 }

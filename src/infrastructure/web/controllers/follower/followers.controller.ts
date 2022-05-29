@@ -19,6 +19,7 @@ import { FindUserFollowersUseCase } from '../../../../usecases/follower/find-fol
 import { FollowUserUseCase } from '../../../../usecases/follower/follow-user.usecase';
 import { UseCasesProxyFollowerModule } from '../../../usecases-proxy/follower/use-cases-proxy-follower.module';
 import { FollowerListDto } from './dto/follower-list.dto';
+import { IsFollowingUseCase } from '../../../../usecases/follower/is-following.usecase';
 
 @Controller('followers')
 @ApiTags('followers')
@@ -33,6 +34,8 @@ export class FollowersController {
     private readonly findFollowings: UseCaseProxy<FindUserFollowingsUseCase>,
     @Inject(UseCasesProxyFollowerModule.FIND_USER_FOLLOWERS_USE_CASES_PROXY)
     private readonly findFollowers: UseCaseProxy<FindUserFollowersUseCase>,
+    @Inject(UseCasesProxyFollowerModule.IS_FOLLOWING_USE_CASES_PROXY)
+    private readonly isFollowingUseCase: UseCaseProxy<IsFollowingUseCase>,
   ) {}
 
   @Post('/:userId')
@@ -43,7 +46,7 @@ export class FollowersController {
     return this.followUser.getInstance().followUser(user.id, userId);
   }
 
-  @Get('/followings/:userId')
+  @Get('/:userId/followings')
   async getFollowings(
     @Param('userId') userId: string,
     @Query('limit') limit?: number,
@@ -55,7 +58,7 @@ export class FollowersController {
     return { followers, totalResults };
   }
 
-  @Get('/followers/:userId')
+  @Get('/:userId/followers')
   async getFollowers(
     @Param('userId') userId: string,
     @Query('limit') limit?: number,
@@ -65,6 +68,16 @@ export class FollowersController {
       .getInstance()
       .findFollowers(userId, limit, offset);
     return { followers, totalResults };
+  }
+
+  @Get('/:userId/is-following')
+  async isFollowing(
+    @GetUser() user: User,
+    @Param('userId') userId: string,
+  ): Promise<boolean> {
+    return await this.isFollowingUseCase
+      .getInstance()
+      .isFollowing(user.id, userId);
   }
 
   @Delete('/:userId')

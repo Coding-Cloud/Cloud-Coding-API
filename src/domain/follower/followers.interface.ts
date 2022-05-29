@@ -16,4 +16,6 @@ export interface Followers {
     limit?: number,
     offset?: number,
   ): Promise<[Follower[], number]>;
+
+  isFollowing(followerId: string, followedId: string): Promise<boolean>;
 }
