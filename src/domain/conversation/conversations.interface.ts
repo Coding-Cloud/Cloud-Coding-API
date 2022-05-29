@@ -6,7 +6,12 @@ export interface Conversations {
 
   findConversationById(id: string): Promise<Conversation>;
 
-  findUserConversationById(id: string): Promise<Conversation[]>;
+  findUserConversationById(
+    id: string,
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<Conversation[]>;
 
   removeConversationByGroupId(groupId: string): Promise<void>;
 

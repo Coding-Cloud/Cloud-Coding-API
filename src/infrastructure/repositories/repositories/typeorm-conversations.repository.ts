@@ -54,7 +54,12 @@ export class TypeormConversationsRepository implements Conversations {
     }
   }
 
-  async findUserConversationById(userId: string): Promise<Conversation[]> {
+  async findUserConversationById(
+    userId: string,
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<Conversation[]> {
     try {
       const conversationEntities = await this.conversationEntityRepository
         .createQueryBuilder()
@@ -77,6 +82,8 @@ export class TypeormConversationsRepository implements Conversations {
         .orWhere('GroupEntity.ownerId=:userId', { userId })
         .orWhere('FriendshipEntity.user1Id=:userId', { userId })
         .orWhere('FriendshipEntity.user2Id=:userId', { userId })
+        .limit(limit ?? 25)
+        .offset(offset ?? 0)
         .getMany();
       return conversationEntities.map((conversationEntity) =>
         ConversationAdapter.toConversation(conversationEntity),

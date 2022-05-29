@@ -1,9 +1,16 @@
 import { Message } from './message';
+import { CreateMessageCandidate } from '../../usecases/message/candidates/create-message.candidate';
 
 export interface Messages {
-  createMessage(message: Message): Promise<string>;
+  findById(id: string): Promise<Message>;
 
-  findByConversation(conversationId: string): Promise<Message[]>;
+  createMessage(message: CreateMessageCandidate): Promise<string>;
+
+  findByConversation(
+    conversationId: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<Message[]>;
 
   deleteMessage(id: string): Promise<void>;
 }

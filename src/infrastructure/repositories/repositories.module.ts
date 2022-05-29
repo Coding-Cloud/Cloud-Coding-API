@@ -27,6 +27,8 @@ import { TypeormConversationsRepository } from './repositories/typeorm-conversat
 import { TypeormMessagesRepository } from './repositories/typeorm-messages.repository';
 import { MessageEntity } from './entities/message/message.entity';
 import { ProjectUserAccessEntity } from './entities/project-user-access/project-user-access.entity';
+import { TypeormUserSocketsRepository } from './repositories/typeorm-user-socket.repository';
+import { UserSocketEntity } from './entities/user-socket/user-socket.entity';
 import { TypeormCommentsRepository } from './repositories/typeorm-comments.repository';
 
 @Module({
@@ -47,6 +49,7 @@ import { TypeormCommentsRepository } from './repositories/typeorm-comments.repos
       GroupMembershipEntity,
       MessageEntity,
       ProjectUserAccessEntity,
+      UserSocketEntity,
     ]),
     EncryptModule,
   ],
@@ -63,6 +66,7 @@ import { TypeormCommentsRepository } from './repositories/typeorm-comments.repos
     TypeormConversationsRepository,
     TypeormMessagesRepository,
     TypeormCommentsRepository,
+    TypeormUserSocketsRepository,
   ],
   exports: [
     TypeormUsersRepository,
@@ -77,6 +81,7 @@ import { TypeormCommentsRepository } from './repositories/typeorm-comments.repos
     TypeormConversationsRepository,
     TypeormMessagesRepository,
     TypeormCommentsRepository,
+    TypeormUserSocketsRepository,
   ],
 })
 export class RepositoriesModule {}
