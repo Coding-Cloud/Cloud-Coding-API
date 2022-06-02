@@ -28,7 +28,7 @@ export class FriendshipsController {
   ) {}
 
   @Get()
-  getFriendship(@GetUser() user: User): Promise<Friendship[]> {
+  getFriendshipById(@GetUser() user: User): Promise<Friendship[]> {
     return this.findFriendships.getInstance().findFriendships(user.id);
   }
 
@@ -39,6 +39,11 @@ export class FriendshipsController {
     @Param('id') id: string,
   ): Promise<Friendship> {
     return this.findFriendships.getInstance().findUsersFriendship(user.id, id);
+  }
+
+  @Get('/:id')
+  getFriendships(@Param('id') id: string): Promise<Friendship> {
+    return this.findFriendships.getInstance().findFriendshipById(id);
   }
 
   @Delete('/:id')
