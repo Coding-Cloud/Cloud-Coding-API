@@ -120,6 +120,38 @@ export class TypeormCommentsRepository implements Comments {
     }
   }
 
+  async findUserComments(
+    userId: string,
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[Comment[], number]> {
+    try {
+      const query = this.commentEntityRepository
+        .createQueryBuilder()
+        .where('CommentEntity.ownerId=:userId', { userId });
+      if (search) {
+        query.andWhere('SIMILARITY(CommentEntity.content, :search) > 0.2', {
+          search,
+        });
+      }
+      const [commentEntities, count] = await query
+        .limit(limit ?? 25)
+        .offset(offset ?? 0)
+        .orderBy('CommentEntity.createdAt', 'ASC')
+        .getManyAndCount();
+      return [
+        commentEntities.map((commentEntity) =>
+          CommentAdapter.toComment(commentEntity),
+        ),
+        count,
+      ];
+    } catch (error) {
+      Logger.error(error);
+      throw new BadRequestException();
+    }
+  }
+
   async findCommentById(id: string): Promise<Comment> {
     try {
       const commentEntity = await this.commentEntityRepository.findOne(id);

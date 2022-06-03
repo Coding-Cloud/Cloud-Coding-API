@@ -84,6 +84,23 @@ export class CommentsController {
     return { comments, totalResults };
   }
 
+  @ApiOperation({ summary: 'Get current user comments' })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'offset', required: false })
+  @Get('/me')
+  async findCurrentUserComments(
+    @GetUser() user: User,
+    @Query('search') search?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+  ): Promise<CommentListDto> {
+    const [comments, totalResults] = await this.findUserPublicComments
+      .getInstance()
+      .findUserComments(user.id, search, limit, offset);
+    return { comments, totalResults };
+  }
+
   @ApiOperation({ summary: 'Get comment by id' })
   @Get('/:commentId')
   async findById(@Param('commentId') commentId: string): Promise<Comment> {

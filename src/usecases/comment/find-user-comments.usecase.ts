@@ -12,4 +12,13 @@ export class FindUserPublicCommentsUseCase {
   ): Promise<[Comment[], number]> {
     return this.comments.findUserPublicComments(userId, search, limit, offset);
   }
+
+  public findUserComments(
+    userId: string,
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[Comment[], number]> {
+    return this.comments.findUserComments(userId, search, limit, offset);
+  }
 }
