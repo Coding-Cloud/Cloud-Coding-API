@@ -19,6 +19,7 @@ import { CreateMessageUseCase } from '../../../../usecases/message/create-messag
 import { FindConversationMessagesUseCase } from '../../../../usecases/message/find-conversation-messages.usecase';
 import { DeleteMessageUseCase } from '../../../../usecases/message/delete-message.usecase';
 import { CreateMessageDTO } from './dto/create-message.dto';
+import { MessageListDto } from './dto/message-list.dto';
 
 @Controller('messages')
 @ApiTags('messages')
@@ -51,10 +52,13 @@ export class MessagesController {
   }
 
   @Get('/:conversationId')
-  findByConversationId(
+  async findByConversationId(
     @Param('conversationId') conversationId: string,
-  ): Promise<Message[]> {
-    return this.getMessage.getInstance().findByConversation(conversationId);
+  ): Promise<MessageListDto> {
+    const [messages, totalResults] = await this.getMessage
+      .getInstance()
+      .findByConversation(conversationId);
+    return { messages, totalResults };
   }
 
   @Delete('/:id')

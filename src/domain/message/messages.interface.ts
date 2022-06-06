@@ -10,7 +10,7 @@ export interface Messages {
     conversationId: string,
     limit?: number,
     offset?: number,
-  ): Promise<Message[]>;
+  ): Promise<[Message[], number]>;
 
   deleteMessage(id: string): Promise<void>;
 }
