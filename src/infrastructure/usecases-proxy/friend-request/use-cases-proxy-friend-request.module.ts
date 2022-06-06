@@ -10,6 +10,7 @@ import { FindReceivedFriendRequestsUseCase } from '../../../usecases/friend-requ
 import { TypeormFriendRequestsRepository } from '../../repositories/repositories/typeorm-friend-requests.repository';
 import { UseCasesProxyFriendshipModule } from '../friendship/use-cases-proxy-friendship.module';
 import { CreateFriendshipUseCase } from '../../../usecases/friendship/create-friendship.usecase';
+import { FindFriendRequestUseCase } from '../../../usecases/friend-request/find-friend-request-use.case';
 
 @Module({
   imports: [RepositoriesModule, UseCasesProxyFriendshipModule.register()],
@@ -24,6 +25,7 @@ export class UseCasesProxyFriendRequestModule {
     'cancelFriendRequestUseCaseProxy';
   static FIND_SENT_FRIEND_REQUEST_USE_CASES_PROXY =
     'findSentRequestsUseCaseProxy';
+  static FIND_FRIEND_REQUEST_USE_CASES_PROXY = 'findRequestsUseCaseProxy';
   static FIND_RECEIVED_FRIEND_REQUEST_USE_CASES_PROXY =
     'findReceivedRequestsUseCaseProxy';
 
@@ -83,6 +85,13 @@ export class UseCasesProxyFriendRequestModule {
               new FindReceivedFriendRequestsUseCase(friendRequests),
             ),
         },
+        {
+          inject: [TypeormFriendRequestsRepository],
+          provide:
+            UseCasesProxyFriendRequestModule.FIND_FRIEND_REQUEST_USE_CASES_PROXY,
+          useFactory: (friendRequests: TypeormFriendRequestsRepository) =>
+            new UseCaseProxy(new FindFriendRequestUseCase(friendRequests)),
+        },
       ],
       exports: [
         UseCasesProxyFriendRequestModule.ACCEPT_FRIEND_REQUEST_USE_CASES_PROXY,
@@ -91,6 +100,7 @@ export class UseCasesProxyFriendRequestModule {
         UseCasesProxyFriendRequestModule.CANCEL_FRIEND_REQUEST_USE_CASES_PROXY,
         UseCasesProxyFriendRequestModule.FIND_SENT_FRIEND_REQUEST_USE_CASES_PROXY,
         UseCasesProxyFriendRequestModule.FIND_RECEIVED_FRIEND_REQUEST_USE_CASES_PROXY,
+        UseCasesProxyFriendRequestModule.FIND_FRIEND_REQUEST_USE_CASES_PROXY,
       ],
     };
   }

@@ -20,6 +20,7 @@ import { CancelFriendRequestUseCase } from '../../../../usecases/friend-request/
 import { FindSentFriendRequestsUseCase } from '../../../../usecases/friend-request/find-sent-friend-requests.usecase';
 import { FindReceivedFriendRequestsUseCase } from '../../../../usecases/friend-request/find-received-friend-requests.usecase';
 import { FriendRequest } from '../../../../domain/friend-request/friend-request';
+import { FindFriendRequestUseCase } from '../../../../usecases/friend-request/find-friend-request-use.case';
 
 @Controller('friend-requests')
 @ApiTags('friend-requests')
@@ -50,6 +51,10 @@ export class FriendRequestsController {
       UseCasesProxyFriendRequestModule.FIND_RECEIVED_FRIEND_REQUEST_USE_CASES_PROXY,
     )
     private readonly findReceivedFriendRequests: UseCaseProxy<FindReceivedFriendRequestsUseCase>,
+    @Inject(
+      UseCasesProxyFriendRequestModule.FIND_FRIEND_REQUEST_USE_CASES_PROXY,
+    )
+    private readonly findFriendRequest: UseCaseProxy<FindFriendRequestUseCase>,
   ) {}
 
   @Post('/send/:userId')
@@ -104,5 +109,15 @@ export class FriendRequestsController {
     return this.findSentFriendRequests
       .getInstance()
       .findSentFriendRequests(user.id);
+  }
+
+  @Get('/:userId')
+  getFriendRequest(
+    @GetUser() user: User,
+    @Param('userId') userId: string,
+  ): Promise<FriendRequest> {
+    return this.findFriendRequest
+      .getInstance()
+      .findFriendRequests(user.id, userId);
   }
 }

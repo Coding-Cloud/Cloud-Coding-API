@@ -8,6 +8,7 @@ import {
   ConflictException,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import FriendRequestAdapter from '../entities/friend-request/friend-request.adapter';
 
@@ -83,6 +84,35 @@ export class TypeormFriendRequestsRepository implements FriendRequests {
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();
+    }
+  }
+
+  async findFriendRequests(
+    user1Id: string,
+    user2Id: string,
+  ): Promise<FriendRequest> {
+    try {
+      const friendRequestEntity = await this.friendRequestEntityRepository
+        .createQueryBuilder()
+        .where(
+          'FriendRequestEntity.requesterUserId=:user1Id AND FriendRequestEntity.requestedUserId=:user2Id',
+          {
+            user1Id,
+            user2Id,
+          },
+        )
+        .orWhere(
+          'FriendRequestEntity.requesterUserId=:user2Id AND FriendRequestEntity.requestedUserId=:user1Id',
+          {
+            user1Id,
+            user2Id,
+          },
+        )
+        .getOneOrFail();
+      return FriendRequestAdapter.toFriendRequest(friendRequestEntity);
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException();
     }
   }
 }
