@@ -22,6 +22,17 @@ export class AmqpConnection {
     }
   }
 
+  handleConnectionEvents(): void {
+    this._connection.on('error', (connectionError) => {
+      Logger.error(`receiving connection error`, connectionError);
+      this.startConnection();
+    });
+
+    this.connection.on('close', () => {
+      Logger.log(`connection closed`);
+    });
+  }
+
   get connection(): Connection {
     return this._connection;
   }

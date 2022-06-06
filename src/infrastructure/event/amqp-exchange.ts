@@ -20,4 +20,17 @@ export class AmqpExchange {
       throw assertExchangeError;
     }
   }
+
+  async addQueue(queue: string): Promise<void> {
+    try {
+      await this.amqpChannel.channel.bindQueue(
+        queue,
+        this.amqpConfig.amqpConnectionParam.exchange,
+        '',
+      );
+    } catch (bindQueueError) {
+      Logger.error(`Error when binding queue to exchnage`);
+      throw bindQueueError;
+    }
+  }
 }
