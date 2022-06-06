@@ -45,7 +45,7 @@ export class TypeormFriendshipsRepository implements Friendships {
       const friendshipEntities = await this.friendshipEntityRepository
         .createQueryBuilder()
         .where('FriendshipEntity.user1Id=:userId', { userId })
-        .where('FriendshipEntity.user2Id=:userId', { userId })
+        .orWhere('FriendshipEntity.user2Id=:userId', { userId })
         .getMany();
       return friendshipEntities.map((friendshipEntity) =>
         FriendshipAdapter.toFriendship(friendshipEntity),
