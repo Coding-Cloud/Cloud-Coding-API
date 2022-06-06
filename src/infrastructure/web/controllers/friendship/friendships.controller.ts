@@ -6,7 +6,7 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
@@ -28,12 +28,21 @@ export class FriendshipsController {
   ) {}
 
   @Get()
-  follow(@GetUser() user: User): Promise<Friendship[]> {
+  getFriendship(@GetUser() user: User): Promise<Friendship[]> {
     return this.findFriendships.getInstance().findFriendships(user.id);
   }
 
+  @ApiOperation({ summary: 'Get the friendship of a user' })
+  @Get('/:id')
+  getUsersFriendship(
+    @GetUser() user: User,
+    @Param('id') id: string,
+  ): Promise<Friendship> {
+    return this.findFriendships.getInstance().findUsersFriendship(user.id, id);
+  }
+
   @Delete('/:id')
-  unfollow(@Param('id') id: string): Promise<void> {
+  deleteFriendship(@Param('id') id: string): Promise<void> {
     return this.removeFriendship.getInstance().removeFriendship(id);
   }
 }
