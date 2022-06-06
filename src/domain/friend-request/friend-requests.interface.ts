@@ -11,6 +11,11 @@ export interface FriendRequests {
     requestedUserId: string,
   ): Promise<FriendRequest>;
 
+  findFriendRequests(
+    requesterUserId: string,
+    requestedUserId: string,
+  ): Promise<FriendRequest>;
+
   findSentFriendRequests(requesterUserId: string): Promise<FriendRequest[]>;
 
   findReceivedFriendRequests(requestedUserId: string): Promise<FriendRequest[]>;
