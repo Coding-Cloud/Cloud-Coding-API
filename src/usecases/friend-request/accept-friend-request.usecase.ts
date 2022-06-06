@@ -14,12 +14,12 @@ export class AcceptFriendRequestUseCase {
   async acceptFriendRequest(
     requesterUserId: string,
     requestedUserId: string,
-  ): Promise<void> {
+  ): Promise<string> {
     await this.friendRequests.deleteFriendRequest(
       requesterUserId,
       requestedUserId,
     );
-    await this.createFriendship
+    return await this.createFriendship
       .getInstance()
       .createFriendship(requestedUserId, requesterUserId);
   }

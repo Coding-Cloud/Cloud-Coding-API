@@ -66,7 +66,7 @@ export class FriendRequestsController {
   accept(
     @Param('userId') userId: string,
     @GetUser() user: User,
-  ): Promise<void> {
+  ): Promise<string> {
     return this.acceptFriendRequest
       .getInstance()
       .acceptFriendRequest(userId, user.id);
