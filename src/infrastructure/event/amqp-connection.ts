@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { connect, Connection } from 'amqplib';
 
 export class AmqpConnection {
-  private baseConnectionPath;
+  private readonly baseConnectionPath;
   private _connection: Connection;
 
   constructor(private amqpConnectionParam: AmqpConnectionParam) {

@@ -1,60 +1,34 @@
-import { AmqpChannel } from './amqp-channel';
-import os from 'os';
-import { AmqpConfig } from './amqp-config';
-import { Logger } from '@nestjs/common';
-import { Message } from 'amqplib';
+import { Options } from 'amqplib';
 
 export class AmqpQueue {
-  private queue: string;
+  private readonly _queue: string;
 
   constructor(
-    private amqpChannel: AmqpChannel,
-    private amqpConfig: AmqpConfig,
-  ) {}
-
-  async startQueue(): Promise<void> {
-    try {
-      const { queue } = await this.amqpChannel.channel.assertQueue(
-        AmqpQueue.buildQueueName(),
-        this.amqpConfig.queueOptions,
-      );
-      this.queue = queue;
-    } catch (assertQueueError) {
-      Logger.error('error when build queue');
-      throw assertQueueError;
-    }
+    queue: string,
+    private _routingKey: string,
+    private _queueOptions: Options.AssertQueue,
+    private _consumeOptions: Options.Consume,
+  ) {
+    this._queue = AmqpQueue.buildQueueName(queue);
   }
 
-  async initConsuming(): Promise<void> {
-    try {
-      await this.amqpChannel.channel.consume(
-        this.queue,
-        (message) => this.consumeMessage(message),
-        this.amqpConfig.consumeOptions,
-      );
-    } catch (consumeError) {
-      Logger.error(`Error when initializing queue consuming`, consumeError);
-      throw consumeError;
-    }
+  private static buildQueueName(queue: string): string {
+    return ``;
   }
 
-  private async consumeMessage(message: Message): Promise<void> {
-    let data: unknown;
-    try {
-      data = JSON.parse(message.content.toString());
-      this.amqpChannel.channel.ack(message);
-    } catch (parseError) {
-      Logger.error(
-        '(Event bypassed) Error when parsing received event',
-        parseError,
-      );
-
-      this.amqpChannel.channel.ack(message);
-      return;
-    }
+  get queue(): string {
+    return this._queue;
   }
 
-  private static buildQueueName(): string {
-    return `cc-${process.env.NODE_ENV}-${os.hostname()}`;
+  get routingKey(): string {
+    return this._routingKey;
+  }
+
+  get queueOptions(): Options.AssertQueue {
+    return this._queueOptions;
+  }
+
+  get consumeOptions(): Options.Consume {
+    return this._consumeOptions;
   }
 }

@@ -3,5 +3,4 @@ export interface AmqpConnectionParam {
   password: string;
   host: string;
   port: string;
-  exchange: string;
 }
