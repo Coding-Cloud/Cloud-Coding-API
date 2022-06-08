@@ -8,6 +8,7 @@ export class AmqpQueue {
     private _routingKey: string,
     private _queueOptions: Options.AssertQueue,
     private _consumeOptions: Options.Consume,
+    private _callBack: { (...args): void },
   ) {
     this._queue = AmqpQueue.buildQueueName(queue);
   }
@@ -30,5 +31,10 @@ export class AmqpQueue {
 
   get consumeOptions(): Options.Consume {
     return this._consumeOptions;
+  }
+
+
+  get callBack(): { (...args): void } {
+    return this._callBack;
   }
 }

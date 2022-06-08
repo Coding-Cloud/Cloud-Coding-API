@@ -1,5 +1,6 @@
 import { AmqpChannel } from './amqp-channel';
 import { AmqpQueue } from './amqp-queue';
+import { AmqpExchange } from './amqp-exchange';
 
 export class AmqpService {
   private static instance?: AmqpService;
@@ -23,8 +24,15 @@ export class AmqpService {
     await this.amqpChannel.handleChannelEvents();
   }
 
-  async addQueue(amqpQueue: AmqpQueue): Promise<void> {
-    await AmqpService.amqpChannel.addQueue(amqpQueue);
+  async addExchange(amqpExchange: AmqpExchange): Promise<void> {
+    AmqpService.amqpChannel.addExchange(amqpExchange);
+  }
+
+  async addQueue(
+    amqpQueue: AmqpQueue,
+    amqpExchangeName: string,
+  ): Promise<void> {
+    await AmqpService.amqpChannel.addQueue(amqpQueue, amqpExchangeName);
     console.log('on set une queue');
   }
 }

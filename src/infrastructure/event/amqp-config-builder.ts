@@ -1,4 +1,3 @@
-import { Options } from 'amqplib';
 import { AmqpConnectionParam } from './interface/amqp-connection-param';
 import { AmqpConfig } from './amqp-config';
 

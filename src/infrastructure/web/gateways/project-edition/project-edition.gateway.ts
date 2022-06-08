@@ -38,6 +38,13 @@ import {
   deleteConnectedUsers,
   getConnectedUsers,
 } from './ram-connected-users/connected-users';
+import { AmqpService } from '../../../event/amqp-service';
+import { AmqpConnection } from '../../../event/amqp-connection';
+import { AmqpExchange } from '../../../event/amqp-exchange';
+import { AmqpQueue } from '../../../event/amqp-queue';
+import { AmqpConfigBuilder } from '../../../event/amqp-config-builder';
+import { AmqpChannel } from '../../../event/amqp-channel';
+import { log } from 'util';
 
 @WebSocketGateway()
 @Injectable()
@@ -69,7 +76,41 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     private readonly deleteFolderProject: UseCaseProxy<DeleteProjectFolderRunnerUseCase>,
     @Inject(UseCasesProxyProjectEditionModule.CREATE_IMAGE_USE_CASES_PROXY)
     private readonly createImage: UseCaseProxy<CreateImageUseCase>,
-  ) {}
+  ) {
+    this.initAmqpCodeRunner();
+  }
+
+  async initAmqpCodeRunner(): Promise<void> {
+    const amqpExchange = new AmqpExchange('direct', 'messages');
+    const amqpQueue = new AmqpQueue(
+      '',
+      'addSocket',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.sendUserInRoom.bind(this),
+    );
+
+    const amqpQueue2 = new AmqpQueue(
+      '',
+      'addSocket',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.sendUserInRoom.bind(this),
+    );
+    await AmqpService.getInstance().addExchange(amqpExchange);
+    await AmqpService.getInstance().addQueue(amqpQueue, 'messages');
+    await AmqpService.getInstance().addQueue(amqpQueue2, 'messages');
+  }
   //TODO: refactoring all the connexion system with specific usecase
   async handleConnection(client: Socket): Promise<void> {
     try {
@@ -266,7 +307,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     });
   }
 
-  private async sendLogsToClient(room: string): Promise<void> {
+  private sendLogsToClient(room: string): void {
+    console.log('je passe dans sendLogs');
+    console.log('avec le projectId' + room);
     setTimeout(async () => {
       try {
         Logger.log(
@@ -300,6 +343,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   }
 
   private sendUserInRoom(projectId: string) {
+    console.log('je passe dans sendLogs');
+    console.log('avec le projectId' + projectId);
     const connectedUsers = getConnectedUsers(projectId);
     if (connectedUsers === undefined) return;
     this.server

@@ -2,22 +2,20 @@ import { AmqpConnection } from './amqp-connection';
 import { Channel, Message } from 'amqplib';
 import { Logger } from '@nestjs/common';
 import { AmqpExchange } from './amqp-exchange';
-import { AmqpEventConsumer } from './interface/amqp-event-consumer.interface';
 import { AmqpQueue } from './amqp-queue';
-import { AmqpConfig } from './amqp-config';
 
-export class AmqpChannel implements AmqpEventConsumer {
+export class AmqpChannel {
   private _channel: Channel;
   constructor(
     private connection: AmqpConnection,
-    private amqpExchange: AmqpExchange,
+    private amqpExchanges: Map<string, AmqpExchange> = new Map(),
   ) {}
 
   async startChannel(): Promise<void> {
     await this.connection.startConnection();
+    this.connection.handleConnectionEvents();
     this._channel = await this.connection.connection.createChannel();
-    //this.handleChannelEvents();x
-    await this.createExchange();
+    this.createExchanges();
   }
 
   handleChannelEvents(): void {
@@ -31,27 +29,15 @@ export class AmqpChannel implements AmqpEventConsumer {
     });
   }
 
-  async consume<E>(): Promise<E> {
-    /*await this.startChannel();
+  private async consumeMessage<E>(
+    message: Message,
+    amqpQueue: AmqpQueue,
+  ): Promise<E> {
     try {
-      await this._channel.consume(
-        this.amqpQueue.queue,
-        (message) => this.consumeMessage<E>(message),
-        this.amqpQueue.consumeOptions,
-      );
-      return;
-    } catch (consumeError) {
-      Logger.error(`Error when initializing queue consuming`, consumeError);
-      throw consumeError;
-    }*/
-    return;
-  }
-
-  private async consumeMessage<E>(message: Message): Promise<E> {
-    try {
-      //const data = JSON.parse(message.fields);
-      console.log(message);
+      const data = JSON.parse(message.content.toString());
+      console.log(data);
       console.log(message.content.toString());
+      amqpQueue.callBack(data.room);
       this._channel.ack(message);
       //return data;
     } catch (parseError) {
@@ -65,11 +51,26 @@ export class AmqpChannel implements AmqpEventConsumer {
     }
   }
 
-  private async createExchange(): Promise<void> {
+  private createExchanges(): void {
+    Object.values(this.amqpExchanges).forEach((exchange: AmqpExchange) => {
+      try {
+        this._channel.assertExchange(
+          exchange.exchangeName,
+          exchange.exchangeMode,
+        );
+      } catch (assertExchangeError) {
+        Logger.error(`Error when start exchange`);
+        throw assertExchangeError;
+      }
+    });
+  }
+
+  async addExchange(amqpExchange: AmqpExchange): Promise<void> {
+    this.amqpExchanges.set(amqpExchange.exchangeName, amqpExchange);
     try {
       await this._channel.assertExchange(
-        this.amqpExchange.exchangeName,
-        this.amqpExchange.exchangeMode,
+        amqpExchange.exchangeName,
+        amqpExchange.exchangeMode,
       );
     } catch (assertExchangeError) {
       Logger.error(`Error when start exchange`);
@@ -77,20 +78,7 @@ export class AmqpChannel implements AmqpEventConsumer {
     }
   }
 
-  private async bindQueueToExchange(): Promise<void> {
-    /*try {
-      await this._channel.bindQueue(
-        this.amqpQueue.queue,
-        this.amqpExchange.exchangeName,
-        this.amqpQueue.routingKey,
-      );
-    } catch (bindQueueError) {
-      Logger.error(`Error when binding queue to exchange`);
-      throw bindQueueError;
-    }*/
-  }
-
-  async addQueue(amqpQueue: AmqpQueue) {
+  async addQueue(amqpQueue: AmqpQueue, amqpExchange: string) {
     try {
       await this._channel.assertQueue(amqpQueue.queue, amqpQueue.queueOptions);
       await this.consumeQueue(amqpQueue);
@@ -102,7 +90,7 @@ export class AmqpChannel implements AmqpEventConsumer {
     try {
       await this._channel.bindQueue(
         amqpQueue.queue,
-        this.amqpExchange.exchangeName,
+        this.amqpExchanges.get(amqpExchange).exchangeName,
         amqpQueue.routingKey,
       );
     } catch (bindQueueError) {
@@ -115,7 +103,7 @@ export class AmqpChannel implements AmqpEventConsumer {
     try {
       await this._channel.consume(
         amqpQueue.queue,
-        (message) => this.consumeMessage<void>(message),
+        (message) => this.consumeMessage<void>(message, amqpQueue),
         amqpQueue.consumeOptions,
       );
       return;
