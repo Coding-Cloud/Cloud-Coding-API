@@ -39,12 +39,8 @@ import {
   getConnectedUsers,
 } from './ram-connected-users/connected-users';
 import { AmqpService } from '../../../event/amqp-service';
-import { AmqpConnection } from '../../../event/amqp-connection';
 import { AmqpExchange } from '../../../event/amqp-exchange';
 import { AmqpQueue } from '../../../event/amqp-queue';
-import { AmqpConfigBuilder } from '../../../event/amqp-config-builder';
-import { AmqpChannel } from '../../../event/amqp-channel';
-import { log } from 'util';
 
 @WebSocketGateway()
 @Injectable()
@@ -84,7 +80,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     const amqpExchange = new AmqpExchange('direct', 'messages');
     const amqpQueue = new AmqpQueue(
       '',
-      'addSocket',
+      'sendUser',
       {
         exclusive: true,
         durable: true,
@@ -95,21 +91,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       this.sendUserInRoom.bind(this),
     );
 
-    const amqpQueue2 = new AmqpQueue(
-      '',
-      'addSocket',
-      {
-        exclusive: true,
-        durable: true,
-      },
-      {
-        noAck: false,
-      },
-      this.sendUserInRoom.bind(this),
-    );
     await AmqpService.getInstance().addExchange(amqpExchange);
     await AmqpService.getInstance().addQueue(amqpQueue, 'messages');
-    await AmqpService.getInstance().addQueue(amqpQueue2, 'messages');
   }
   //TODO: refactoring all the connexion system with specific usecase
   async handleConnection(client: Socket): Promise<void> {
@@ -155,7 +138,12 @@ export class ProjectEditionGateway implements OnGatewayConnection {
               addDisconnectigProjectTimeout(room, timeOut);
             }
             deleteConnectedUsers(room, client.data.username);
-            this.sendUserInRoom(room);
+            AmqpService.getInstance().sendBroadcastMessage(
+              'sendUser',
+              'messages',
+              JSON.stringify({ room: 'gastric-coral-condor' }),
+            );
+            //this.sendUserInRoom(room);
           }
         });
       });
@@ -264,7 +252,11 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { projectId: string },
   ): Promise<void> {
-    this.sendUserInRoom(body.projectId);
+    AmqpService.getInstance().sendBroadcastMessage(
+      'sendUser',
+      'messages',
+      JSON.stringify({ room: body.projectId }),
+    );
   }
 
   private broadcastEditProject(

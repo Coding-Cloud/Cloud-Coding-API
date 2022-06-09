@@ -99,6 +99,15 @@ export class AmqpChannel {
     }
   }
 
+  sendBroadcastMessage(
+    routingKey: string,
+    amqpExchangeName: string,
+    content: string,
+  ) {
+    console.log("on essaie bien d'envoyer");
+    this._channel.publish(amqpExchangeName, routingKey, Buffer.from(content));
+  }
+
   private async consumeQueue(amqpQueue: AmqpQueue) {
     try {
       await this._channel.consume(

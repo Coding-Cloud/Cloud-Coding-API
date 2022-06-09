@@ -1,6 +1,7 @@
 import { AmqpChannel } from './amqp-channel';
 import { AmqpQueue } from './amqp-queue';
 import { AmqpExchange } from './amqp-exchange';
+import { Logger } from "@nestjs/common";
 
 export class AmqpService {
   private static instance?: AmqpService;
@@ -25,7 +26,7 @@ export class AmqpService {
   }
 
   async addExchange(amqpExchange: AmqpExchange): Promise<void> {
-    AmqpService.amqpChannel.addExchange(amqpExchange);
+    await AmqpService.amqpChannel.addExchange(amqpExchange);
   }
 
   async addQueue(
@@ -34,5 +35,21 @@ export class AmqpService {
   ): Promise<void> {
     await AmqpService.amqpChannel.addQueue(amqpQueue, amqpExchangeName);
     console.log('on set une queue');
+  }
+
+  sendBroadcastMessage(
+    routingKey: string,
+    amqpExchangeName: string,
+    content: string,
+  ): void {
+    try {
+      AmqpService.amqpChannel.sendBroadcastMessage(
+        routingKey,
+        amqpExchangeName,
+        content,
+      );
+    } catch (sendBroadcastError) {
+      Logger.error('error when sendBroadcast message', sendBroadcastError);
+    }
   }
 }
