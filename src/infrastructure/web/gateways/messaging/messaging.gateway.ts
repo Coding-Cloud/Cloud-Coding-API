@@ -23,6 +23,10 @@ import { GetConversationsDto } from './dto/get-conversations.dto';
 import { FindMessageUseCase } from '../../../../usecases/message/find-message.usecase';
 import { UseCasesProxyUserSocketModule } from '../../../usecases-proxy/user-socket/usecase-proxy-user-socket.module';
 import { FindUserSocketUseCases } from '../../../../usecases/user-socket/find-user-socket.usecases';
+import { AmqpExchange } from '../../../amqp/amqp-exchange';
+import { AmqpQueue } from '../../../amqp/amqp-queue';
+import { AmqpService } from '../../../amqp/amqp-service';
+import { Message } from '../../../../domain/message/message';
 
 @UseGuards(AuthGuard)
 @WebSocketGateway({ namespace: 'social-network' })
@@ -30,6 +34,8 @@ import { FindUserSocketUseCases } from '../../../../usecases/user-socket/find-us
 export class MessagingGateway {
   @WebSocketServer()
   server: Server;
+
+  MESSAGING_EXCHANGE_NAME = 'messagingSocket';
 
   constructor(
     @Inject(
@@ -48,7 +54,51 @@ export class MessagingGateway {
     private readonly findMessage: UseCaseProxy<FindMessageUseCase>,
     @Inject(UseCasesProxyUserSocketModule.FIND_USER_SOCKET_USE_CASES_PROXY)
     private readonly findUserSocket: UseCaseProxy<FindUserSocketUseCases>,
-  ) {}
+  ) {
+    this.initAmqpCodeRunner();
+  }
+
+  async initAmqpCodeRunner(): Promise<void> {
+    const amqpExchange = new AmqpExchange(
+      'topic',
+      this.MESSAGING_EXCHANGE_NAME,
+    );
+    const messageCreatedQueue = new AmqpQueue(
+      '',
+      'messageCreated',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.sendMessageCreatedAMQP.bind(this),
+    );
+
+    const messageDeletedQueue = new AmqpQueue(
+      '',
+      'messageDeleted',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.sendMessageDeletedAMQP.bind(this),
+    );
+
+    await AmqpService.getInstance().addExchange(amqpExchange);
+    await AmqpService.getInstance().addQueue(
+      messageCreatedQueue,
+      this.MESSAGING_EXCHANGE_NAME,
+    );
+    await AmqpService.getInstance().addQueue(
+      messageDeletedQueue,
+      this.MESSAGING_EXCHANGE_NAME,
+    );
+  }
 
   @SubscribeMessage('getMessages')
   async getMessages(
@@ -103,6 +153,11 @@ export class MessagingGateway {
         .getInstance()
         .createMessage(messageCandidate);
       const message = await this.findMessage.getInstance().findById(messageId);
+      AmqpService.getInstance().sendBroadcastMessage(
+        'messageCreated',
+        JSON.stringify(message),
+        this.MESSAGING_EXCHANGE_NAME,
+      );
       const userSockets = await this.findUserSocket
         .getInstance()
         .findConversationUserSockets(messageDTO.conversationId);
@@ -126,11 +181,35 @@ export class MessagingGateway {
       const userSockets = await this.findUserSocket
         .getInstance()
         .findConversationUserSockets(message.conversationId);
+      AmqpService.getInstance().sendBroadcastMessage(
+        'messageDeleted',
+        JSON.stringify({ id: messageId }),
+        this.MESSAGING_EXCHANGE_NAME,
+      );
       userSockets.forEach((userSocket) =>
         this.server.to(userSocket.socketId).emit('messageDeleted', messageId),
       );
     } catch (e) {
       Logger.error(e);
     }
+  }
+
+  private async sendMessageCreatedAMQP(message: Message) {
+    const userSockets = await this.findUserSocket
+      .getInstance()
+      .findConversationUserSockets(message.conversationId);
+    userSockets.forEach((userSocket) =>
+      this.server.to(userSocket.socketId).emit('messageCreated', message),
+    );
+  }
+
+  private async sendMessageDeletedAMQP(messageId: string) {
+    const message = await this.findMessage.getInstance().findById(messageId);
+    const userSockets = await this.findUserSocket
+      .getInstance()
+      .findConversationUserSockets(message.conversationId);
+    userSockets.forEach((userSocket) =>
+      this.server.to(userSocket.socketId).emit('messageDeleted', messageId),
+    );
   }
 }

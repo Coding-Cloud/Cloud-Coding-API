@@ -39,14 +39,14 @@ export class AmqpService {
 
   sendBroadcastMessage(
     routingKey: string,
-    amqpExchangeName: string,
     content: string,
+    amqpExchangeName: string,
   ): void {
     try {
       AmqpService.amqpChannel.sendBroadcastMessage(
         routingKey,
-        amqpExchangeName,
         content,
+        amqpExchangeName,
       );
     } catch (sendBroadcastError) {
       Logger.error('error when sendBroadcast message', sendBroadcastError);

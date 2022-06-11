@@ -14,7 +14,7 @@ export class AmqpQueue {
   }
 
   private static buildQueueName(queue: string): string {
-    return ``;
+    return queue;
   }
 
   get queue(): string {
@@ -32,7 +32,6 @@ export class AmqpQueue {
   get consumeOptions(): Options.Consume {
     return this._consumeOptions;
   }
-
 
   get callBack(): { (...args): void } {
     return this._callBack;

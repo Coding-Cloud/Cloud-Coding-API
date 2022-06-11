@@ -175,6 +175,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       this.CODE_RUNNER_EXCHANGE_NAME,
     );
   }
+
   //TODO: refactoring all the connexion system with specific usecase
   async handleConnection(client: Socket): Promise<void> {
     try {
@@ -222,8 +223,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
             deleteConnectedUsers(room, client.data.username);
             AmqpService.getInstance().sendBroadcastMessage(
               'sendUser',
-              this.CODE_RUNNER_EXCHANGE_NAME,
               JSON.stringify({ room: 'gastric-coral-condor' }),
+              this.CODE_RUNNER_EXCHANGE_NAME,
             );
             //this.roomDto(roomDto);
           }
@@ -336,8 +337,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   ): Promise<void> {
     AmqpService.getInstance().sendBroadcastMessage(
       'sendUser',
-      this.CODE_RUNNER_EXCHANGE_NAME,
       JSON.stringify({ room: body.projectId }),
+      this.CODE_RUNNER_EXCHANGE_NAME,
     );
   }
 
@@ -355,13 +356,13 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
     AmqpService.getInstance().sendBroadcastMessage(
       'editProject',
-      this.CODE_RUNNER_EXCHANGE_NAME,
       JSON.stringify({
         room: roomOfficial,
         event,
         editsProject: editProjectDTO,
         socket: 'nehIoagDg1cgTXfUAAAB',
       } as BroadcastEditProjectDto),
+      this.CODE_RUNNER_EXCHANGE_NAME,
     );
   }
 
@@ -378,13 +379,13 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
     AmqpService.getInstance().sendBroadcastMessage(
       'renameProject',
-      this.CODE_RUNNER_EXCHANGE_NAME,
       JSON.stringify({
         room: roomOfficial,
         event,
         renameFolderResource,
         socket: client.id,
       } as BroadcastRenameProjectDto),
+      this.CODE_RUNNER_EXCHANGE_NAME,
     );
   }
 
@@ -401,13 +402,13 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
     AmqpService.getInstance().sendBroadcastMessage(
       'deleteFolderProject',
-      this.CODE_RUNNER_EXCHANGE_NAME,
       JSON.stringify({
         room: roomOfficial,
         event,
         deleteFolderResource,
         socket: client.id,
       } as BroadcastDeleteFolderDto),
+      this.CODE_RUNNER_EXCHANGE_NAME,
     );
   }
 
@@ -434,11 +435,11 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         );
         AmqpService.getInstance().sendBroadcastMessage(
           'sendLogsToClient',
-          this.CODE_RUNNER_EXCHANGE_NAME,
           JSON.stringify({
             room,
             content: contentLogFile,
           } as SendLogsToClientDto),
+          this.CODE_RUNNER_EXCHANGE_NAME,
         );
         this.server.to(room).emit('logChanged', contentLogFile);
       } catch (error) {}
