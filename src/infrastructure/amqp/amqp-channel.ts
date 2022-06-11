@@ -29,20 +29,17 @@ export class AmqpChannel {
     });
   }
 
-  private async consumeMessage<E>(
+  private async consumeMessage(
     message: Message,
     amqpQueue: AmqpQueue,
-  ): Promise<E> {
+  ): Promise<void> {
     try {
       const data = JSON.parse(message.content.toString());
-      console.log(data);
-      console.log(message.content.toString());
-      amqpQueue.callBack(data.room);
+      amqpQueue.callBack(data);
       this._channel.ack(message);
-      //return data;
     } catch (parseError) {
       Logger.error(
-        '(Event bypassed) Error when parsing received event',
+        '(Event bypassed) Error when parsing received amqp consumeMessage',
         parseError,
       );
 
@@ -78,7 +75,7 @@ export class AmqpChannel {
     }
   }
 
-  async addQueue(amqpQueue: AmqpQueue, amqpExchange: string) {
+  async addQueue(amqpQueue: AmqpQueue, amqpExchange?: string) {
     try {
       await this._channel.assertQueue(amqpQueue.queue, amqpQueue.queueOptions);
       await this.consumeQueue(amqpQueue);
@@ -86,6 +83,8 @@ export class AmqpChannel {
       Logger.error('error when build queue');
       throw assertQueueError;
     }
+
+    if (!amqpExchange) return;
 
     try {
       await this._channel.bindQueue(
@@ -101,18 +100,21 @@ export class AmqpChannel {
 
   sendBroadcastMessage(
     routingKey: string,
-    amqpExchangeName: string,
     content: string,
+    amqpExchangeName: string,
   ) {
-    console.log("on essaie bien d'envoyer");
     this._channel.publish(amqpExchangeName, routingKey, Buffer.from(content));
+  }
+
+  sendMessageReadOneTime(queueName: string, content: string) {
+    this._channel.sendToQueue(queueName, Buffer.from(content));
   }
 
   private async consumeQueue(amqpQueue: AmqpQueue) {
     try {
       await this._channel.consume(
         amqpQueue.queue,
-        (message) => this.consumeMessage<void>(message, amqpQueue),
+        (message) => this.consumeMessage(message, amqpQueue),
         amqpQueue.consumeOptions,
       );
       return;

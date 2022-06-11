@@ -1,7 +1,7 @@
 import { AmqpChannel } from './amqp-channel';
 import { AmqpQueue } from './amqp-queue';
 import { AmqpExchange } from './amqp-exchange';
-import { Logger } from "@nestjs/common";
+import { Logger } from '@nestjs/common';
 
 export class AmqpService {
   private static instance?: AmqpService;
@@ -50,6 +50,14 @@ export class AmqpService {
       );
     } catch (sendBroadcastError) {
       Logger.error('error when sendBroadcast message', sendBroadcastError);
+    }
+  }
+
+  sendMessageReadOneTime(queueName: string, content: string): void {
+    try {
+      AmqpService.amqpChannel.sendMessageReadOneTime(queueName, content);
+    } catch (sendBroadcastError) {
+      Logger.error('error when sendSimpleMessage', sendBroadcastError);
     }
   }
 }

@@ -23,15 +23,15 @@ import { GroupEventHandlers } from './group/group.event-handlers';
       wildcard: false,
       // the delimiter used to segment namespaces
       delimiter: '.',
-      // set this to `true` if you want to emit the newListener event
+      // set this to `true` if you want to emit the newListener amqp
       newListener: false,
-      // set this to `true` if you want to emit the removeListener event
+      // set this to `true` if you want to emit the removeListener amqp
       removeListener: false,
-      // the maximum amount of listeners that can be assigned to an event
+      // the maximum amount of listeners that can be assigned to an amqp
       maxListeners: 10,
-      // show event name in memory leak message when more than maximum amount of listeners is assigned
+      // show amqp name in memory leak message when more than maximum amount of listeners is assigned
       verboseMemoryLeak: false,
-      // disable throwing uncaughtException if an error event is emitted and it has no listeners
+      // disable throwing uncaughtException if an error amqp is emitted and it has no listeners
       ignoreErrors: false,
     }),
     UsecasesProxyUserModule.register(),

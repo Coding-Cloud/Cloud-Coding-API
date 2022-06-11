@@ -2,10 +2,10 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { initSwagger } from './infrastructure/web/swagger/swagger.config';
-import { AmqpChannel } from './infrastructure/event/amqp-channel';
-import { AmqpConnection } from './infrastructure/event/amqp-connection';
-import { AmqpService } from './infrastructure/event/amqp-service';
-import { AmqpConfigBuilder } from './infrastructure/event/amqp-config-builder';
+import { AmqpChannel } from './infrastructure/amqp/amqp-channel';
+import { AmqpConnection } from './infrastructure/amqp/amqp-connection';
+import { AmqpService } from './infrastructure/amqp/amqp-service';
+import { AmqpConfigBuilder } from './infrastructure/amqp/amqp-config-builder';
 
 async function bootstrap() {
   const amqpConfig = new AmqpConfigBuilder()
@@ -26,7 +26,7 @@ async function bootstrap() {
   app.enableCors({ origin: '*' });
   initSwagger(app);
   const port = 3000;
-  await app.listen(port);
+  await app.listen(process.env.SERVER_PORT || port);
   Logger.log(`Application listening on port ${port}`);
 }
 
