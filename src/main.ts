@@ -6,6 +6,7 @@ import { AmqpChannel } from './infrastructure/amqp/amqp-channel';
 import { AmqpConnection } from './infrastructure/amqp/amqp-connection';
 import { AmqpService } from './infrastructure/amqp/amqp-service';
 import { AmqpConfigBuilder } from './infrastructure/amqp/amqp-config-builder';
+import { AmqpExchange } from './infrastructure/amqp/amqp-exchange';
 
 async function bootstrap() {
   const amqpConfig = new AmqpConfigBuilder()
@@ -20,6 +21,8 @@ async function bootstrap() {
   const amqpConnection = new AmqpConnection(amqpConfig.amqpConnectionParam);
   const amqpChannel = new AmqpChannel(amqpConnection);
   await AmqpService.setAmqpChannel(amqpChannel);
+  const amqpExchange = new AmqpExchange('direct', 'globalExchange');
+  await AmqpService.getInstance().addExchange(amqpExchange);
 
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
@@ -28,6 +31,7 @@ async function bootstrap() {
   const port = 3000;
   await app.listen(process.env.SERVER_PORT || port);
   Logger.log(`Application listening on port ${port}`);
+  await AmqpService.getInstance().startQueuesCreated();
 }
 
 bootstrap();

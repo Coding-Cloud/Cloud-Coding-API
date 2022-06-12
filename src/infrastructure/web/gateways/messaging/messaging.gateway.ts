@@ -35,7 +35,7 @@ export class MessagingGateway {
   @WebSocketServer()
   server: Server;
 
-  MESSAGING_EXCHANGE_NAME = 'messagingSocket';
+  MESSAGING_EXCHANGE_NAME = 'globalExchange';
 
   constructor(
     @Inject(
@@ -59,10 +59,6 @@ export class MessagingGateway {
   }
 
   async initAmqpCodeRunner(): Promise<void> {
-    const amqpExchange = new AmqpExchange(
-      'topic',
-      this.MESSAGING_EXCHANGE_NAME,
-    );
     const messageCreatedQueue = new AmqpQueue(
       '',
       'messageCreated',
@@ -74,6 +70,7 @@ export class MessagingGateway {
         noAck: false,
       },
       this.sendMessageCreatedAMQP.bind(this),
+      this.MESSAGING_EXCHANGE_NAME,
     );
 
     const messageDeletedQueue = new AmqpQueue(
@@ -87,17 +84,11 @@ export class MessagingGateway {
         noAck: false,
       },
       this.sendMessageDeletedAMQP.bind(this),
+      this.MESSAGING_EXCHANGE_NAME,
     );
 
-    await AmqpService.getInstance().addExchange(amqpExchange);
-    await AmqpService.getInstance().addQueue(
-      messageCreatedQueue,
-      this.MESSAGING_EXCHANGE_NAME,
-    );
-    await AmqpService.getInstance().addQueue(
-      messageDeletedQueue,
-      this.MESSAGING_EXCHANGE_NAME,
-    );
+    await AmqpService.getInstance().addQueue(messageCreatedQueue);
+    await AmqpService.getInstance().addQueue(messageDeletedQueue);
   }
 
   @SubscribeMessage('getMessages')

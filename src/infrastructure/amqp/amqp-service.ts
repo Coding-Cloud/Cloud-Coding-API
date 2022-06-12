@@ -29,12 +29,8 @@ export class AmqpService {
     await AmqpService.amqpChannel.addExchange(amqpExchange);
   }
 
-  async addQueue(
-    amqpQueue: AmqpQueue,
-    amqpExchangeName: string,
-  ): Promise<void> {
-    await AmqpService.amqpChannel.addQueue(amqpQueue, amqpExchangeName);
-    console.log('on set une queue');
+  async addQueue(amqpQueue: AmqpQueue): Promise<void> {
+    await AmqpService.amqpChannel.addQueue(amqpQueue);
   }
 
   sendBroadcastMessage(
@@ -59,5 +55,9 @@ export class AmqpService {
     } catch (sendBroadcastError) {
       Logger.error('error when sendSimpleMessage', sendBroadcastError);
     }
+  }
+
+  async startQueuesCreated(): Promise<void> {
+    await AmqpService.amqpChannel.startQueues();
   }
 }

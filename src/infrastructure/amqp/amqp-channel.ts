@@ -3,12 +3,14 @@ import { Channel, Message } from 'amqplib';
 import { Logger } from '@nestjs/common';
 import { AmqpExchange } from './amqp-exchange';
 import { AmqpQueue } from './amqp-queue';
+import { log } from "util";
 
 export class AmqpChannel {
   private _channel: Channel;
   constructor(
     private connection: AmqpConnection,
     private amqpExchanges: Map<string, AmqpExchange> = new Map(),
+    private amqpQueuesToCreate: AmqpQueue[] = [],
   ) {}
 
   async startChannel(): Promise<void> {
@@ -35,7 +37,10 @@ export class AmqpChannel {
   ): Promise<void> {
     try {
       const data = JSON.parse(message.content.toString());
-      amqpQueue.callBack(data);
+      console.log(data);
+      console.log(message.fields);
+      console.log(amqpQueue.callBack);
+      //amqpQueue.callBack(data);
       this._channel.ack(message);
     } catch (parseError) {
       Logger.error(
@@ -75,27 +80,36 @@ export class AmqpChannel {
     }
   }
 
-  async addQueue(amqpQueue: AmqpQueue, amqpExchange?: string) {
-    try {
-      await this._channel.assertQueue(amqpQueue.queue, amqpQueue.queueOptions);
-      await this.consumeQueue(amqpQueue);
-    } catch (assertQueueError) {
-      Logger.error('error when build queue');
-      throw assertQueueError;
-    }
+  async addQueue(amqpQueue: AmqpQueue) {
+    this.amqpQueuesToCreate.push(amqpQueue);
+  }
 
-    if (!amqpExchange) return;
+  async startQueues(): Promise<void> {
+    for (const queue of this.amqpQueuesToCreate) {
+      console.log('on set une queue ');
+      console.log(queue.queue);
+      try {
+        await this._channel.assertQueue(queue.queue, queue.queueOptions);
+        await this.consumeQueue(queue);
+      } catch (assertQueueError) {
+        Logger.error('error when build queue');
+        throw assertQueueError;
+      }
 
-    try {
-      await this._channel.bindQueue(
-        amqpQueue.queue,
-        this.amqpExchanges.get(amqpExchange).exchangeName,
-        amqpQueue.routingKey,
-      );
-    } catch (bindQueueError) {
-      Logger.error(`Error when binding queue to exchange`);
-      throw bindQueueError;
+      if (!this.amqpExchanges.get(queue.exchangeName)) return;
+
+      try {
+        await this._channel.bindQueue(
+          queue.queue,
+          this.amqpExchanges.get(queue.exchangeName).exchangeName,
+          queue.routingKey,
+        );
+      } catch (bindQueueError) {
+        Logger.error(`Error when binding queue to exchange`);
+        throw bindQueueError;
+      }
     }
+    this.amqpQueuesToCreate.pop();
   }
 
   sendBroadcastMessage(

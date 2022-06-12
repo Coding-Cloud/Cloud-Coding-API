@@ -9,6 +9,7 @@ export class AmqpQueue {
     private _queueOptions: Options.AssertQueue,
     private _consumeOptions: Options.Consume,
     private _callBack: { (...args): void },
+    private _exchangeName?: string,
   ) {
     this._queue = AmqpQueue.buildQueueName(queue);
   }
@@ -19,6 +20,14 @@ export class AmqpQueue {
 
   get queue(): string {
     return this._queue;
+  }
+
+  get exchangeName(): string {
+    return this._exchangeName;
+  }
+
+  get (): string {
+    return this._exchangeName;
   }
 
   get routingKey(): string {

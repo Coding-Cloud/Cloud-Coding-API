@@ -53,7 +53,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  CODE_RUNNER_EXCHANGE_NAME = 'codeRunnerSocket';
+  CODE_RUNNER_EXCHANGE_NAME = 'globalExchange';
 
   constructor(
     private httpService: HttpService,
@@ -84,10 +84,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   }
 
   async initAmqpCodeRunner(): Promise<void> {
-    const amqpExchange = new AmqpExchange(
-      'direct',
-      this.CODE_RUNNER_EXCHANGE_NAME,
-    );
     const amqpQueue = new AmqpQueue(
       '',
       'sendUser',
@@ -99,6 +95,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         noAck: false,
       },
       this.sendUserInRoomAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
     );
 
     const amqpQueueSendLogsToClient = new AmqpQueue(
@@ -112,6 +109,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         noAck: false,
       },
       this.sendLogsToClientAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
     );
 
     const amqpQueueEditProject = new AmqpQueue(
@@ -125,6 +123,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         noAck: false,
       },
       this.broadcastEditProjectAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
     );
 
     const amqpQueueRenameFolderProject = new AmqpQueue(
@@ -138,6 +137,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         noAck: false,
       },
       this.broadcastRenameProjectAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
     );
 
     const amqpQueueDeleteProject = new AmqpQueue(
@@ -151,29 +151,16 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         noAck: false,
       },
       this.broadcastDeleteFolderProjectAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
     );
 
-    await AmqpService.getInstance().addExchange(amqpExchange);
-    await AmqpService.getInstance().addQueue(
-      amqpQueue,
-      this.CODE_RUNNER_EXCHANGE_NAME,
-    );
-    await AmqpService.getInstance().addQueue(
-      amqpQueueSendLogsToClient,
-      this.CODE_RUNNER_EXCHANGE_NAME,
-    );
-    await AmqpService.getInstance().addQueue(
-      amqpQueueEditProject,
-      this.CODE_RUNNER_EXCHANGE_NAME,
-    );
-    await AmqpService.getInstance().addQueue(
-      amqpQueueRenameFolderProject,
-      this.CODE_RUNNER_EXCHANGE_NAME,
-    );
-    await AmqpService.getInstance().addQueue(
-      amqpQueueDeleteProject,
-      this.CODE_RUNNER_EXCHANGE_NAME,
-    );
+    await AmqpService.getInstance().addQueue(amqpQueue);
+    await AmqpService.getInstance().addQueue(amqpQueueSendLogsToClient);
+    await AmqpService.getInstance().addQueue(amqpQueueEditProject);
+    await AmqpService.getInstance().addQueue(amqpQueueRenameFolderProject);
+    await AmqpService.getInstance().addQueue(amqpQueueDeleteProject);
+
+
   }
 
   //TODO: refactoring all the connexion system with specific usecase
