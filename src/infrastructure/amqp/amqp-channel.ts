@@ -84,6 +84,8 @@ export class AmqpChannel {
       throw assertQueueError;
     }
 
+    console.log(amqpExchange);
+
     if (!amqpExchange) return;
 
     try {

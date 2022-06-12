@@ -351,7 +351,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       if (room !== client.id) roomOfficial = room;
       client.broadcast.to(room).emit(event, editProjectDTO);
     });
-    console.log('la room de edit : ' + roomOfficial);
 
     AmqpService.getInstance().sendBroadcastMessage(
       'editProject',
@@ -360,7 +359,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         room: roomOfficial,
         event,
         editsProject: editProjectDTO,
-        socket: 'nehIoagDg1cgTXfUAAAB',
+        socket: client.id,
       } as BroadcastEditProjectDto),
     );
   }

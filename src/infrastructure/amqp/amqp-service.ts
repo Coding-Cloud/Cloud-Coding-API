@@ -31,10 +31,10 @@ export class AmqpService {
 
   async addQueue(
     amqpQueue: AmqpQueue,
-    amqpExchangeName: string,
+    amqpExchangeName?: string,
   ): Promise<void> {
     await AmqpService.amqpChannel.addQueue(amqpQueue, amqpExchangeName);
-    console.log('on set une queue');
+    Logger.log('on set une queue');
   }
 
   sendBroadcastMessage(
@@ -42,11 +42,12 @@ export class AmqpService {
     amqpExchangeName: string,
     content: string,
   ): void {
+    console.log(amqpExchangeName);
     try {
       AmqpService.amqpChannel.sendBroadcastMessage(
         routingKey,
-        amqpExchangeName,
         content,
+        amqpExchangeName,
       );
     } catch (sendBroadcastError) {
       Logger.error('error when sendBroadcast message', sendBroadcastError);
