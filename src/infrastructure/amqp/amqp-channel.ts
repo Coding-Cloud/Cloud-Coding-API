@@ -80,11 +80,12 @@ export class AmqpChannel {
     }
   }
 
-  async addQueue(amqpQueue: AmqpQueue) {
+  addQueue(amqpQueue: AmqpQueue) {
     this.amqpQueuesToCreate.push(amqpQueue);
   }
 
   async startQueues(): Promise<void> {
+    console.log('je suis avant le for');
     for (const queue of this.amqpQueuesToCreate) {
       console.log('on set une queue ');
       console.log(queue.queue);

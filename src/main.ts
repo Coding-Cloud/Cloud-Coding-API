@@ -21,8 +21,10 @@ async function bootstrap() {
   const amqpConnection = new AmqpConnection(amqpConfig.amqpConnectionParam);
   const amqpChannel = new AmqpChannel(amqpConnection);
   await AmqpService.setAmqpChannel(amqpChannel);
-  const amqpExchange = new AmqpExchange('direct', 'globalExchange');
+  const amqpExchange = new AmqpExchange('direct', 'messagingExchange');
   await AmqpService.getInstance().addExchange(amqpExchange);
+  const amqpExchange1 = new AmqpExchange('direct', 'runnerExchange');
+  await AmqpService.getInstance().addExchange(amqpExchange1);
 
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());

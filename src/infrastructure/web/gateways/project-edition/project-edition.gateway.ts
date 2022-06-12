@@ -53,7 +53,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
-  CODE_RUNNER_EXCHANGE_NAME = 'globalExchange';
+  CODE_RUNNER_EXCHANGE_NAME = 'runnerExchange';
 
   constructor(
     private httpService: HttpService,
@@ -159,8 +159,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     await AmqpService.getInstance().addQueue(amqpQueueEditProject);
     await AmqpService.getInstance().addQueue(amqpQueueRenameFolderProject);
     await AmqpService.getInstance().addQueue(amqpQueueDeleteProject);
-
-
   }
 
   //TODO: refactoring all the connexion system with specific usecase

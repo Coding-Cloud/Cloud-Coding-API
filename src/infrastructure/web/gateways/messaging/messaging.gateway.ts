@@ -35,7 +35,7 @@ export class MessagingGateway {
   @WebSocketServer()
   server: Server;
 
-  MESSAGING_EXCHANGE_NAME = 'globalExchange';
+  MESSAGING_EXCHANGE_NAME = 'messagingExchange';
 
   constructor(
     @Inject(
@@ -87,8 +87,8 @@ export class MessagingGateway {
       this.MESSAGING_EXCHANGE_NAME,
     );
 
-    await AmqpService.getInstance().addQueue(messageCreatedQueue);
-    await AmqpService.getInstance().addQueue(messageDeletedQueue);
+    AmqpService.getInstance().addQueue(messageCreatedQueue);
+    AmqpService.getInstance().addQueue(messageDeletedQueue);
   }
 
   @SubscribeMessage('getMessages')

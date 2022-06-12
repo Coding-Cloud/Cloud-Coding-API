@@ -29,8 +29,8 @@ export class AmqpService {
     await AmqpService.amqpChannel.addExchange(amqpExchange);
   }
 
-  async addQueue(amqpQueue: AmqpQueue): Promise<void> {
-    await AmqpService.amqpChannel.addQueue(amqpQueue);
+  addQueue(amqpQueue: AmqpQueue): void {
+    AmqpService.amqpChannel.addQueue(amqpQueue);
   }
 
   sendBroadcastMessage(
