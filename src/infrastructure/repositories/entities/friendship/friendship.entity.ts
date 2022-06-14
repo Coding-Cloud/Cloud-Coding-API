@@ -3,17 +3,19 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity('friendship')
+@Unique(['user1Id', 'user2Id'])
 export class FriendshipEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('uuid', { primary: true })
+  @Column('uuid')
   user1Id: string;
 
-  @Column('uuid', { primary: true })
+  @Column('uuid')
   user2Id: string;
 
   @CreateDateColumn()

@@ -8,7 +8,7 @@ export class FindConversationMessagesUseCase {
     conversationId: string,
     limit?: number,
     offset?: number,
-  ): Promise<Message[]> {
+  ): Promise<[Message[], number]> {
     return await this.messages.findByConversation(
       conversationId,
       limit,

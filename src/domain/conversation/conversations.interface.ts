@@ -6,6 +6,10 @@ export interface Conversations {
 
   findConversationById(id: string): Promise<Conversation>;
 
+  findConversationByFriendshipId(friendshipId: string): Promise<Conversation>;
+
+  findConversationByGroupId(groupId: string): Promise<Conversation>;
+
   findUserConversationById(
     id: string,
     search?: string,

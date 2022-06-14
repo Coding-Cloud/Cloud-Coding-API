@@ -55,14 +55,14 @@ export class MessagingGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() getMessagesDto: GetMessagesDto,
   ): Promise<void> {
-    const messages = await this.getConversationMessages
+    const [messages, totalResults] = await this.getConversationMessages
       .getInstance()
       .findByConversation(
         getMessagesDto.conversationId,
         getMessagesDto.limit,
         getMessagesDto.offset,
       );
-    client.emit('messages', messages);
+    client.emit('messages', { messages, totalResults });
   }
 
   @SubscribeMessage('getConversations')

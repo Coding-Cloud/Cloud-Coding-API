@@ -26,6 +26,8 @@ import { IsCommentOwnerGuard } from './comment-owner.guards';
 import { UpdateCommentUseCase } from '../../../../usecases/comment/update-coment.usecase';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CanCommentGuard } from './can-comment.guards';
+import { FindCommentUseCase } from '../../../../usecases/comment/find-comment.usecase';
+import { Comment } from '../../../../domain/comment/comment';
 
 @Controller('comments')
 @ApiTags('comments')
@@ -44,6 +46,8 @@ export class CommentsController {
     private readonly updateComment: UseCaseProxy<UpdateCommentUseCase>,
     @Inject(UseCasesProxyCommentModule.DELETE_PROJECT_COMMENT_USE_CASES_PROXY)
     private readonly deleteProjectComment: UseCaseProxy<DeleteProjectCommentUseCase>,
+    @Inject(UseCasesProxyCommentModule.FIND_COMMENT_USE_CASES_PROXY)
+    private readonly findCommentById: UseCaseProxy<FindCommentUseCase>,
   ) {}
 
   @ApiOperation({ summary: 'Get comments of project' })
@@ -78,6 +82,29 @@ export class CommentsController {
       .getInstance()
       .findUserPublicComments(userId, search, limit, offset);
     return { comments, totalResults };
+  }
+
+  @ApiOperation({ summary: 'Get current user comments' })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'offset', required: false })
+  @Get('/me')
+  async findCurrentUserComments(
+    @GetUser() user: User,
+    @Query('search') search?: string,
+    @Query('limit') limit?: number,
+    @Query('offset') offset?: number,
+  ): Promise<CommentListDto> {
+    const [comments, totalResults] = await this.findUserPublicComments
+      .getInstance()
+      .findUserComments(user.id, search, limit, offset);
+    return { comments, totalResults };
+  }
+
+  @ApiOperation({ summary: 'Get comment by id' })
+  @Get('/:commentId')
+  async findById(@Param('commentId') commentId: string): Promise<Comment> {
+    return await this.findCommentById.getInstance().getById(commentId);
   }
 
   @ApiOperation({ summary: 'Add new comment' })

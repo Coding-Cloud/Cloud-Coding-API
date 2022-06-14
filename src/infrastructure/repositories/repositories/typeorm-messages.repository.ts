@@ -46,19 +46,23 @@ export class TypeormMessagesRepository implements Messages {
     conversationId: string,
     limit?: number,
     offset?: number,
-  ): Promise<Message[]> {
+  ): Promise<[Message[], number]> {
     try {
-      const conversationEntities = await this.messageEntityRepository
+      const [conversationEntities, count] = await this.messageEntityRepository
         .createQueryBuilder()
         .where('MessageEntity.conversationId=:conversationId', {
           conversationId,
         })
+        .orderBy('MessageEntity.createdAt', 'DESC')
         .limit(limit ?? 25)
         .offset(offset ?? 0)
-        .getMany();
-      return conversationEntities.map((conversationEntity) =>
-        MessageAdapter.toMessage(conversationEntity),
-      );
+        .getManyAndCount();
+      return [
+        conversationEntities.map((conversationEntity) =>
+          MessageAdapter.toMessage(conversationEntity),
+        ),
+        count,
+      ];
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();
