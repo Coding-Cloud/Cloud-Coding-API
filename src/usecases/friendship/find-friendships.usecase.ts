@@ -16,6 +16,6 @@ export class FindFriendshipsUseCase {
   }
 
   async findFriendshipById(id: string): Promise<Friendship> {
-    return this.friendRequests.findById(id);
+    return this.friendships.findById(id);
   }
 }

@@ -7,4 +7,14 @@ export class FindConversationUseCase {
   async findConversation(id: string): Promise<Conversation> {
     return this.conversations.findConversationById(id);
   }
+
+  async findConversationByFriendshipId(
+    friendshipId: string,
+  ): Promise<Conversation> {
+    return this.conversations.findConversationByFriendshipId(friendshipId);
+  }
+
+  async findConversationByGroupId(groupId: string): Promise<Conversation> {
+    return this.conversations.findConversationByGroupId(groupId);
+  }
 }

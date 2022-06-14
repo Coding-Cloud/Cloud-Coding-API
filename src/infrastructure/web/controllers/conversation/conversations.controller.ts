@@ -33,4 +33,22 @@ export class ConversationsController {
       .getInstance()
       .findUserConversations(user.id);
   }
+
+  @Get('/friendship/:friendshipId')
+  findConversationByFriendshipId(
+    @Param('friendshipId') friendshipId: string,
+  ): Promise<Conversation> {
+    return this.findConversation
+      .getInstance()
+      .findConversationByFriendshipId(friendshipId);
+  }
+
+  @Get('/group/:groupId')
+  findConversationByGroupId(
+    @Param('groupId') groupId: string,
+  ): Promise<Conversation> {
+    return this.findConversation
+      .getInstance()
+      .findConversationByGroupId(groupId);
+  }
 }
