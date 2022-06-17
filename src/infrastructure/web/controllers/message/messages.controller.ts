@@ -5,6 +5,7 @@ import {
   Get,
   Inject,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -20,6 +21,8 @@ import { FindConversationMessagesUseCase } from '../../../../usecases/message/fi
 import { DeleteMessageUseCase } from '../../../../usecases/message/delete-message.usecase';
 import { CreateMessageDTO } from './dto/create-message.dto';
 import { MessageListDto } from './dto/message-list.dto';
+import { UpdateMessageUseCase } from '../../../../usecases/message/update-message.usecase';
+import { UpdateMessageDTO } from './dto/update-message.dto';
 
 @Controller('messages')
 @ApiTags('messages')
@@ -34,6 +37,8 @@ export class MessagesController {
     private readonly getMessage: UseCaseProxy<FindConversationMessagesUseCase>,
     @Inject(UseCasesProxyMessageModule.DELETE_MESSAGE_USE_CASES_PROXY)
     private readonly deleteMessage: UseCaseProxy<DeleteMessageUseCase>,
+    @Inject(UseCasesProxyMessageModule.UPDATE_MESSAGE_USE_CASES_PROXY)
+    private readonly updateMessage: UseCaseProxy<UpdateMessageUseCase>,
   ) {}
 
   @Post('/:conversationId')
@@ -59,6 +64,14 @@ export class MessagesController {
       .getInstance()
       .findByConversation(conversationId);
     return { messages, totalResults };
+  }
+
+  @Patch('/:messageId')
+  async updateMessageById(
+    @Param('messageId') messageId: string,
+    @Body() messageDto: UpdateMessageDTO,
+  ): Promise<void> {
+    await this.updateMessage.getInstance().updateMessage(messageId, messageDto);
   }
 
   @Delete('/:id')

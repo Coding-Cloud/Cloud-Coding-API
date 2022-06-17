@@ -7,6 +7,7 @@ import { UseCasesProxyConversationModule } from '../conversation/use-cases-proxy
 import { TypeormMessagesRepository } from '../../repositories/repositories/typeorm-messages.repository';
 import { FindConversationMessagesUseCase } from '../../../usecases/message/find-conversation-messages.usecase';
 import { FindMessageUseCase } from '../../../usecases/message/find-message.usecase';
+import { UpdateMessageUseCase } from '../../../usecases/message/update-message.usecase';
 
 @Module({
   imports: [RepositoriesModule, UseCasesProxyConversationModule.register()],
@@ -16,6 +17,7 @@ export class UseCasesProxyMessageModule {
   static FIND_CONVERSATION_MESSAGES_USE_CASES_PROXY =
     'getConversationMessagesUseCaseProxy';
   static FIND_MESSAGE_USE_CASES_PROXY = 'findMessageUseCaseProxy';
+  static UPDATE_MESSAGE_USE_CASES_PROXY = 'updateMessageUseCaseProxy';
   static DELETE_MESSAGE_USE_CASES_PROXY = 'deleteMessageUseCaseProxy';
 
   static register(): DynamicModule {
@@ -47,11 +49,18 @@ export class UseCasesProxyMessageModule {
           useFactory: (messages: TypeormMessagesRepository) =>
             new UseCaseProxy(new DeleteMessageUseCase(messages)),
         },
+        {
+          inject: [TypeormMessagesRepository],
+          provide: UseCasesProxyMessageModule.UPDATE_MESSAGE_USE_CASES_PROXY,
+          useFactory: (messages: TypeormMessagesRepository) =>
+            new UseCaseProxy(new UpdateMessageUseCase(messages)),
+        },
       ],
       exports: [
         UseCasesProxyMessageModule.CREATE_MESSAGE_USE_CASES_PROXY,
         UseCasesProxyMessageModule.FIND_MESSAGE_USE_CASES_PROXY,
         UseCasesProxyMessageModule.FIND_CONVERSATION_MESSAGES_USE_CASES_PROXY,
+        UseCasesProxyMessageModule.UPDATE_MESSAGE_USE_CASES_PROXY,
         UseCasesProxyMessageModule.DELETE_MESSAGE_USE_CASES_PROXY,
       ],
     };
