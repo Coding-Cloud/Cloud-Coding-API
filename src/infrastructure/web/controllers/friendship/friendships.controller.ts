@@ -32,8 +32,8 @@ export class FriendshipsController {
     return this.findFriendships.getInstance().findFriendships(user.id);
   }
 
-  @ApiOperation({ summary: 'Get the friendship of a user' })
-  @Get('/:id')
+  @ApiOperation({ summary: 'Get the friendships of a user' })
+  @Get('/user/:id')
   getUsersFriendship(
     @GetUser() user: User,
     @Param('id') id: string,
