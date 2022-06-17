@@ -23,6 +23,8 @@ import { GetConversationsDto } from './dto/get-conversations.dto';
 import { FindMessageUseCase } from '../../../../usecases/message/find-message.usecase';
 import { UseCasesProxyUserSocketModule } from '../../../usecases-proxy/user-socket/usecase-proxy-user-socket.module';
 import { FindUserSocketUseCases } from '../../../../usecases/user-socket/find-user-socket.usecases';
+import { UpdateMessageUseCase } from '../../../../usecases/message/update-message.usecase';
+import { UpdateMessageDTO } from './dto/update-message.dto';
 
 @UseGuards(AuthGuard)
 @WebSocketGateway({ namespace: 'social-network' })
@@ -44,6 +46,8 @@ export class MessagingGateway {
     private readonly createMessage: UseCaseProxy<CreateMessageUseCase>,
     @Inject(UseCasesProxyMessageModule.DELETE_MESSAGE_USE_CASES_PROXY)
     private readonly deleteMessage: UseCaseProxy<DeleteMessageUseCase>,
+    @Inject(UseCasesProxyMessageModule.UPDATE_MESSAGE_USE_CASES_PROXY)
+    private readonly updateMessage: UseCaseProxy<UpdateMessageUseCase>,
     @Inject(UseCasesProxyMessageModule.FIND_MESSAGE_USE_CASES_PROXY)
     private readonly findMessage: UseCaseProxy<FindMessageUseCase>,
     @Inject(UseCasesProxyUserSocketModule.FIND_USER_SOCKET_USE_CASES_PROXY)
@@ -108,6 +112,32 @@ export class MessagingGateway {
         .findConversationUserSockets(messageDTO.conversationId);
       userSockets.forEach((userSocket) =>
         this.server.to(userSocket.socketId).emit('messageCreated', message),
+      );
+    } catch (e) {
+      Logger.error(e);
+    }
+  }
+
+  @SubscribeMessage('updateMessage')
+  async update(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() messageDto: UpdateMessageDTO,
+  ): Promise<void> {
+    try {
+      await this.updateMessage
+        .getInstance()
+        .updateMessage(messageDto.messageId, {
+          content: messageDto.content,
+          assetId: messageDto.assetId,
+        });
+      const message = await this.findMessage
+        .getInstance()
+        .findById(messageDto.messageId);
+      const userSockets = await this.findUserSocket
+        .getInstance()
+        .findConversationUserSockets(message.conversationId);
+      userSockets.forEach((userSocket) =>
+        this.server.to(userSocket.socketId).emit('messageUpdated', messageDto),
       );
     } catch (e) {
       Logger.error(e);
