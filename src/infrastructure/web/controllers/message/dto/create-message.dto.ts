@@ -9,8 +9,8 @@ import {
 
 export class CreateMessageDTO {
   @IsString()
-  @MinLength(4)
-  @MaxLength(20)
+  @MinLength(1)
+  @MaxLength(2000)
   @ApiProperty()
   content: string;
 
