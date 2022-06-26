@@ -24,6 +24,7 @@ export class SocketAuthGuard implements CanActivate {
     const bearerToken =
       request.handshake.query['authorization'] ??
       request.handshake.headers['authorization'];
+
     if (bearerToken !== undefined) {
       const token = bearerToken.replace('Bearer ', '');
       const session = await this.getSessionUseCaseProxy
