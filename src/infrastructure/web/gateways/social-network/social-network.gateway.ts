@@ -17,7 +17,12 @@ import { UseCasesProxySessionModule } from '../../../usecases-proxy/session/usec
 import { GetSessionUseCases } from '../../../../usecases/session/get-session.usecase';
 
 @UseGuards(AuthGuard)
-@WebSocketGateway({ namespace: 'social-network' })
+@WebSocketGateway({
+  namespace: 'social-network',
+  cors: {
+    origin: ['*'],
+  },
+})
 @Injectable()
 export class SocialNetworkGateway
   implements OnGatewayConnection, OnGatewayDisconnect
