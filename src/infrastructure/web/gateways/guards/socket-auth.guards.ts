@@ -11,7 +11,7 @@ import { GetSessionUseCases } from 'src/usecases/session/get-session.usecase';
 import { GetUserUseCases } from 'src/usecases/user/get-user.usecase';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class SocketAuthGuard implements CanActivate {
   constructor(
     @Inject(UsecasesProxyUserModule.GET_USER_USE_CASES_PROXY)
     private readonly getUserUseCaseProxy: UseCaseProxy<GetUserUseCases>,
@@ -21,7 +21,9 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const bearerToken = request.headers['authorization'];
+    const bearerToken =
+      request.handshake.query['authorization'] ??
+      request.handshake.headers['authorization'];
     if (bearerToken !== undefined) {
       const token = bearerToken.replace('Bearer ', '');
       const session = await this.getSessionUseCaseProxy

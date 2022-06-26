@@ -12,7 +12,6 @@ import { UseCasesProxyMessageModule } from '../../../usecases-proxy/message/use-
 import { CreateMessageUseCase } from '../../../../usecases/message/create-message.usecase';
 import { FindConversationMessagesUseCase } from '../../../../usecases/message/find-conversation-messages.usecase';
 import { DeleteMessageUseCase } from '../../../../usecases/message/delete-message.usecase';
-import { AuthGuard } from '../../controllers/auth/auth.guards';
 import { CreateMessageDTO } from './dto/create-message.dto';
 import { GetUser } from '../../controllers/decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
@@ -25,8 +24,9 @@ import { UseCasesProxyUserSocketModule } from '../../../usecases-proxy/user-sock
 import { FindUserSocketUseCases } from '../../../../usecases/user-socket/find-user-socket.usecases';
 import { UpdateMessageUseCase } from '../../../../usecases/message/update-message.usecase';
 import { UpdateMessageDTO } from './dto/update-message.dto';
+import { SocketAuthGuard } from '../guards/socket-auth.guards';
 
-@UseGuards(AuthGuard)
+@UseGuards(SocketAuthGuard)
 @WebSocketGateway({
   namespace: 'social-network',
 })
