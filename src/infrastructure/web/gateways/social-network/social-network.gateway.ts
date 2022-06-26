@@ -19,9 +19,6 @@ import { GetSessionUseCases } from '../../../../usecases/session/get-session.use
 @UseGuards(AuthGuard)
 @WebSocketGateway({
   namespace: 'social-network',
-  cors: {
-    origin: ['*'],
-  },
 })
 @Injectable()
 export class SocialNetworkGateway
@@ -42,7 +39,10 @@ export class SocialNetworkGateway
   ) {}
 
   async handleConnection(client: Socket) {
-    const bearerToken = client.handshake.headers['authorization'];
+    const bearerToken =
+      client.handshake.headers['authorization'] ??
+      (client.handshake.query['authorization'] as string);
+
     if (bearerToken !== undefined) {
       const token = bearerToken.replace('Bearer ', '');
       const session = await this.getSessionUseCaseProxy
@@ -59,6 +59,8 @@ export class SocialNetworkGateway
       } else {
         client.disconnect();
       }
+    } else {
+      client.disconnect();
     }
   }
 

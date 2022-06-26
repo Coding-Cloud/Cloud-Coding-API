@@ -29,9 +29,6 @@ import { UpdateMessageDTO } from './dto/update-message.dto';
 @UseGuards(AuthGuard)
 @WebSocketGateway({
   namespace: 'social-network',
-  cors: {
-    origin: ['*'],
-  },
 })
 @Injectable()
 export class MessagingGateway {
