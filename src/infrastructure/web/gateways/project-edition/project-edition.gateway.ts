@@ -46,6 +46,9 @@ import { SendLogsToClientDto } from './amqp-event-dto/send-logs-to-client-dto';
 import { BroadcastRenameProjectDto } from './amqp-event-dto/broadcast-rename-project-dto';
 import { BroadcastDeleteFolderDto } from './amqp-event-dto/broadcast-delete-folder-dto';
 import { BroadcastEditProjectDto } from './amqp-event-dto/broadcast-edit-project-dto';
+import { BroadcastProjectVersionDto } from './amqp-event-dto/broadcast-project-version-dto';
+import { UseCasesProxyProjectVersioningModule } from '../../../usecases-proxy/project-version/use-cases-proxy-project-version.module';
+import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/get-project-versions.usecase';
 
 @WebSocketGateway()
 @Injectable()
@@ -79,6 +82,10 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     private readonly deleteFolderProject: UseCaseProxy<DeleteProjectFolderRunnerUseCase>,
     @Inject(UseCasesProxyProjectEditionModule.CREATE_IMAGE_USE_CASES_PROXY)
     private readonly createImage: UseCaseProxy<CreateImageUseCase>,
+    @Inject(
+      UseCasesProxyProjectVersioningModule.GET_PROJECT_VERSIONS_USE_CASES_PROXY,
+    )
+    private readonly getVersions: UseCaseProxy<GetProjectVersionsUseCase>,
   ) {
     this.initAmqpCodeRunner();
   }
@@ -154,11 +161,26 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       this.CODE_RUNNER_EXCHANGE_NAME,
     );
 
+    const amqpQueueProjectVersionChanged = new AmqpQueue(
+      '',
+      'currentProjectVersionHasChanged',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.broadcastSendVersionsUpdateAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
+
     await AmqpService.getInstance().addQueue(amqpQueue);
     await AmqpService.getInstance().addQueue(amqpQueueSendLogsToClient);
     await AmqpService.getInstance().addQueue(amqpQueueEditProject);
     await AmqpService.getInstance().addQueue(amqpQueueRenameFolderProject);
     await AmqpService.getInstance().addQueue(amqpQueueDeleteProject);
+    await AmqpService.getInstance().addQueue(amqpQueueProjectVersionChanged);
   }
 
   //TODO: refactoring all the connexion system with specific usecase
@@ -310,6 +332,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       editProject,
       client,
     );
+
     client.rooms.forEach(async (room) => {
       this.sendLogsToClient(room);
     });
@@ -323,6 +346,25 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     AmqpService.getInstance().sendBroadcastMessage(
       'sendUser',
       JSON.stringify({ room: body.projectId }),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
+  }
+
+  @SubscribeMessage('currentProjectVersionHasChanged')
+  async currentProjectVersionHasChanged(
+    @MessageBody() body: { uniqueName: string },
+  ) {
+    //TODO uncomment when have real values
+    /*const versions = this.getVersions
+      .getInstance()
+      .getProjectVersions(body.uniqueName);*/
+    const versions = ['1.0.0', '1.0.1', '1.0.2'];
+    AmqpService.getInstance().sendBroadcastMessage(
+      'currentProjectVersionHasChanged',
+      JSON.stringify({
+        versions,
+        room: body.uniqueName,
+      } as BroadcastProjectVersionDto),
       this.CODE_RUNNER_EXCHANGE_NAME,
     );
   }
@@ -345,7 +387,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         room: roomOfficial,
         event,
         editsProject: editProjectDTO,
-        socket: 'nehIoagDg1cgTXfUAAAB',
+        socket: client.id,
       } as BroadcastEditProjectDto),
       this.CODE_RUNNER_EXCHANGE_NAME,
     );
@@ -497,6 +539,19 @@ export class ProjectEditionGateway implements OnGatewayConnection {
           broadcastEditProjectDto.editsProject,
         );
     }
+  }
+
+  private broadcastSendVersionsUpdateAMQP(
+    broadcastProjectVersionDto: BroadcastProjectVersionDto,
+  ) {
+    console.log('je passe dans broadcastSendVersionsUpdateAMQP');
+    console.log(broadcastProjectVersionDto);
+    this.server
+      .to(broadcastProjectVersionDto.room)
+      .emit(
+        'currentProjectVersionHasChanged',
+        broadcastProjectVersionDto.versions,
+      );
   }
 
   private sendLogsToClientAMQP(sendLogsToClientDto: SendLogsToClientDto): void {
