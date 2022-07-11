@@ -10,4 +10,5 @@ export class CreateProjectCandidate {
   groupId: string;
   status: ProjectStatus;
   globalVisibility: ProjectVisibility;
+  repositoryUrl?: string;
 }

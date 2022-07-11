@@ -11,9 +11,14 @@ export class HelmBridgeApi implements ProjectInitializerApi {
   initialiseProject(
     uniqueName: string,
     language: ProjectLanguage,
+    repositoryUrl?: string,
   ): Observable<AxiosResponse<void>> {
+    let queryUrlParams = '';
+    if (repositoryUrl) {
+      queryUrlParams += `?repositoryUrl=${repositoryUrl}`;
+    }
     return this.httpService.post(
-      `${process.env.HELM_BRIDGE_URL}/projects/${uniqueName}/${language}`,
+      `${process.env.HELM_BRIDGE_URL}/projects/${uniqueName}/${language}${queryUrlParams}`,
     );
   }
 

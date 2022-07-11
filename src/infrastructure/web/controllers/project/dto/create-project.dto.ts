@@ -18,6 +18,12 @@ export class CreateProjectDTO {
   @ApiProperty()
   name: string;
 
+  @IsString()
+  @MinLength(4)
+  @ApiProperty()
+  @IsOptional()
+  link?: string;
+
   @IsEnum(ProjectLanguage)
   @IsNotEmpty()
   @ApiProperty()
