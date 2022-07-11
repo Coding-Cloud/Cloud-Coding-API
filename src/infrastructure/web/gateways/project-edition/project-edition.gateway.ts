@@ -149,7 +149,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
     const amqpQueueDeleteProject = new AmqpQueue(
       '',
-      'deleteProject',
+      'deleteProjectFolder',
       {
         exclusive: true,
         durable: true,
@@ -380,7 +380,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       client.broadcast.to(room).emit(event, editProjectDTO);
     });
     console.log('la room de edit : ' + roomOfficial);
-
+    console.log(editProjectDTO);
     AmqpService.getInstance().sendBroadcastMessage(
       'editProject',
       JSON.stringify({
@@ -405,7 +405,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     });
 
     AmqpService.getInstance().sendBroadcastMessage(
-      'renameProject',
+      'renameFolderProject',
       JSON.stringify({
         room: roomOfficial,
         event,
@@ -428,7 +428,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     });
 
     AmqpService.getInstance().sendBroadcastMessage(
-      'deleteFolderProject',
+      'deleteProjectFolder',
       JSON.stringify({
         room: roomOfficial,
         event,
@@ -528,10 +528,14 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   private broadcastEditProjectAMQP(
     broadcastEditProjectDto: BroadcastEditProjectDto,
   ) {
+    console.log('on passe dans broadcastEditProjectAMQP');
+
     const socket = this.server.sockets.sockets.get(
       broadcastEditProjectDto.socket,
     );
     if (!socket) {
+      console.log("on broadcast l'event editProject");
+      console.log(broadcastEditProjectDto);
       this.server
         .to(broadcastEditProjectDto.room)
         .emit(

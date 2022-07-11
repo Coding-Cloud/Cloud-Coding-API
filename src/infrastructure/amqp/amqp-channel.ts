@@ -3,7 +3,6 @@ import { Channel, Message } from 'amqplib';
 import { Logger } from '@nestjs/common';
 import { AmqpExchange } from './amqp-exchange';
 import { AmqpQueue } from './amqp-queue';
-import { log } from "util";
 
 export class AmqpChannel {
   private _channel: Channel;
@@ -37,10 +36,7 @@ export class AmqpChannel {
   ): Promise<void> {
     try {
       const data = JSON.parse(message.content.toString());
-      console.log(data);
-      console.log(message.fields);
-      console.log(amqpQueue.callBack);
-      //amqpQueue.callBack(data);
+      amqpQueue.callBack(data);
       this._channel.ack(message);
     } catch (parseError) {
       Logger.error(
@@ -85,10 +81,7 @@ export class AmqpChannel {
   }
 
   async startQueues(): Promise<void> {
-    console.log('je suis avant le for');
     for (const queue of this.amqpQueuesToCreate) {
-      console.log('on set une queue ');
-      console.log(queue.queue);
       try {
         await this._channel.assertQueue(queue.queue, queue.queueOptions);
         await this.consumeQueue(queue);
@@ -118,6 +111,10 @@ export class AmqpChannel {
     content: string,
     amqpExchangeName: string,
   ) {
+    console.log('on publish le message');
+    console.log(routingKey);
+    console.log(content);
+    console.log('----------------------------------------');
     this._channel.publish(amqpExchangeName, routingKey, Buffer.from(content));
   }
 
