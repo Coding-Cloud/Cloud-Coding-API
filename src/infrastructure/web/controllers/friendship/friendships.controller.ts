@@ -6,7 +6,7 @@ import {
   Param,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
@@ -18,6 +18,7 @@ import { Friendship } from '../../../../domain/friendship/friendship';
 
 @Controller('friendships')
 @ApiTags('friendships')
+@ApiSecurity('auth-token')
 @UseGuards(AuthGuard)
 export class FriendshipsController {
   constructor(

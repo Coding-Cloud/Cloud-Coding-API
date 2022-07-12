@@ -8,7 +8,7 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UsecasesProxyResetPasswordModule } from 'src/infrastructure/usecases-proxy/reset-password/usecase-proxy-reset-password.module';
 import { ResetPasswordUseCases } from 'src/usecases/auth/reset-password.usecase';
 import { UseCaseProxy } from 'src/infrastructure/usecases-proxy/usecases-proxy';
@@ -18,6 +18,7 @@ import { ChangePasswordPasswordResetDTO } from './dto/change-password-password-r
 
 @Controller('passwordReset')
 @ApiTags('password-reset')
+@ApiSecurity('auth-token')
 @ApiResponse({ status: 500, description: 'Internal error' })
 export class PasswordResetController {
   constructor(

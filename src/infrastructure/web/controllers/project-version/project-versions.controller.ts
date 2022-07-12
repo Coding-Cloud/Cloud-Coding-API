@@ -8,7 +8,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { AddProjectVersionUseCase } from '../../../../usecases/project-version/add-project-version.usecase';
 import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/get-project-versions.usecase';
@@ -19,6 +19,7 @@ import { AuthGuard } from '../auth/auth.guards';
 
 @Controller('projects-version')
 @ApiTags('projects-version')
+@ApiSecurity('auth-token')
 @UseGuards(AuthGuard)
 export class ProjectVersionsController {
   constructor(
