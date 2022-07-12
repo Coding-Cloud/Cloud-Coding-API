@@ -9,7 +9,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
@@ -26,6 +26,7 @@ import { UpdateMessageDTO } from './dto/update-message.dto';
 
 @Controller('messages')
 @ApiTags('messages')
+@ApiSecurity('auth-token')
 @UseGuards(AuthGuard)
 export class MessagesController {
   constructor(

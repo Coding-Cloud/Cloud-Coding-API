@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { AuthGuard } from '../auth/auth.guards';
 import { UseCasesProxyCommentModule } from '../../../usecases-proxy/comment/use-cases-proxy-comment.module';
@@ -31,6 +31,7 @@ import { Comment } from '../../../../domain/comment/comment';
 
 @Controller('comments')
 @ApiTags('comments')
+@ApiSecurity('auth-token')
 @UseGuards(AuthGuard)
 export class CommentsController {
   constructor(

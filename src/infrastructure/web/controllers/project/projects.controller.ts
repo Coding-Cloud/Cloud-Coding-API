@@ -10,7 +10,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { UseCasesProxyProjectModule } from '../../../usecases-proxy/project/use-cases-proxy-project.module';
 import { CreateProjectUseCase } from '../../../../usecases/project/create-project.usecase';
@@ -44,6 +44,7 @@ import { JoinedProjectsUseCase } from '../../../../usecases/project/joined-proje
 
 @Controller('projects')
 @ApiTags('projects')
+@ApiSecurity('auth-token')
 export class ProjectsController {
   constructor(
     @Inject(UseCasesProxyProjectModule.CREATE_PROJECT_USE_CASES_PROXY)

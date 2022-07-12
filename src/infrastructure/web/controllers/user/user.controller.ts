@@ -6,7 +6,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { AuthGuard } from '../auth/auth.guards';
 import { UsecasesProxyUserModule } from '../../../usecases-proxy/user/usecases-proxy-user.module';
@@ -19,6 +19,7 @@ import { UserList } from './dto/user-list.dto';
 
 @Controller('users')
 @ApiTags('users')
+@ApiSecurity('auth-token')
 @UseGuards(AuthGuard)
 export class UserController {
   constructor(
