@@ -60,7 +60,7 @@ export class MessagingGateway {
     @Inject(UseCasesProxyUserSocketModule.FIND_USER_SOCKET_USE_CASES_PROXY)
     private readonly findUserSocket: UseCaseProxy<FindUserSocketUseCases>,
   ) {
-    this.initAmqpCodeRunner();
+    this.initAmqpCodeRunner().then();
   }
 
   async initAmqpCodeRunner(): Promise<void> {
@@ -92,8 +92,23 @@ export class MessagingGateway {
       this.MESSAGING_EXCHANGE_NAME,
     );
 
+    const messageUpdatedQueue = new AmqpQueue(
+      '',
+      'messageUpdated',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.sendMessageUpdatedAMQP.bind(this),
+      this.MESSAGING_EXCHANGE_NAME,
+    );
+
     AmqpService.getInstance().addQueue(messageCreatedQueue);
     AmqpService.getInstance().addQueue(messageDeletedQueue);
+    AmqpService.getInstance().addQueue(messageUpdatedQueue);
   }
 
   @SubscribeMessage('getMessages')
@@ -180,11 +195,10 @@ export class MessagingGateway {
       const message = await this.findMessage
         .getInstance()
         .findById(messageDto.messageId);
-      const userSockets = await this.findUserSocket
-        .getInstance()
-        .findConversationUserSockets(message.conversationId);
-      userSockets.forEach((userSocket) =>
-        this.server.to(userSocket.socketId).emit('messageUpdated', messageDto),
+      AmqpService.getInstance().sendBroadcastMessage(
+        'messageUpdated',
+        JSON.stringify(message),
+        this.MESSAGING_EXCHANGE_NAME,
       );
     } catch (e) {
       Logger.error(e);
@@ -225,6 +239,15 @@ export class MessagingGateway {
       .findConversationUserSockets(message.conversationId);
     userSockets.forEach((userSocket) =>
       this.server.to(userSocket.socketId).emit('messageDeleted', message.id),
+    );
+  }
+
+  private async sendMessageUpdatedAMQP(message: Message) {
+    const userSockets = await this.findUserSocket
+      .getInstance()
+      .findConversationUserSockets(message.conversationId);
+    userSockets.forEach((userSocket) =>
+      this.server.to(userSocket.socketId).emit('messageUpdated', message.id),
     );
   }
 }
