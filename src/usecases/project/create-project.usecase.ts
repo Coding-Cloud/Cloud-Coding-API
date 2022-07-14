@@ -29,16 +29,21 @@ export class CreateProjectUseCase {
       );
     }
     const project = await this.projects.createProject(projectCandidate);
-    this.initializeRepository(project.uniqueName, project.language);
+    this.initializeRepository(
+      project.uniqueName,
+      project.language,
+      projectCandidate.repositoryUrl,
+    );
     return project.id;
   }
 
   private initializeRepository(
     uniqueName: string,
     language: ProjectLanguage,
+    repositoryUrl?: string,
   ): void {
     const subscription = this.projectInitializerApi
-      .initialiseProject(uniqueName, language)
+      .initialiseProject(uniqueName, language, repositoryUrl)
       .subscribe({
         next: () =>
           Logger.log(`Project {${uniqueName}} repository has been created`),

@@ -9,6 +9,9 @@ import { UseCasesProxySessionModule } from '../../usecases-proxy/session/usecase
 import { UseCasesProxyConversationModule } from '../../usecases-proxy/conversation/use-cases-proxy-conversation.module';
 import { SocialNetworkGateway } from './social-network/social-network.gateway';
 import { UseCasesProxyUserSocketModule } from '../../usecases-proxy/user-socket/usecase-proxy-user-socket.module';
+import {
+  UseCasesProxyProjectVersioningModule
+} from "../../usecases-proxy/project-version/use-cases-proxy-project-version.module";
 
 @Module({
   imports: [
@@ -19,6 +22,7 @@ import { UseCasesProxyUserSocketModule } from '../../usecases-proxy/user-socket/
     UseCasesProxySessionModule.register(),
     UseCasesProxyConversationModule.register(),
     UseCasesProxyUserSocketModule.register(),
+    UseCasesProxyProjectVersioningModule.register(),
   ],
   providers: [ProjectEditionGateway, MessagingGateway, SocialNetworkGateway],
 })

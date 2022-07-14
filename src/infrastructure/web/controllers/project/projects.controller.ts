@@ -100,6 +100,7 @@ export class ProjectsController {
       globalVisibility: createProjectDTO.globalVisibility,
       name: createProjectDTO.name,
       language: createProjectDTO.language,
+      repositoryUrl: createProjectDTO.link,
       status: ProjectStatus.INITIALISING,
     };
 

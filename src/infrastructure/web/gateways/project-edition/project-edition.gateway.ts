@@ -38,12 +38,25 @@ import {
   deleteConnectedUsers,
   getConnectedUsers,
 } from './ram-connected-users/connected-users';
+import { AmqpService } from '../../../amqp/amqp-service';
+import { AmqpExchange } from '../../../amqp/amqp-exchange';
+import { AmqpQueue } from '../../../amqp/amqp-queue';
+import { RoomDto } from './amqp-event-dto/room-dto';
+import { SendLogsToClientDto } from './amqp-event-dto/send-logs-to-client-dto';
+import { BroadcastRenameProjectDto } from './amqp-event-dto/broadcast-rename-project-dto';
+import { BroadcastDeleteFolderDto } from './amqp-event-dto/broadcast-delete-folder-dto';
+import { BroadcastEditProjectDto } from './amqp-event-dto/broadcast-edit-project-dto';
+import { BroadcastProjectVersionDto } from './amqp-event-dto/broadcast-project-version-dto';
+import { UseCasesProxyProjectVersioningModule } from '../../../usecases-proxy/project-version/use-cases-proxy-project-version.module';
+import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/get-project-versions.usecase';
 
 @WebSocketGateway()
 @Injectable()
 export class ProjectEditionGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
+
+  CODE_RUNNER_EXCHANGE_NAME = 'runnerExchange';
 
   constructor(
     private httpService: HttpService,
@@ -69,13 +82,114 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     private readonly deleteFolderProject: UseCaseProxy<DeleteProjectFolderRunnerUseCase>,
     @Inject(UseCasesProxyProjectEditionModule.CREATE_IMAGE_USE_CASES_PROXY)
     private readonly createImage: UseCaseProxy<CreateImageUseCase>,
-  ) {}
+    @Inject(
+      UseCasesProxyProjectVersioningModule.GET_PROJECT_VERSIONS_USE_CASES_PROXY,
+    )
+    private readonly getVersions: UseCaseProxy<GetProjectVersionsUseCase>,
+  ) {
+    this.initAmqpCodeRunner();
+  }
+
+  async initAmqpCodeRunner(): Promise<void> {
+    const amqpQueue = new AmqpQueue(
+      '',
+      'sendUser',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.sendUserInRoomAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
+
+    const amqpQueueSendLogsToClient = new AmqpQueue(
+      '',
+      'sendLogsToClient',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.sendLogsToClientAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
+
+    const amqpQueueEditProject = new AmqpQueue(
+      '',
+      'editProject',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.broadcastEditProjectAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
+
+    const amqpQueueRenameFolderProject = new AmqpQueue(
+      '',
+      'renameFolderProject',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.broadcastRenameProjectAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
+
+    const amqpQueueDeleteProject = new AmqpQueue(
+      '',
+      'deleteProjectFolder',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.broadcastDeleteFolderProjectAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
+
+    const amqpQueueProjectVersionChanged = new AmqpQueue(
+      '',
+      'currentProjectVersionHasChanged',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.broadcastSendVersionsUpdateAMQP.bind(this),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
+
+    await AmqpService.getInstance().addQueue(amqpQueue);
+    await AmqpService.getInstance().addQueue(amqpQueueSendLogsToClient);
+    await AmqpService.getInstance().addQueue(amqpQueueEditProject);
+    await AmqpService.getInstance().addQueue(amqpQueueRenameFolderProject);
+    await AmqpService.getInstance().addQueue(amqpQueueDeleteProject);
+    await AmqpService.getInstance().addQueue(amqpQueueProjectVersionChanged);
+  }
+
   //TODO: refactoring all the connexion system with specific usecase
   async handleConnection(client: Socket): Promise<void> {
     try {
       const projectId = client.handshake.query.projectId as string;
       const username = client.handshake.query.username as string;
       client.join(projectId);
+      console.log(client.id);
       addConnectedUsers(projectId, username);
       client.data.username = username;
       this.checkCodeRunnerStatus(projectId, client);
@@ -91,7 +205,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         },
       );
 
-      // Add event listeners.
+      // Add amqp listeners.
       /*watcher.on('change', async () => {
         const contentLogFile = await fs.readFile(
           `${process.env.LOG_PATH_PROJECT}/${projectId}.log`,
@@ -114,7 +228,12 @@ export class ProjectEditionGateway implements OnGatewayConnection {
               addDisconnectigProjectTimeout(room, timeOut);
             }
             deleteConnectedUsers(room, client.data.username);
-            this.sendUserInRoom(room);
+            AmqpService.getInstance().sendBroadcastMessage(
+              'sendUser',
+              JSON.stringify({ room: 'gastric-coral-condor' }),
+              this.CODE_RUNNER_EXCHANGE_NAME,
+            );
+            //this.roomDto(roomDto);
           }
         });
       });
@@ -213,6 +332,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       editProject,
       client,
     );
+
     client.rooms.forEach(async (room) => {
       this.sendLogsToClient(room);
     });
@@ -223,7 +343,30 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { projectId: string },
   ): Promise<void> {
-    this.sendUserInRoom(body.projectId);
+    AmqpService.getInstance().sendBroadcastMessage(
+      'sendUser',
+      JSON.stringify({ room: body.projectId }),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
+  }
+
+  @SubscribeMessage('currentProjectVersionHasChanged')
+  async currentProjectVersionHasChanged(
+    @MessageBody() body: { uniqueName: string },
+  ) {
+    //TODO uncomment when have real values
+    /*const versions = this.getVersions
+      .getInstance()
+      .getProjectVersions(body.uniqueName);*/
+    const versions = ['1.0.0', '1.0.1', '1.0.2'];
+    AmqpService.getInstance().sendBroadcastMessage(
+      'currentProjectVersionHasChanged',
+      JSON.stringify({
+        versions,
+        room: body.uniqueName,
+      } as BroadcastProjectVersionDto),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
   }
 
   private broadcastEditProject(
@@ -231,10 +374,23 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     editProjectDTO: EditProjectDTO[],
     client: Socket,
   ) {
-    //2 rooms ici
+    let roomOfficial: string;
     client.rooms.forEach(async (room) => {
+      if (room !== client.id) roomOfficial = room;
       client.broadcast.to(room).emit(event, editProjectDTO);
     });
+    console.log('la room de edit : ' + roomOfficial);
+    console.log(editProjectDTO);
+    AmqpService.getInstance().sendBroadcastMessage(
+      'editProject',
+      JSON.stringify({
+        room: roomOfficial,
+        event,
+        editsProject: editProjectDTO,
+        socket: client.id,
+      } as BroadcastEditProjectDto),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
   }
 
   private broadcastRenameProject(
@@ -242,9 +398,22 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     renameFolderResource: RenameFolderResource,
     client: Socket,
   ) {
+    let roomOfficial: string;
     client.rooms.forEach(async (room) => {
+      if (room !== client.id) roomOfficial = room;
       client.broadcast.to(room).emit(event, renameFolderResource);
     });
+
+    AmqpService.getInstance().sendBroadcastMessage(
+      'renameFolderProject',
+      JSON.stringify({
+        room: roomOfficial,
+        event,
+        renameFolderResource,
+        socket: client.id,
+      } as BroadcastRenameProjectDto),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
   }
 
   private broadcastDeleteFolderProject(
@@ -252,9 +421,22 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     deleteFolderResource: DeleteFolderResource,
     client: Socket,
   ) {
+    let roomOfficial: string;
     client.rooms.forEach(async (room) => {
+      if (room !== client.id) roomOfficial = room;
       client.broadcast.to(room).emit(event, deleteFolderResource);
     });
+
+    AmqpService.getInstance().sendBroadcastMessage(
+      'deleteProjectFolder',
+      JSON.stringify({
+        room: roomOfficial,
+        event,
+        deleteFolderResource,
+        socket: client.id,
+      } as BroadcastDeleteFolderDto),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
   }
 
   private broadcastSiteIsReady(client: Socket) {
@@ -266,7 +448,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     });
   }
 
-  private async sendLogsToClient(room: string): Promise<void> {
+  private sendLogsToClient(room: string): void {
+    console.log('je passe dans sendLogs');
+    console.log('avec le projectId' + room);
     setTimeout(async () => {
       try {
         Logger.log(
@@ -275,6 +459,14 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         const contentLogFile = await fs.readFile(
           `${process.env.LOG_PATH_PROJECT}/${room}/${room}.log`,
           { encoding: 'utf-8' },
+        );
+        AmqpService.getInstance().sendBroadcastMessage(
+          'sendLogsToClient',
+          JSON.stringify({
+            room,
+            content: contentLogFile,
+          } as SendLogsToClientDto),
+          this.CODE_RUNNER_EXCHANGE_NAME,
         );
         this.server.to(room).emit('logChanged', contentLogFile);
       } catch (error) {}
@@ -299,11 +491,84 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     }, 5000);
   }
 
-  private sendUserInRoom(projectId: string) {
-    const connectedUsers = getConnectedUsers(projectId);
+  //amqp events
+
+  private broadcastRenameProjectAMQP(
+    broadcastRenameProjectDto: BroadcastRenameProjectDto,
+  ) {
+    const socket = this.server.sockets.sockets.get(
+      broadcastRenameProjectDto.socket,
+    );
+    if (!socket) {
+      this.server
+        .to(broadcastRenameProjectDto.room)
+        .emit(
+          broadcastRenameProjectDto.event,
+          broadcastRenameProjectDto.renameFolderResource,
+        );
+    }
+  }
+
+  private broadcastDeleteFolderProjectAMQP(
+    broadcastDeleteFolderDto: BroadcastDeleteFolderDto,
+  ) {
+    const socket = this.server.sockets.sockets.get(
+      broadcastDeleteFolderDto.socket,
+    );
+    if (!socket) {
+      this.server
+        .to(broadcastDeleteFolderDto.room)
+        .emit(
+          broadcastDeleteFolderDto.event,
+          broadcastDeleteFolderDto.deleteFolderResource,
+        );
+    }
+  }
+
+  private broadcastEditProjectAMQP(
+    broadcastEditProjectDto: BroadcastEditProjectDto,
+  ) {
+    console.log('on passe dans broadcastEditProjectAMQP');
+
+    const socket = this.server.sockets.sockets.get(
+      broadcastEditProjectDto.socket,
+    );
+    if (!socket) {
+      console.log("on broadcast l'event editProject");
+      console.log(broadcastEditProjectDto);
+      this.server
+        .to(broadcastEditProjectDto.room)
+        .emit(
+          broadcastEditProjectDto.event,
+          broadcastEditProjectDto.editsProject,
+        );
+    }
+  }
+
+  private broadcastSendVersionsUpdateAMQP(
+    broadcastProjectVersionDto: BroadcastProjectVersionDto,
+  ) {
+    console.log('je passe dans broadcastSendVersionsUpdateAMQP');
+    console.log(broadcastProjectVersionDto);
+    this.server
+      .to(broadcastProjectVersionDto.room)
+      .emit(
+        'currentProjectVersionHasChanged',
+        broadcastProjectVersionDto.versions,
+      );
+  }
+
+  private sendLogsToClientAMQP(sendLogsToClientDto: SendLogsToClientDto): void {
+    this.server
+      .to(sendLogsToClientDto.room)
+      .emit('logChanged', sendLogsToClientDto.content);
+  }
+
+  private sendUserInRoomAMQP(roomDTO: RoomDto) {
+    const connectedUsers = getConnectedUsers(roomDTO.room);
     if (connectedUsers === undefined) return;
     this.server
-      .to(projectId)
-      .emit('developerConnected', getConnectedUsers(projectId));
+      .to(roomDTO.room)
+      .emit('developerConnected', getConnectedUsers(roomDTO.room));
   }
 }

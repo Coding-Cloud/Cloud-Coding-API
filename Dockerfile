@@ -15,22 +15,29 @@ COPY --from=node-builder --chown=node:node /app/dist/ ./dist/
 EXPOSE 3000
 
 ENV \
+  AMQP_HOST=localhost \
+  AMQP_PASSWORD=guest \
+  AMQP_PORT=5672 \
+  AMQP_USER=guest \
+  BASE_PATH_PROJECT=/data \
+  CODE_RUNNER_DNS_SUFFIX=http://localhost:8000
   DATABASE_HOST=127.0.0.1 \
+  DATABASE_NAME=postgres \
+  DATABASE_PASSWORD=postgres \
   DATABASE_PORT=5432 \
   DATABASE_USER=postgres \
-  DATABASE_PASSWORD=postgres \
-  DATABASE_NAME=postgres \
+  FRONT_PORT=4200 \
+  FRONT_URL=http://localhost \
+  HELM_BRIDGE_URL=http://helm-bridge.default.svc.cluster.local:5000 \
   JWT_SECRET=mysecret \
-  SMTP_APIKEY_PUBLIC=publickey \
-  SMTP_APIKEY_PRIVATE=privatekey \
+  LOG_PATH_PROJECT=/data \
+  MAIL_RECEIVER=example@mail.com \
   MAIL_SENDER=example@mail.com \
   MAIL_SENDER_NAME=CloudCoding \
-  MAIL_RECEIVER=example@mail.com \
-  FRONT_URL=http://localhost \
-  FRONT_PORT=4200 \
-  HELM_BRIDGE_URL=http://helm-bridge.default.svc.cluster.local:5000 \
-  BASE_PATH_PROJECT=/data \
-  LOG_PATH_PROJECT=/data
+  SERVER_PORT=3000 \
+  SMTP_APIKEY_PRIVATE=privatekey \
+  SMTP_APIKEY_PUBLIC=publickey \
+  VERIF_REPO_PROJECT=false
 
 
 CMD ["node", "dist/main.js"]

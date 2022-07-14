@@ -6,6 +6,7 @@ export abstract class ProjectInitializerApi {
   abstract initialiseProject(
     uniqueName: string,
     language: ProjectLanguage,
+    repositoryUrl?: string,
   ): Observable<AxiosResponse<void>>;
 
   abstract deleteProject(id: string): Observable<AxiosResponse<void>>;
