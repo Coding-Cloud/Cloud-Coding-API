@@ -200,16 +200,10 @@ export class MessagingGateway {
       const message = await this.findMessage.getInstance().findById(messageId);
       await this.deleteMessage.getInstance().deleteMessage(messageId);
 
-      const userSockets = await this.findUserSocket
-        .getInstance()
-        .findConversationUserSockets(message.conversationId);
       AmqpService.getInstance().sendBroadcastMessage(
         'messageDeleted',
         JSON.stringify(message),
         this.MESSAGING_EXCHANGE_NAME,
-      );
-      userSockets.forEach((userSocket) =>
-        this.server.to(userSocket.socketId).emit('messageDeleted', messageId),
       );
     } catch (e) {
       Logger.error(e);
