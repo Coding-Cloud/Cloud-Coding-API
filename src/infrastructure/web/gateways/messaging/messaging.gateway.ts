@@ -12,7 +12,6 @@ import { UseCasesProxyMessageModule } from '../../../usecases-proxy/message/use-
 import { CreateMessageUseCase } from '../../../../usecases/message/create-message.usecase';
 import { FindConversationMessagesUseCase } from '../../../../usecases/message/find-conversation-messages.usecase';
 import { DeleteMessageUseCase } from '../../../../usecases/message/delete-message.usecase';
-import { AuthGuard } from '../../controllers/auth/auth.guards';
 import { CreateMessageDTO } from './dto/create-message.dto';
 import { GetUser } from '../../controllers/decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
@@ -27,9 +26,14 @@ import { AmqpExchange } from '../../../amqp/amqp-exchange';
 import { AmqpQueue } from '../../../amqp/amqp-queue';
 import { AmqpService } from '../../../amqp/amqp-service';
 import { Message } from '../../../../domain/message/message';
+import { UpdateMessageUseCase } from '../../../../usecases/message/update-message.usecase';
+import { UpdateMessageDTO } from './dto/update-message.dto';
+import { SocketAuthGuard } from '../guards/socket-auth.guards';
 
-@UseGuards(AuthGuard)
-@WebSocketGateway({ namespace: 'social-network' })
+@UseGuards(SocketAuthGuard)
+@WebSocketGateway({
+  namespace: 'social-network',
+})
 @Injectable()
 export class MessagingGateway {
   @WebSocketServer()
@@ -50,6 +54,8 @@ export class MessagingGateway {
     private readonly createMessage: UseCaseProxy<CreateMessageUseCase>,
     @Inject(UseCasesProxyMessageModule.DELETE_MESSAGE_USE_CASES_PROXY)
     private readonly deleteMessage: UseCaseProxy<DeleteMessageUseCase>,
+    @Inject(UseCasesProxyMessageModule.UPDATE_MESSAGE_USE_CASES_PROXY)
+    private readonly updateMessage: UseCaseProxy<UpdateMessageUseCase>,
     @Inject(UseCasesProxyMessageModule.FIND_MESSAGE_USE_CASES_PROXY)
     private readonly findMessage: UseCaseProxy<FindMessageUseCase>,
     @Inject(UseCasesProxyUserSocketModule.FIND_USER_SOCKET_USE_CASES_PROXY)
@@ -96,14 +102,14 @@ export class MessagingGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() getMessagesDto: GetMessagesDto,
   ): Promise<void> {
-    const messages = await this.getConversationMessages
+    const [messages, totalResults] = await this.getConversationMessages
       .getInstance()
       .findByConversation(
         getMessagesDto.conversationId,
         getMessagesDto.limit,
         getMessagesDto.offset,
       );
-    client.emit('messages', messages);
+    client.emit('messages', { messages, totalResults });
   }
 
   @SubscribeMessage('getConversations')
@@ -154,6 +160,32 @@ export class MessagingGateway {
         .findConversationUserSockets(messageDTO.conversationId);
       userSockets.forEach((userSocket) =>
         this.server.to(userSocket.socketId).emit('messageCreated', message),
+      );
+    } catch (e) {
+      Logger.error(e);
+    }
+  }
+
+  @SubscribeMessage('updateMessage')
+  async update(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() messageDto: UpdateMessageDTO,
+  ): Promise<void> {
+    try {
+      await this.updateMessage
+        .getInstance()
+        .updateMessage(messageDto.messageId, {
+          content: messageDto.content,
+          assetId: messageDto.assetId,
+        });
+      const message = await this.findMessage
+        .getInstance()
+        .findById(messageDto.messageId);
+      const userSockets = await this.findUserSocket
+        .getInstance()
+        .findConversationUserSockets(message.conversationId);
+      userSockets.forEach((userSocket) =>
+        this.server.to(userSocket.socketId).emit('messageUpdated', messageDto),
       );
     } catch (e) {
       Logger.error(e);

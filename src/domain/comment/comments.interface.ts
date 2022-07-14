@@ -28,5 +28,12 @@ export interface Comments {
     offset?: number,
   ): Promise<[Comment[], number]>;
 
+  findUserComments(
+    userId: string,
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[Comment[], number]>;
+
   deleteComment(commentId: string): Promise<void>;
 }

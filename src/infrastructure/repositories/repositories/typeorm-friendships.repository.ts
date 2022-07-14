@@ -3,6 +3,7 @@ import {
   ConflictException,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -45,7 +46,7 @@ export class TypeormFriendshipsRepository implements Friendships {
       const friendshipEntities = await this.friendshipEntityRepository
         .createQueryBuilder()
         .where('FriendshipEntity.user1Id=:userId', { userId })
-        .where('FriendshipEntity.user2Id=:userId', { userId })
+        .orWhere('FriendshipEntity.user2Id=:userId', { userId })
         .getMany();
       return friendshipEntities.map((friendshipEntity) =>
         FriendshipAdapter.toFriendship(friendshipEntity),
@@ -53,6 +54,26 @@ export class TypeormFriendshipsRepository implements Friendships {
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();
+    }
+  }
+
+  async findByUsers(user1Id: string, user2Id: string): Promise<Friendship> {
+    try {
+      const friendshipEntity = await this.friendshipEntityRepository
+        .createQueryBuilder()
+        .where(
+          'FriendshipEntity.user1Id=:user1Id AND FriendshipEntity.user2Id=:user2Id',
+          { user1Id, user2Id },
+        )
+        .orWhere(
+          'FriendshipEntity.user1Id=:user2Id AND FriendshipEntity.user2Id=:user1Id',
+          { user2Id, user1Id },
+        )
+        .getOneOrFail();
+      return FriendshipAdapter.toFriendship(friendshipEntity);
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException();
     }
   }
 

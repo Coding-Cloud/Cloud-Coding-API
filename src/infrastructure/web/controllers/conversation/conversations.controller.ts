@@ -1,5 +1,5 @@
 import { Controller, Get, Inject, Param, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { AuthGuard } from '../auth/auth.guards';
 import { UseCasesProxyConversationModule } from '../../../usecases-proxy/conversation/use-cases-proxy-conversation.module';
@@ -11,6 +11,7 @@ import { FindUserConversationsUseCase } from '../../../../usecases/conversation/
 
 @Controller('conversations')
 @ApiTags('conversations')
+@ApiSecurity('auth-token')
 @UseGuards(AuthGuard)
 export class ConversationsController {
   constructor(
@@ -32,5 +33,23 @@ export class ConversationsController {
     return this.findUserConversations
       .getInstance()
       .findUserConversations(user.id);
+  }
+
+  @Get('/friendship/:friendshipId')
+  findConversationByFriendshipId(
+    @Param('friendshipId') friendshipId: string,
+  ): Promise<Conversation> {
+    return this.findConversation
+      .getInstance()
+      .findConversationByFriendshipId(friendshipId);
+  }
+
+  @Get('/group/:groupId')
+  findConversationByGroupId(
+    @Param('groupId') groupId: string,
+  ): Promise<Conversation> {
+    return this.findConversation
+      .getInstance()
+      .findConversationByGroupId(groupId);
   }
 }

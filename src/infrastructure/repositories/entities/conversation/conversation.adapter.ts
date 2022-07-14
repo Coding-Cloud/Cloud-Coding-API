@@ -3,9 +3,11 @@ import { Conversation } from '../../../../domain/conversation/conversation';
 
 export default class ConversationAdapter {
   static toConversation(conversation: ConversationEntity): Conversation {
-    const { id, createdAt } = conversation;
+    const { id, groupId, friendshipId, createdAt } = conversation;
     return {
       id,
+      groupId,
+      friendshipId,
       createdAt,
     };
   }

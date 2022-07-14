@@ -3,6 +3,7 @@ import {
   ConflictException,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -51,6 +52,38 @@ export class TypeormConversationsRepository implements Conversations {
     } catch (error) {
       Logger.error(error);
       throw new BadRequestException();
+    }
+  }
+
+  async findConversationByFriendshipId(
+    friendshipId: string,
+  ): Promise<Conversation> {
+    try {
+      const conversationEntity = await this.conversationEntityRepository
+        .createQueryBuilder()
+        .where('ConversationEntity.friendshipId=:friendshipId', {
+          friendshipId,
+        })
+        .getOneOrFail();
+      return ConversationAdapter.toConversation(conversationEntity);
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException();
+    }
+  }
+
+  async findConversationByGroupId(groupId: string): Promise<Conversation> {
+    try {
+      const conversationEntity = await this.conversationEntityRepository
+        .createQueryBuilder()
+        .where('ConversationEntity.groupId=:groupId', {
+          groupId,
+        })
+        .getOneOrFail();
+      return ConversationAdapter.toConversation(conversationEntity);
+    } catch (error) {
+      Logger.error(error);
+      throw new NotFoundException();
     }
   }
 

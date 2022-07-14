@@ -7,7 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreateMessageDTO {
+export class UpdateMessageDTO {
   @IsString()
   @MinLength(1)
   @MaxLength(2000)

@@ -9,7 +9,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CreateGroupDTO } from './dto/create-group.dto';
 import { Group } from '../../../../domain/group/group';
 import { UpdateGroupDTO } from './dto/update-group.dto';
@@ -29,6 +29,7 @@ import { FindUserGroupsUseCase } from '../../../../usecases/group/find-user-grou
 
 @Controller('groups')
 @ApiTags('groups')
+@ApiSecurity('auth-token')
 @UseGuards(AuthGuard)
 export class GroupsController {
   constructor(

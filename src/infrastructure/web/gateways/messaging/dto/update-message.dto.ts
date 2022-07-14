@@ -7,10 +7,14 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class CreateMessageDTO {
+export class UpdateMessageDTO {
+  @IsUUID()
+  @ApiProperty()
+  messageId: string;
+
   @IsString()
-  @MinLength(1)
-  @MaxLength(2000)
+  @MinLength(4)
+  @MaxLength(20)
   @ApiProperty()
   content: string;
 

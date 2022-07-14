@@ -14,7 +14,7 @@ import { SignUpUseCases } from 'src/usecases/auth/signup.usecase';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { UsecasesProxyUserModule } from '../../../usecases-proxy/user/usecases-proxy-user.module';
-import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../../../../domain/user/user';
@@ -29,6 +29,7 @@ import { UpdateUserCandidate } from '../../../../usecases/user/candidates/update
 
 @Controller('auth')
 @ApiTags('auth')
+@ApiSecurity('auth-token')
 @ApiResponse({ status: 500, description: 'Internal error' })
 export class AuthController {
   constructor(

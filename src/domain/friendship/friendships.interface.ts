@@ -8,6 +8,8 @@ export interface Friendships {
 
   findByUserId(userId: string): Promise<Friendship[]>;
 
+  findByUsers(user1Id: string, user2Id: string): Promise<Friendship>;
+
   findById(id: string): Promise<Friendship>;
 
   removeFriendship(id: string): Promise<void>;
