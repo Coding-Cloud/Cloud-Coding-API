@@ -20,7 +20,7 @@ ENV \
   AMQP_PORT=5672 \
   AMQP_USER=guest \
   BASE_PATH_PROJECT=/data \
-  CODE_RUNNER_DNS_SUFFIX=http://localhost:8000
+  CODE_RUNNER_DNS_SUFFIX=http://localhost:8000 \
   DATABASE_HOST=127.0.0.1 \
   DATABASE_NAME=postgres \
   DATABASE_PASSWORD=postgres \
