@@ -22,7 +22,6 @@ import { GetConversationsDto } from './dto/get-conversations.dto';
 import { FindMessageUseCase } from '../../../../usecases/message/find-message.usecase';
 import { UseCasesProxyUserSocketModule } from '../../../usecases-proxy/user-socket/usecase-proxy-user-socket.module';
 import { FindUserSocketUseCases } from '../../../../usecases/user-socket/find-user-socket.usecases';
-import { AmqpExchange } from '../../../amqp/amqp-exchange';
 import { AmqpQueue } from '../../../amqp/amqp-queue';
 import { AmqpService } from '../../../amqp/amqp-service';
 import { Message } from '../../../../domain/message/message';
@@ -61,7 +60,7 @@ export class MessagingGateway {
     @Inject(UseCasesProxyUserSocketModule.FIND_USER_SOCKET_USE_CASES_PROXY)
     private readonly findUserSocket: UseCaseProxy<FindUserSocketUseCases>,
   ) {
-    this.initAmqpCodeRunner();
+    this.initAmqpCodeRunner().then();
   }
 
   async initAmqpCodeRunner(): Promise<void> {
@@ -93,8 +92,23 @@ export class MessagingGateway {
       this.MESSAGING_EXCHANGE_NAME,
     );
 
+    const messageUpdatedQueue = new AmqpQueue(
+      '',
+      'messageUpdated',
+      {
+        exclusive: true,
+        durable: true,
+      },
+      {
+        noAck: false,
+      },
+      this.sendMessageUpdatedAMQP.bind(this),
+      this.MESSAGING_EXCHANGE_NAME,
+    );
+
     AmqpService.getInstance().addQueue(messageCreatedQueue);
     AmqpService.getInstance().addQueue(messageDeletedQueue);
+    AmqpService.getInstance().addQueue(messageUpdatedQueue);
   }
 
   @SubscribeMessage('getMessages')
@@ -155,12 +169,6 @@ export class MessagingGateway {
         JSON.stringify(message),
         this.MESSAGING_EXCHANGE_NAME,
       );
-      const userSockets = await this.findUserSocket
-        .getInstance()
-        .findConversationUserSockets(messageDTO.conversationId);
-      userSockets.forEach((userSocket) =>
-        this.server.to(userSocket.socketId).emit('messageCreated', message),
-      );
     } catch (e) {
       Logger.error(e);
     }
@@ -181,11 +189,10 @@ export class MessagingGateway {
       const message = await this.findMessage
         .getInstance()
         .findById(messageDto.messageId);
-      const userSockets = await this.findUserSocket
-        .getInstance()
-        .findConversationUserSockets(message.conversationId);
-      userSockets.forEach((userSocket) =>
-        this.server.to(userSocket.socketId).emit('messageUpdated', messageDto),
+      AmqpService.getInstance().sendBroadcastMessage(
+        'messageUpdated',
+        JSON.stringify(message),
+        this.MESSAGING_EXCHANGE_NAME,
       );
     } catch (e) {
       Logger.error(e);
@@ -201,16 +208,10 @@ export class MessagingGateway {
       const message = await this.findMessage.getInstance().findById(messageId);
       await this.deleteMessage.getInstance().deleteMessage(messageId);
 
-      const userSockets = await this.findUserSocket
-        .getInstance()
-        .findConversationUserSockets(message.conversationId);
       AmqpService.getInstance().sendBroadcastMessage(
         'messageDeleted',
-        JSON.stringify({ id: messageId }),
+        JSON.stringify(message),
         this.MESSAGING_EXCHANGE_NAME,
-      );
-      userSockets.forEach((userSocket) =>
-        this.server.to(userSocket.socketId).emit('messageDeleted', messageId),
       );
     } catch (e) {
       Logger.error(e);
@@ -226,13 +227,21 @@ export class MessagingGateway {
     );
   }
 
-  private async sendMessageDeletedAMQP(messageId: string) {
-    const message = await this.findMessage.getInstance().findById(messageId);
+  private async sendMessageDeletedAMQP(message: Message) {
     const userSockets = await this.findUserSocket
       .getInstance()
       .findConversationUserSockets(message.conversationId);
     userSockets.forEach((userSocket) =>
-      this.server.to(userSocket.socketId).emit('messageDeleted', messageId),
+      this.server.to(userSocket.socketId).emit('messageDeleted', message.id),
+    );
+  }
+
+  private async sendMessageUpdatedAMQP(message: Message) {
+    const userSockets = await this.findUserSocket
+      .getInstance()
+      .findConversationUserSockets(message.conversationId);
+    userSockets.forEach((userSocket) =>
+      this.server.to(userSocket.socketId).emit('messageUpdated', message.id),
     );
   }
 }
