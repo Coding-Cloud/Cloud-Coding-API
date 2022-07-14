@@ -22,7 +22,6 @@ import { GetConversationsDto } from './dto/get-conversations.dto';
 import { FindMessageUseCase } from '../../../../usecases/message/find-message.usecase';
 import { UseCasesProxyUserSocketModule } from '../../../usecases-proxy/user-socket/usecase-proxy-user-socket.module';
 import { FindUserSocketUseCases } from '../../../../usecases/user-socket/find-user-socket.usecases';
-import { AmqpExchange } from '../../../amqp/amqp-exchange';
 import { AmqpQueue } from '../../../amqp/amqp-queue';
 import { AmqpService } from '../../../amqp/amqp-service';
 import { Message } from '../../../../domain/message/message';
@@ -206,7 +205,7 @@ export class MessagingGateway {
         .findConversationUserSockets(message.conversationId);
       AmqpService.getInstance().sendBroadcastMessage(
         'messageDeleted',
-        JSON.stringify({ id: messageId }),
+        JSON.stringify(message),
         this.MESSAGING_EXCHANGE_NAME,
       );
       userSockets.forEach((userSocket) =>
@@ -226,13 +225,12 @@ export class MessagingGateway {
     );
   }
 
-  private async sendMessageDeletedAMQP(messageId: string) {
-    const message = await this.findMessage.getInstance().findById(messageId);
+  private async sendMessageDeletedAMQP(message: Message) {
     const userSockets = await this.findUserSocket
       .getInstance()
       .findConversationUserSockets(message.conversationId);
     userSockets.forEach((userSocket) =>
-      this.server.to(userSocket.socketId).emit('messageDeleted', messageId),
+      this.server.to(userSocket.socketId).emit('messageDeleted', message.id),
     );
   }
 }
