@@ -169,12 +169,6 @@ export class MessagingGateway {
         JSON.stringify(message),
         this.MESSAGING_EXCHANGE_NAME,
       );
-      const userSockets = await this.findUserSocket
-        .getInstance()
-        .findConversationUserSockets(messageDTO.conversationId);
-      userSockets.forEach((userSocket) =>
-        this.server.to(userSocket.socketId).emit('messageCreated', message),
-      );
     } catch (e) {
       Logger.error(e);
     }
