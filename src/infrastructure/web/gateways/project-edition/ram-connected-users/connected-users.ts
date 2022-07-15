@@ -1,3 +1,5 @@
+import { Logger } from "@nestjs/common";
+
 export const conectedUsers = new Map<string, string[]>();
 
 export const addConnectedUsers = (room: string, username: string) => {
@@ -10,6 +12,9 @@ export const addConnectedUsers = (room: string, username: string) => {
   } else {
     conectedUsers.set(room, [username]);
   }
+  Logger.log('add ' + username + ' to ' + room);
+  console.log(room);
+  console.log(getConnectedUsers(room));
 };
 
 const canAddUsername = (room: string, username: string): boolean => {

@@ -50,7 +50,7 @@ import { BroadcastProjectVersionDto } from './amqp-event-dto/broadcast-project-v
 import { UseCasesProxyProjectVersioningModule } from '../../../usecases-proxy/project-version/use-cases-proxy-project-version.module';
 import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/get-project-versions.usecase';
 
-@WebSocketGateway()
+@WebSocketGateway({ path: '/code-runner'})
 @Injectable()
 export class ProjectEditionGateway implements OnGatewayConnection {
   @WebSocketServer()
@@ -186,6 +186,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   //TODO: refactoring all the connexion system with specific usecase
   async handleConnection(client: Socket): Promise<void> {
     try {
+      Logger.log('Client connected');
+      Logger.log(client.handshake.query);
       const projectId = client.handshake.query.projectId as string;
       const username = client.handshake.query.username as string;
       client.join(projectId);
@@ -195,7 +197,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       this.checkCodeRunnerStatus(projectId, client);
       deleteDisconnectigProjectTimeout(projectId);
 
-      //await this.startProject.getInstance().startProjectRunner(projectId);
+      await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
@@ -379,8 +381,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       if (room !== client.id) roomOfficial = room;
       client.broadcast.to(room).emit(event, editProjectDTO);
     });
-    console.log('la room de edit : ' + roomOfficial);
-    console.log(editProjectDTO);
+
     AmqpService.getInstance().sendBroadcastMessage(
       'editProject',
       JSON.stringify({
@@ -449,8 +450,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   }
 
   private sendLogsToClient(room: string): void {
-    console.log('je passe dans sendLogs');
-    console.log('avec le projectId' + room);
     setTimeout(async () => {
       try {
         Logger.log(
@@ -528,14 +527,10 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   private broadcastEditProjectAMQP(
     broadcastEditProjectDto: BroadcastEditProjectDto,
   ) {
-    console.log('on passe dans broadcastEditProjectAMQP');
-
     const socket = this.server.sockets.sockets.get(
       broadcastEditProjectDto.socket,
     );
     if (!socket) {
-      console.log("on broadcast l'event editProject");
-      console.log(broadcastEditProjectDto);
       this.server
         .to(broadcastEditProjectDto.room)
         .emit(
@@ -548,9 +543,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   private broadcastSendVersionsUpdateAMQP(
     broadcastProjectVersionDto: BroadcastProjectVersionDto,
   ) {
-    console.log('je passe dans broadcastSendVersionsUpdateAMQP');
-    console.log(broadcastProjectVersionDto);
-    console.log(broadcastProjectVersionDto.room);
     this.server
       .to(broadcastProjectVersionDto.room)
       .emit(
@@ -567,7 +559,10 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
   private sendUserInRoomAMQP(roomDTO: RoomDto) {
     const connectedUsers = getConnectedUsers(roomDTO.room);
+    Logger.log('connected users');
+    console.log(connectedUsers);
     if (connectedUsers === undefined) return;
+    Logger.log('developer connected');
     this.server
       .to(roomDTO.room)
       .emit('developerConnected', getConnectedUsers(roomDTO.room));

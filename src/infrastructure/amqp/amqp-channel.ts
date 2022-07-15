@@ -111,10 +111,10 @@ export class AmqpChannel {
     content: string,
     amqpExchangeName: string,
   ) {
-    console.log('on publish le message');
-    console.log(routingKey);
-    console.log(content);
-    console.log('----------------------------------------');
+    Logger.log('on publish le message');
+    Logger.log(routingKey);
+    Logger.log(content);
+    Logger.log('----------------------------------------');
     this._channel.publish(amqpExchangeName, routingKey, Buffer.from(content));
   }
 
