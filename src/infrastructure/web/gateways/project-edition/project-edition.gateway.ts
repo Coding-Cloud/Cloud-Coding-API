@@ -195,7 +195,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       this.checkCodeRunnerStatus(projectId, client);
       deleteDisconnectigProjectTimeout(projectId);
 
-      await this.startProject.getInstance().startProjectRunner(projectId);
+      //await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
@@ -355,10 +355,10 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @MessageBody() body: { uniqueName: string },
   ) {
     //TODO uncomment when have real values
-    /*const versions = this.getVersions
+    const versions = await this.getVersions
       .getInstance()
-      .getProjectVersions(body.uniqueName);*/
-    const versions = ['1.0.0', '1.0.1', '1.0.2'];
+      .getProjectVersions(body.uniqueName);
+    //const versions = ['1.0.0', '1.0.1', '1.0.2'];
     AmqpService.getInstance().sendBroadcastMessage(
       'currentProjectVersionHasChanged',
       JSON.stringify({
@@ -550,6 +550,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   ) {
     console.log('je passe dans broadcastSendVersionsUpdateAMQP');
     console.log(broadcastProjectVersionDto);
+    console.log(broadcastProjectVersionDto.room);
     this.server
       .to(broadcastProjectVersionDto.room)
       .emit(

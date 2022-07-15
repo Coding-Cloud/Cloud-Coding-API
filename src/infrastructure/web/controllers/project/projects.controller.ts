@@ -94,6 +94,8 @@ export class ProjectsController {
     @Body() createProjectDTO: CreateProjectDTO,
     @GetUser() user: User,
   ): Promise<string> {
+    console.log('create project');
+    console.log(createProjectDTO);
     const projectCandidate: CreateProjectCandidate = {
       creatorId: user.id,
       groupId: createProjectDTO.groupId,
