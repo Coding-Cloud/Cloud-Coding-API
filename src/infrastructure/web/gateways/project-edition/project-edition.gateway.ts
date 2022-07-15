@@ -39,7 +39,6 @@ import {
   getConnectedUsers,
 } from './ram-connected-users/connected-users';
 import { AmqpService } from '../../../amqp/amqp-service';
-import { AmqpExchange } from '../../../amqp/amqp-exchange';
 import { AmqpQueue } from '../../../amqp/amqp-queue';
 import { RoomDto } from './amqp-event-dto/room-dto';
 import { SendLogsToClientDto } from './amqp-event-dto/send-logs-to-client-dto';
@@ -195,7 +194,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       this.checkCodeRunnerStatus(projectId, client);
       deleteDisconnectigProjectTimeout(projectId);
 
-      //await this.startProject.getInstance().startProjectRunner(projectId);
+      await this.startProject.getInstance().startProjectRunner(projectId);
       const watcher = chokidar.watch(
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
