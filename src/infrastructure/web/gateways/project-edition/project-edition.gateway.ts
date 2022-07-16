@@ -254,6 +254,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody('project') editsProjectDTO: EditProjectDTO[],
   ): Promise<void> {
+    Logger.log('edit project event trigger');
     const editsProject: EditProject[] = editsProjectDTO.map(
       (editProjectDTO) => ({
         ...editProjectDTO,
@@ -275,6 +276,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() renameFolderDTO: RenameFolderDTO,
   ): Promise<void> {
+    Logger.log('renameFolder event trigger');
     const basePath = `${process.env.BASE_PATH_PROJECT}/`;
 
     const renameFolder: RenameFolder = { ...renameFolderDTO };
@@ -296,6 +298,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() deleteFolderDTO: DeleteFolderDTO,
   ): Promise<void> {
+    Logger.log('delete folder event trigger');
     const basePath = `${process.env.BASE_PATH_PROJECT}/`;
 
     const deleteFolder: DeleteFolder = { ...deleteFolderDTO };
@@ -317,6 +320,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { base64: string; path: string },
   ): Promise<void> {
+    Logger.log('upload image event trigger');
     const basePath = `${process.env.BASE_PATH_PROJECT}/${body.path}`;
     await this.createImage.getInstance().createImage(body.base64, basePath);
     const editProject: EditProjectDTO[] = [
@@ -344,6 +348,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @ConnectedSocket() client: Socket,
     @MessageBody() body: { projectId: string },
   ): Promise<void> {
+    Logger.log('socketReadyToReceiveDevelopers event trigger');
     AmqpService.getInstance().sendBroadcastMessage(
       'sendUser',
       JSON.stringify({ room: body.projectId }),
@@ -355,7 +360,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   async currentProjectVersionHasChanged(
     @MessageBody() body: { uniqueName: string },
   ) {
-    //TODO uncomment when have real values
+    Logger.log('currentProjectVersionHasChanged event trigger');
     const versions = await this.getVersions
       .getInstance()
       .getProjectVersions(body.uniqueName);
