@@ -3,14 +3,13 @@ import { RepositoriesModule } from '../../repositories/repositories.module';
 import { UseCaseProxy } from '../usecases-proxy';
 import { TypeormProjectsRepository } from '../../repositories/repositories/typeorm-projects.repository';
 import { CodeRunnerModule } from '../../code-runner/code-runner.module';
-import { StartProjectRunnerUseCase } from '../../../usecases/project-edition/start-project-runner.usecase';
+import { CreateProjectRunnerUsecase } from '../../../usecases/project-edition/create-project-runner.usecase';
 import { StopProjectRunnerUseCase } from '../../../usecases/project-edition/stop-project-runner.usecase';
 import { CodeRunnerApi } from '../../code-runner/code-runner-api.abstract';
 import { EditProjectRunnerUseCase } from 'src/usecases/project-edition/edit-project-runner.usecase';
 import { CodeWriter } from 'src/domain/code-writer.abstract';
 import { CodeWriterModule } from 'src/infrastructure/code-writer/code-writer.module';
 import { RenameProjectRunnerUseCase } from 'src/usecases/project-edition/rename-project-folder-runner.usecase';
-import { DeleteProjectUseCase } from 'src/usecases/project/delete-project.usecase';
 import { DeleteProjectFolderRunnerUseCase } from 'src/usecases/project-edition/delete-project-folder.usecase';
 import { CreateImageUseCase } from '../../../usecases/project-edition/create-image.usecase';
 
@@ -41,7 +40,7 @@ export class UseCasesProxyProjectEditionModule {
             codeRunnerApi: CodeRunnerApi,
           ) =>
             new UseCaseProxy(
-              new StartProjectRunnerUseCase(projects, codeRunnerApi),
+              new CreateProjectRunnerUsecase(projects, codeRunnerApi),
             ),
         },
         {

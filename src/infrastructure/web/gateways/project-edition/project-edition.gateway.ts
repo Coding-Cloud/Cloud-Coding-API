@@ -12,7 +12,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { UseCaseProxy } from '../../../usecases-proxy/usecases-proxy';
 import { UseCasesProxyProjectEditionModule } from '../../../usecases-proxy/project-edition/use-cases-proxy-project-edition.module';
 import { StopProjectRunnerUseCase } from '../../../../usecases/project-edition/stop-project-runner.usecase';
-import { StartProjectRunnerUseCase } from '../../../../usecases/project-edition/start-project-runner.usecase';
+import { CreateProjectRunnerUsecase } from '../../../../usecases/project-edition/create-project-runner.usecase';
 import { EditProjectDTO } from './dto/edit-project.dto';
 import { EditProjectRunnerUseCase } from 'src/usecases/project-edition/edit-project-runner.usecase';
 import { RenameFolderDTO } from './dto/rename-folder-dto';
@@ -49,7 +49,7 @@ import { BroadcastProjectVersionDto } from './amqp-event-dto/broadcast-project-v
 import { UseCasesProxyProjectVersioningModule } from '../../../usecases-proxy/project-version/use-cases-proxy-project-version.module';
 import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/get-project-versions.usecase';
 
-@WebSocketGateway({ path: '/code-runner'})
+@WebSocketGateway({ path: '/code-runner' })
 @Injectable()
 export class ProjectEditionGateway implements OnGatewayConnection {
   @WebSocketServer()
@@ -62,7 +62,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     @Inject(
       UseCasesProxyProjectEditionModule.START_PROJECT_RUNNER_USE_CASES_PROXY,
     )
-    private readonly startProject: UseCaseProxy<StartProjectRunnerUseCase>,
+    private readonly startProject: UseCaseProxy<CreateProjectRunnerUsecase>,
     @Inject(
       UseCasesProxyProjectEditionModule.STOP_PROJECT_RUNNER_USE_CASES_PROXY,
     )
@@ -196,7 +196,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       this.checkCodeRunnerStatus(projectId, client);
       deleteDisconnectigProjectTimeout(projectId);
 
-      await this.startProject.getInstance().startProjectRunner(projectId);
+      await this.startProject.getInstance().createProjectRunner(projectId);
       const watcher = chokidar.watch(
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
