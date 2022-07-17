@@ -117,6 +117,8 @@ export class UseCasesProxyProjectEditionModule {
       exports: [
         UseCasesProxyProjectEditionModule.CREATE_PROJECT_RUNNER_USE_CASES_PROXY,
         UseCasesProxyProjectEditionModule.RESTART_PROJECT_RUNNER_USE_CASES_PROXY,
+        UseCasesProxyProjectEditionModule.STOP_PROJECT_RUNNER_USE_CASES_PROXY,
+        UseCasesProxyProjectEditionModule.DEPENDENCIES_PROJECT_RUNNER_USE_CASES_PROXY,
         UseCasesProxyProjectEditionModule.EDIT_PROJECT_RUNNER_USE_CASES_PROXY,
         UseCasesProxyProjectEditionModule.RENAME_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY,
         UseCasesProxyProjectEditionModule.DELETE_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY,
