@@ -48,6 +48,8 @@ import { BroadcastEditProjectDto } from './amqp-event-dto/broadcast-edit-project
 import { BroadcastProjectVersionDto } from './amqp-event-dto/broadcast-project-version-dto';
 import { UseCasesProxyProjectVersioningModule } from '../../../usecases-proxy/project-version/use-cases-proxy-project-version.module';
 import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/get-project-versions.usecase';
+import { DependenciesProjectRunnerUseCase } from '../../../../usecases/project-edition/dependencies-project-runner-use.case';
+import { RestartProjectRunnerUseCase } from '../../../../usecases/project-edition/restart-project-runner-use.case';
 
 @WebSocketGateway({ path: '/code-runner' })
 @Injectable()
@@ -60,13 +62,21 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   constructor(
     private httpService: HttpService,
     @Inject(
-      UseCasesProxyProjectEditionModule.START_PROJECT_RUNNER_USE_CASES_PROXY,
+      UseCasesProxyProjectEditionModule.CREATE_PROJECT_RUNNER_USE_CASES_PROXY,
     )
-    private readonly startProject: UseCaseProxy<CreateProjectRunnerUsecase>,
+    private readonly createProject: UseCaseProxy<CreateProjectRunnerUsecase>,
     @Inject(
       UseCasesProxyProjectEditionModule.STOP_PROJECT_RUNNER_USE_CASES_PROXY,
     )
     private readonly stopProject: UseCaseProxy<StopProjectRunnerUseCase>,
+    @Inject(
+      UseCasesProxyProjectEditionModule.RESTART_PROJECT_RUNNER_USE_CASES_PROXY,
+    )
+    private readonly restartProject: UseCaseProxy<RestartProjectRunnerUseCase>,
+    @Inject(
+      UseCasesProxyProjectEditionModule.DEPENDENCIES_PROJECT_RUNNER_USE_CASES_PROXY,
+    )
+    private readonly dependenciesProject: UseCaseProxy<DependenciesProjectRunnerUseCase>,
     @Inject(
       UseCasesProxyProjectEditionModule.EDIT_PROJECT_RUNNER_USE_CASES_PROXY,
     )
@@ -86,7 +96,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     )
     private readonly getVersions: UseCaseProxy<GetProjectVersionsUseCase>,
   ) {
-    this.initAmqpCodeRunner();
+    this.initAmqpCodeRunner().then();
   }
 
   async initAmqpCodeRunner(): Promise<void> {
@@ -196,7 +206,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       this.checkCodeRunnerStatus(projectId, client);
       deleteDisconnectigProjectTimeout(projectId);
 
-      await this.startProject.getInstance().createProjectRunner(projectId);
+      await this.createProject.getInstance().createProjectRunner(projectId);
       const watcher = chokidar.watch(
         [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
         {
@@ -266,7 +276,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       editsProject,
       client,
     );
-    client.rooms.forEach(async (room) => {
+    client.rooms.forEach((room) => {
       this.sendLogsToClient(room);
     });
   }
@@ -288,7 +298,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       { ...renameFolder, basePath },
       client,
     );
-    client.rooms.forEach(async (room) => {
+    client.rooms.forEach((room) => {
       this.sendLogsToClient(room);
     });
   }
@@ -310,7 +320,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       { ...deleteFolder, basePath },
       client,
     );
-    client.rooms.forEach(async (room) => {
+    client.rooms.forEach((room) => {
       this.sendLogsToClient(room);
     });
   }
@@ -338,7 +348,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       client,
     );
 
-    client.rooms.forEach(async (room) => {
+    client.rooms.forEach((room) => {
       this.sendLogsToClient(room);
     });
   }
@@ -373,6 +383,30 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       } as BroadcastProjectVersionDto),
       this.CODE_RUNNER_EXCHANGE_NAME,
     );
+  }
+
+  @SubscribeMessage('resolveDependencies')
+  async resolveDependencies(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { uniqueName: string },
+  ): Promise<void> {
+    Logger.log('resolveDependencies event trigger');
+    this.dependenciesProject
+      .getInstance()
+      .dependenciesProjectRunner(body.uniqueName)
+      .then();
+  }
+
+  @SubscribeMessage('restartRunner')
+  async restartRunner(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() body: { uniqueName: string },
+  ): Promise<void> {
+    Logger.log('restartRunner event trigger');
+    this.restartProject
+      .getInstance()
+      .restartProjectRunner(body.uniqueName)
+      .then();
   }
 
   private broadcastEditProject(
@@ -482,15 +516,12 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       if (!codeRunnerUrl.includes('localhost')) {
         codeRunnerUrl = 'https://' + projectId + codeRunnerUrl;
       }
-      this.httpService.get(codeRunnerUrl).subscribe(
-        (res) => {
-          if (res.status === 200) {
-            this.broadcastSiteIsReady(client);
-            clearInterval(interval);
-          }
-        },
-        (error) => {},
-      );
+      this.httpService.get(codeRunnerUrl).subscribe((res) => {
+        if (res.status === 200) {
+          this.broadcastSiteIsReady(client);
+          clearInterval(interval);
+        }
+      });
     }, 5000);
   }
 

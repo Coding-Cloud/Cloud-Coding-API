@@ -12,14 +12,20 @@ import { CodeWriterModule } from 'src/infrastructure/code-writer/code-writer.mod
 import { RenameProjectRunnerUseCase } from 'src/usecases/project-edition/rename-project-folder-runner.usecase';
 import { DeleteProjectFolderRunnerUseCase } from 'src/usecases/project-edition/delete-project-folder.usecase';
 import { CreateImageUseCase } from '../../../usecases/project-edition/create-image.usecase';
+import { DependenciesProjectRunnerUseCase } from '../../../usecases/project-edition/dependencies-project-runner-use.case';
+import { RestartProjectRunnerUseCase } from '../../../usecases/project-edition/restart-project-runner-use.case';
 
 @Module({
   imports: [RepositoriesModule, CodeRunnerModule, CodeWriterModule],
 })
 export class UseCasesProxyProjectEditionModule {
-  static START_PROJECT_RUNNER_USE_CASES_PROXY =
-    'startProjectRunnerUseCaseProxy';
+  static CREATE_PROJECT_RUNNER_USE_CASES_PROXY =
+    'createProjectRunnerUseCaseProxy';
   static STOP_PROJECT_RUNNER_USE_CASES_PROXY = 'stopProjectRunnerUseCaseProxy';
+  static RESTART_PROJECT_RUNNER_USE_CASES_PROXY =
+    'restartProjectRunnerUseCaseProxy';
+  static DEPENDENCIES_PROJECT_RUNNER_USE_CASES_PROXY =
+    'dependenciesProjectRunnerUseCaseProxy';
   static EDIT_PROJECT_RUNNER_USE_CASES_PROXY = 'editProjectRunnerUseCaseProxy';
   static RENAME_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY =
     'renameFolderProjectRunnerUseCaseProxy';
@@ -34,7 +40,7 @@ export class UseCasesProxyProjectEditionModule {
         {
           inject: [TypeormProjectsRepository, CodeRunnerApi],
           provide:
-            UseCasesProxyProjectEditionModule.START_PROJECT_RUNNER_USE_CASES_PROXY,
+            UseCasesProxyProjectEditionModule.CREATE_PROJECT_RUNNER_USE_CASES_PROXY,
           useFactory: (
             projects: TypeormProjectsRepository,
             codeRunnerApi: CodeRunnerApi,
@@ -53,6 +59,30 @@ export class UseCasesProxyProjectEditionModule {
           ) =>
             new UseCaseProxy(
               new StopProjectRunnerUseCase(projects, codeRunnerApi),
+            ),
+        },
+        {
+          inject: [TypeormProjectsRepository, CodeRunnerApi],
+          provide:
+            UseCasesProxyProjectEditionModule.RESTART_PROJECT_RUNNER_USE_CASES_PROXY,
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            codeRunnerApi: CodeRunnerApi,
+          ) =>
+            new UseCaseProxy(
+              new RestartProjectRunnerUseCase(projects, codeRunnerApi),
+            ),
+        },
+        {
+          inject: [TypeormProjectsRepository, CodeRunnerApi],
+          provide:
+            UseCasesProxyProjectEditionModule.DEPENDENCIES_PROJECT_RUNNER_USE_CASES_PROXY,
+          useFactory: (
+            projects: TypeormProjectsRepository,
+            codeRunnerApi: CodeRunnerApi,
+          ) =>
+            new UseCaseProxy(
+              new DependenciesProjectRunnerUseCase(projects, codeRunnerApi),
             ),
         },
         {
@@ -85,8 +115,8 @@ export class UseCasesProxyProjectEditionModule {
         },
       ],
       exports: [
-        UseCasesProxyProjectEditionModule.START_PROJECT_RUNNER_USE_CASES_PROXY,
-        UseCasesProxyProjectEditionModule.STOP_PROJECT_RUNNER_USE_CASES_PROXY,
+        UseCasesProxyProjectEditionModule.CREATE_PROJECT_RUNNER_USE_CASES_PROXY,
+        UseCasesProxyProjectEditionModule.RESTART_PROJECT_RUNNER_USE_CASES_PROXY,
         UseCasesProxyProjectEditionModule.EDIT_PROJECT_RUNNER_USE_CASES_PROXY,
         UseCasesProxyProjectEditionModule.RENAME_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY,
         UseCasesProxyProjectEditionModule.DELETE_FOLDER_PROJECT_RUNNER_USE_CASES_PROXY,
