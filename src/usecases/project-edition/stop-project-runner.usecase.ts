@@ -22,7 +22,7 @@ export class StopProjectRunnerUseCase {
 
   private stopCodeRunner(uniqueName: string) {
     const subscription = this.codeRunnerApi
-      .stopCodeRunner(uniqueName)
+      .deleteCodeRunner(uniqueName)
       .subscribe({
         next: () =>
           Logger.log(`Stopped code runner for project {${uniqueName}}`),

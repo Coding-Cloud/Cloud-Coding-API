@@ -7,7 +7,13 @@ import { AxiosResponse } from 'axios';
 export class HelmBridgeApi implements CodeRunnerApi {
   constructor(private httpService: HttpService) {}
 
-  startCodeRunner(
+  deleteCodeRunner(uniqueName: string): Observable<AxiosResponse<void>> {
+    return this.httpService.delete(
+      `${process.env.HELM_BRIDGE_URL}/runners/${uniqueName}`,
+    );
+  }
+
+  createCodeRunner(
     uniqueName: string,
     language: ProjectLanguage,
   ): Observable<AxiosResponse<void>> {
@@ -16,9 +22,21 @@ export class HelmBridgeApi implements CodeRunnerApi {
     );
   }
 
-  stopCodeRunner(uniqueName: string): Observable<AxiosResponse<void>> {
-    return this.httpService.delete(
-      `${process.env.HELM_BRIDGE_URL}/runners/${uniqueName}`,
+  startCodeRunner(uniqueName: string): Observable<AxiosResponse<void>> {
+    return this.httpService.post(
+      `http://${uniqueName}-${process.env.CODE_RUNNER_URL}/start`,
+    );
+  }
+
+  restartCodeRunner(uniqueName: string): Observable<AxiosResponse<void>> {
+    return this.httpService.post(
+      `http://${uniqueName}-${process.env.CODE_RUNNER_URL}/restart`,
+    );
+  }
+
+  dependenciesCodeRunner(uniqueName: string): Observable<AxiosResponse<void>> {
+    return this.httpService.post(
+      `http://${uniqueName}-${process.env.CODE_RUNNER_URL}/dependencies`,
     );
   }
 }
