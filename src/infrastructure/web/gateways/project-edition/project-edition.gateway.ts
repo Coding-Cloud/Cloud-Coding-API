@@ -524,6 +524,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
           }
         });
       } catch (e) {
+        console.log('Error on status check');
         Logger.error(e);
       }
     }, 5000);
