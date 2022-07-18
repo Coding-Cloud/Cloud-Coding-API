@@ -516,17 +516,17 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       if (!codeRunnerUrl.includes('localhost')) {
         codeRunnerUrl = 'https://' + projectId + codeRunnerUrl;
       }
-      try {
-        this.httpService.get(codeRunnerUrl).subscribe((res) => {
+      this.httpService.get(codeRunnerUrl).subscribe({
+        next: (res) => {
           if (res.status === 200) {
             this.broadcastSiteIsReady(client);
             clearInterval(interval);
           }
-        });
-      } catch (e) {
-        console.log('Error on status check');
-        Logger.error(e);
-      }
+        },
+        error: (e) => {
+          Logger.error(e);
+        },
+      });
     }, 5000);
   }
 
