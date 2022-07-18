@@ -31,7 +31,6 @@ ENV \
   HELM_BRIDGE_URL=http://helm-bridge.default.svc.cluster.local:5000 \
   CODE_RUNNER_URL=code-runner.default.svc.cluster.local:8181 \
   JWT_SECRET=mysecret \
-  LOG_PATH_PROJECT=/data \
   MAIL_RECEIVER=example@mail.com \
   MAIL_SENDER=example@mail.com \
   MAIL_SENDER_NAME=CloudCoding \
