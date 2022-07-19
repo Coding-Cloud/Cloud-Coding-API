@@ -58,6 +58,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
   CODE_RUNNER_EXCHANGE_NAME = 'runnerExchange';
 
+  private connectedRunnerSockets: Set<string> = new Set();
+
   constructor(
     private httpService: HttpService,
     @Inject(
@@ -429,7 +431,10 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         next: (res) => {
           if (res.status === 200) {
             this.broadcastSiteIsReady(client);
-            this.connectCodeRunner(uniqueName);
+            if (!this.connectedRunnerSockets.has(uniqueName)) {
+              this.connectedRunnerSockets.add(uniqueName);
+              this.connectCodeRunner(uniqueName);
+            }
             clearInterval(interval);
           }
         },
@@ -462,6 +467,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       if (this.server.sockets.adapter.rooms.get(room).size === 1) {
         if (getConnectedUsers(room)) {
           const timeOut = setTimeout(async () => {
+            this.connectedRunnerSockets.delete(uniqueName);
             await this.stopProject
               .getInstance()
               .stopProjectRunner(`Timed out code runner ${uniqueName}`);
