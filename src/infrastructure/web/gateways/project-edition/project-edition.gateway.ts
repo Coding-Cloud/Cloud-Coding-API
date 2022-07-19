@@ -48,7 +48,7 @@ import { UseCasesProxyProjectVersioningModule } from '../../../usecases-proxy/pr
 import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/get-project-versions.usecase';
 import { DependenciesProjectRunnerUseCase } from '../../../../usecases/project-edition/dependencies-project-runner-use.case';
 import { RestartProjectRunnerUseCase } from '../../../../usecases/project-edition/restart-project-runner-use.case';
-import { io, Socket as ClientSocket } from 'socket.io-client';
+import * as io from 'socket.io-client';
 
 @WebSocketGateway({ path: '/code-runner' })
 @Injectable()
@@ -561,12 +561,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   // ws client
 
   private connectCodeRunner(uniqueName: string): void {
-    const socket: ClientSocket = io(
-      `http://${uniqueName}-${process.env.CODE_RUNNER_URL}`,
-      {
-        transports: ['websocket'],
-      },
-    );
+    const socket = io(`http://${uniqueName}-${process.env.CODE_RUNNER_URL}`, {
+      transports: ['websocket'],
+    });
     socket.on('logs', (logs) => this.onLogsReceived(logs, uniqueName));
   }
 
