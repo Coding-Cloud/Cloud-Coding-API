@@ -24,8 +24,6 @@ import { DeleteProjectFolderRunnerUseCase } from 'src/usecases/project-edition/d
 import { DeleteFolder } from 'src/usecases/project-edition/types/delete-folder';
 import { DeleteFolderDTO } from './dto/delete-folder.dto';
 import { DeleteFolderResource } from './resource/delete-folder.dto';
-import * as chokidar from 'chokidar';
-import * as fs from 'fs/promises';
 import {
   addDisconnectigProjectTimeout,
   deleteDisconnectigProjectTimeout,
@@ -50,6 +48,7 @@ import { UseCasesProxyProjectVersioningModule } from '../../../usecases-proxy/pr
 import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/get-project-versions.usecase';
 import { DependenciesProjectRunnerUseCase } from '../../../../usecases/project-edition/dependencies-project-runner-use.case';
 import { RestartProjectRunnerUseCase } from '../../../../usecases/project-edition/restart-project-runner-use.case';
+import * as io from 'socket.io-client';
 
 @WebSocketGateway({ path: '/code-runner' })
 @Injectable()
@@ -195,59 +194,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   //TODO: refactoring all the connexion system with specific usecase
   async handleConnection(client: Socket): Promise<void> {
     try {
-      Logger.log('Client connected');
-      Logger.log(client.handshake.query);
-      const projectId = client.handshake.query.projectId as string;
-      const username = client.handshake.query.username as string;
-      client.join(projectId);
-      console.log(client.id);
-      addConnectedUsers(projectId, username);
-      client.data.username = username;
-      this.checkCodeRunnerStatus(projectId, client);
-      deleteDisconnectigProjectTimeout(projectId);
-
-      await this.createProject.getInstance().createProjectRunner(projectId);
-      const watcher = chokidar.watch(
-        [`${process.env.LOG_PATH_PROJECT}/${projectId}`],
-        {
-          persistent: true,
-          usePolling: true,
-          interval: 2000,
-        },
-      );
-
-      // Add amqp listeners.
-      /*watcher.on('change', async () => {
-        const contentLogFile = await fs.readFile(
-          `${process.env.LOG_PATH_PROJECT}/${projectId}.log`,
-          { encoding: 'utf-8' },
-        );
-        client.emit('logChanged', contentLogFile);
-      });*/
-
-      client.on('disconnecting', () => {
-        client.rooms.forEach(async (room) => {
-          if (this.server.sockets.adapter.rooms.get(room).size === 1) {
-            if (getConnectedUsers(room)) {
-              const timeOut = setTimeout(async () => {
-                await this.stopProject
-                  .getInstance()
-                  .stopProjectRunner(projectId);
-                Logger.log('ça timeout');
-              }, 300_000);
-              Logger.log('on déclenche le timeout dans 5 minutes');
-              addDisconnectigProjectTimeout(room, timeOut);
-            }
-            deleteConnectedUsers(room, client.data.username);
-            AmqpService.getInstance().sendBroadcastMessage(
-              'sendUser',
-              JSON.stringify({ room: 'gastric-coral-condor' }),
-              this.CODE_RUNNER_EXCHANGE_NAME,
-            );
-            //this.roomDto(roomDto);
-          }
-        });
-      });
+      await this.onConnect(client);
+      client.on('disconnecting', () => this.onDisconnect(client));
     } catch (error) {
       Logger.error(error);
       client.disconnect();
@@ -276,9 +224,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       editsProject,
       client,
     );
-    client.rooms.forEach((room) => {
-      this.sendLogsToClient(room);
-    });
   }
 
   @SubscribeMessage('renameFolder')
@@ -298,9 +243,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       { ...renameFolder, basePath },
       client,
     );
-    client.rooms.forEach((room) => {
-      this.sendLogsToClient(room);
-    });
   }
 
   @SubscribeMessage('deleteFolder')
@@ -320,9 +262,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       { ...deleteFolder, basePath },
       client,
     );
-    client.rooms.forEach((room) => {
-      this.sendLogsToClient(room);
-    });
   }
 
   @SubscribeMessage('uploadImage')
@@ -347,10 +286,6 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       editProject,
       client,
     );
-
-    client.rooms.forEach((room) => {
-      this.sendLogsToClient(room);
-    });
   }
 
   @SubscribeMessage('socketReadyToReceiveDevelopers')
@@ -482,44 +417,19 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     client.rooms.forEach(async (room) => {
       this.server.to(room).emit('siteIsReady');
     });
-    client.rooms.forEach(async (room) => {
-      this.sendLogsToClient(room);
-    });
   }
 
-  private sendLogsToClient(room: string): void {
-    setTimeout(async () => {
-      try {
-        Logger.log(
-          `path -> ${process.env.LOG_PATH_PROJECT}/${room}/${room}.log`,
-        );
-        const contentLogFile = await fs.readFile(
-          `${process.env.LOG_PATH_PROJECT}/${room}/${room}.log`,
-          { encoding: 'utf-8' },
-        );
-        AmqpService.getInstance().sendBroadcastMessage(
-          'sendLogsToClient',
-          JSON.stringify({
-            room,
-            content: contentLogFile,
-          } as SendLogsToClientDto),
-          this.CODE_RUNNER_EXCHANGE_NAME,
-        );
-        this.server.to(room).emit('logChanged', contentLogFile);
-      } catch (error) {}
-    }, 4000);
-  }
-
-  private checkCodeRunnerStatus(projectId: string, client: Socket) {
+  private checkCodeRunnerStatus(uniqueName: string, client: Socket) {
     const interval = setInterval(async () => {
       let codeRunnerUrl = process.env.CODE_RUNNER_DNS_SUFFIX;
       if (!codeRunnerUrl.includes('localhost')) {
-        codeRunnerUrl = 'https://' + projectId + codeRunnerUrl;
+        codeRunnerUrl = 'https://' + uniqueName + codeRunnerUrl;
       }
       this.httpService.get(codeRunnerUrl).subscribe({
         next: (res) => {
           if (res.status === 200) {
             this.broadcastSiteIsReady(client);
+            this.connectCodeRunner(uniqueName);
             clearInterval(interval);
           }
         },
@@ -528,6 +438,47 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         },
       });
     }, 5000);
+  }
+
+  private async onConnect(client: Socket) {
+    Logger.log('Client connected');
+
+    const uniqueName = client.handshake.query.projectId as string;
+    const username = client.handshake.query.username as string;
+
+    client.join(uniqueName);
+    client.data.username = username;
+    addConnectedUsers(uniqueName, username);
+    this.checkCodeRunnerStatus(uniqueName, client);
+    deleteDisconnectigProjectTimeout(uniqueName);
+
+    await this.createProject.getInstance().createProjectRunner(uniqueName);
+  }
+
+  private onDisconnect(client: Socket) {
+    const uniqueName = client.handshake.query.projectId as string;
+
+    client.rooms.forEach(async (room) => {
+      if (this.server.sockets.adapter.rooms.get(room).size === 1) {
+        if (getConnectedUsers(room)) {
+          const timeOut = setTimeout(async () => {
+            await this.stopProject
+              .getInstance()
+              .stopProjectRunner(`Timed out code runner ${uniqueName}`);
+            Logger.log('ça timeout');
+          }, 300_000);
+          Logger.log(`Timing out code runner ${uniqueName} in 5 minutes`);
+          addDisconnectigProjectTimeout(room, timeOut);
+        }
+        deleteConnectedUsers(room, client.data.username);
+        AmqpService.getInstance().sendBroadcastMessage(
+          'sendUser',
+          JSON.stringify({ room: 'gastric-coral-condor' }),
+          this.CODE_RUNNER_EXCHANGE_NAME,
+        );
+        //this.roomDto(roomDto);
+      }
+    });
   }
 
   //amqp events
@@ -600,11 +551,30 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   private sendUserInRoomAMQP(roomDTO: RoomDto) {
     const connectedUsers = getConnectedUsers(roomDTO.room);
     Logger.log('connected users');
-    console.log(connectedUsers);
     if (connectedUsers === undefined) return;
     Logger.log('developer connected');
     this.server
       .to(roomDTO.room)
       .emit('developerConnected', getConnectedUsers(roomDTO.room));
+  }
+
+  // ws client
+
+  private connectCodeRunner(uniqueName: string): void {
+    const socket = io(`http://${uniqueName}-${process.env.CODE_RUNNER_URL}`, {
+      transports: ['websocket'],
+    });
+    socket.on('logs', (logs) => this.onLogsReceived(logs, uniqueName));
+  }
+
+  private onLogsReceived(logs: string, uniqueName: string) {
+    AmqpService.getInstance().sendBroadcastMessage(
+      'sendLogsToClient',
+      JSON.stringify({
+        room: uniqueName,
+        content: logs,
+      }),
+      this.CODE_RUNNER_EXCHANGE_NAME,
+    );
   }
 }
