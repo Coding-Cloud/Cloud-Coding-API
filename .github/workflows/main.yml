@@ -46,3 +46,16 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.REGISTRY_URL }}/cloudcoding-api:latest
+  keel:
+    name: Deploy new version
+    runs-on: ubuntu-latest
+    needs:
+      - docker
+    steps:
+      - name: Keel webhook
+        uses: jaapio/keelsh-deploy@master
+        with:
+          keelBaseUrl: https://keel.cloudcoding.fr
+          image: rg.fr-par.scw.cloud/cloudcoding/cloudcoding-api
+          tag: latest
+
