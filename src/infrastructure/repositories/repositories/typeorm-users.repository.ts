@@ -1,23 +1,23 @@
 import {
-  BadRequestException,
   ConflictException,
   Inject,
-  Injectable,
   InternalServerErrorException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AuthCredentialsDto } from '../../controllers/auth/dto/auth-credentials.dto';
 import { Encrypt } from '../../../domain/encrypt.interface';
-import { UserEntity } from '../../entities/user/user.entity';
+import { UserEntity } from '../entities/user/user.entity';
 import { Users } from '../../../domain/user/users.interface';
 import { User } from 'src/domain/user/user';
-import UserAdapter from 'src/infrastructure/entities/user/user.adapter';
-import { CreateUserDTO } from 'src/infrastructure/controllers/auth/dto/create-user.dto';
-import { PasswordReset } from 'src/domain/user/password-reset';
-import { PasswordResetEntity } from 'src/infrastructure/entities/password-reset/password-reset.entity';
+import UserAdapter from 'src/infrastructure/repositories/entities/user/user.adapter';
+import { CreateUserDTO } from 'src/infrastructure/web/controllers/auth/dto/create-user.dto';
+import { UpdateUserCandidate } from 'src/usecases/user/candidates/update-user.candidate';
+import { GroupMembershipEntity } from '../entities/group-membership/group-membership.entity';
+import { GroupEntity } from '../entities/group/group.entity';
+import { ProjectEntity } from '../entities/project/project.entity';
 
-export class TypeormUsersRespository implements Users {
+export class TypeormUsersRepository implements Users {
   constructor(
     @Inject(Encrypt) private encrypt: Encrypt,
     @InjectRepository(UserEntity)
@@ -25,13 +25,17 @@ export class TypeormUsersRespository implements Users {
   ) {}
 
   async createUser(createUserDTO: CreateUserDTO): Promise<void> {
-    const { username, password, email } = createUserDTO;
+    const { username, firstname, lastname, birthdate, password, email } =
+      createUserDTO;
 
     const salt = await this.encrypt.genSaltkey();
     const hashedPassword = await this.encrypt.hash(password, salt);
 
     const user = this.userEntityRepository.create({
       username,
+      firstname,
+      lastname,
+      birthdate,
       password: hashedPassword,
       email,
     });
@@ -42,6 +46,7 @@ export class TypeormUsersRespository implements Users {
       if (error.code === '23505') {
         throw new ConflictException('Username already exists');
       } else {
+        Logger.error(error);
         throw new InternalServerErrorException();
       }
     }
@@ -55,26 +60,25 @@ export class TypeormUsersRespository implements Users {
     const { id, username, email } = props;
     if (id) {
       const userEntity = await this.userEntityRepository.findOne(id);
-      return UserAdapter.toUser(userEntity);
+      return userEntity ? UserAdapter.toUser(userEntity) : null;
     }
     if (username) {
       const userEntity = await this.userEntityRepository.findOne({
         where: { username },
       });
-      return UserAdapter.toUser(userEntity);
+      return userEntity ? UserAdapter.toUser(userEntity) : null;
     }
 
     if (email) {
       const userEntity = await this.userEntityRepository.findOne({
         where: { email },
       });
-      return UserAdapter.toUser(userEntity);
+      return userEntity ? UserAdapter.toUser(userEntity) : null;
     }
   }
 
-  async changePassword(user: User, password: string): Promise<void> {
-    const userEntity = UserAdapter.toUserEntity(user);
-    await this.userEntityRepository.update({ id: userEntity.id }, { password });
+  async changePassword(id: string, password: string): Promise<void> {
+    await this.userEntityRepository.update({ id: id }, { password });
   }
 
   async findUserByResetPassword(token: string): Promise<User> {
@@ -88,5 +92,105 @@ export class TypeormUsersRespository implements Users {
       .where('password_reset.token = :token', { token })
       .getOne();
     return userEntity ? UserAdapter.toUser(userEntity) : null;
+  }
+
+  async updateUser(
+    userId: string,
+    userCandidate: UpdateUserCandidate,
+  ): Promise<void> {
+    const { username, firstname, lastname, birthdate, email } = userCandidate;
+
+    const user = this.userEntityRepository.create({
+      username,
+      firstname,
+      lastname,
+      birthdate,
+      email,
+    });
+
+    try {
+      await this.userEntityRepository.update(userId, user);
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new ConflictException('Username already exists');
+      } else {
+        Logger.error(error);
+        throw new InternalServerErrorException();
+      }
+    }
+  }
+
+  async searchUsers(search: string): Promise<User[]> {
+    try {
+      const userEntities = await this.userEntityRepository
+        .createQueryBuilder()
+        .where('SIMILARITY(UserEntity.username, :search) > 0.2', { search })
+        .orWhere('SIMILARITY(UserEntity.email, :search) > 0.2', { search })
+        .getMany();
+      return userEntities.map((userEntity) => UserAdapter.toUser(userEntity));
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async getUsers(
+    search?: string,
+    limit?: number,
+    offset?: number,
+  ): Promise<[User[], number]> {
+    try {
+      const query = this.userEntityRepository.createQueryBuilder();
+      if (search) {
+        query
+          .where('SIMILARITY(UserEntity.username, :search) > 0.2', { search })
+          .orWhere('SIMILARITY(UserEntity.email, :search) > 0.2', { search })
+          .orWhere('SIMILARITY(UserEntity.firstname, :search) > 0.2', {
+            search,
+          })
+          .orWhere('SIMILARITY(UserEntity.lastname, :search) > 0.2', {
+            search,
+          });
+      }
+      const userEntities = await query
+        .limit(limit ?? 25)
+        .offset(offset ?? 0)
+        .getManyAndCount();
+      return [
+        userEntities[0].map((userEntity) => UserAdapter.toUser(userEntity)),
+        userEntities[1],
+      ];
+    } catch (error) {
+      Logger.error(error);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async isProjectMember(userId: string, projectId): Promise<boolean> {
+    const user = await this.userEntityRepository
+      .createQueryBuilder()
+      .leftJoin(
+        GroupMembershipEntity,
+        'GroupMembershipEntity',
+        'GroupMembershipEntity.userId = UserEntity.id',
+      )
+      .leftJoin(
+        GroupEntity,
+        'GroupEntity',
+        'GroupEntity.id = GroupMembershipEntity.groupId',
+      )
+      .leftJoin(
+        ProjectEntity,
+        'ProjectEntity',
+        'ProjectEntity.groupId = GroupEntity.id',
+      )
+      .where('ProjectEntity.id=:projectId', { projectId })
+      .andWhere((q) =>
+        q
+          .where('GroupEntity.ownerId=:userId', { userId })
+          .orWhere('GroupMembershipEntity.userId=:userId', { userId }),
+      )
+      .getOne();
+    return user !== null && user !== undefined;
   }
 }

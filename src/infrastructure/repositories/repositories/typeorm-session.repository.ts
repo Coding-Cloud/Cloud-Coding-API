@@ -1,15 +1,16 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Session } from 'src/domain/session/session';
 import { Sessions } from 'src/domain/session/session.interface';
-import SessionAdapter from 'src/infrastructure/entities/session/session.adapter';
-import { SessionEntity } from 'src/infrastructure/entities/session/session.entity';
+import SessionAdapter from 'src/infrastructure/repositories/entities/session/session.adapter';
+import { SessionEntity } from 'src/infrastructure/repositories/entities/session/session.entity';
 import { Repository } from 'typeorm';
 
-export class TypeormSessionsRespository implements Sessions {
+export class TypeormSessionsRepository implements Sessions {
   constructor(
     @InjectRepository(SessionEntity)
     private readonly sessionEntityRepository: Repository<SessionEntity>,
   ) {}
+
   async createSession(userId: string, token: string): Promise<void> {
     const session = await this.sessionEntityRepository.create({
       userId,
@@ -17,6 +18,7 @@ export class TypeormSessionsRespository implements Sessions {
     });
     await this.sessionEntityRepository.save(session);
   }
+
   async findByUserId(userId: string): Promise<Session[]> {
     const sessionsEntities = await this.sessionEntityRepository.find({
       where: { userId },
@@ -25,10 +27,15 @@ export class TypeormSessionsRespository implements Sessions {
       SessionAdapter.toSession(sessionEntity),
     );
   }
-  async findByToken(token: string): Promise<Session> {
+
+  async findByToken(token: string): Promise<Session | null> {
     const sessionEntity = await this.sessionEntityRepository.findOne({
       token,
     });
-    return SessionAdapter.toSession(sessionEntity);
+    return sessionEntity ? SessionAdapter.toSession(sessionEntity) : null;
+  }
+
+  async deleteByToken(token: string): Promise<void> {
+    await this.sessionEntityRepository.delete({ token });
   }
 }

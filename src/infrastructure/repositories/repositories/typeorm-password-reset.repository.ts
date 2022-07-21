@@ -2,9 +2,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { PasswordReset } from 'src/domain/user/password-reset';
 import { PasswordResets } from 'src/domain/user/password-resets.interface';
 import { User } from 'src/domain/user/user';
-import PasswordResetAdapter from 'src/infrastructure/entities/password-reset/password-reset.adapter';
-import { PasswordResetEntity } from 'src/infrastructure/entities/password-reset/password-reset.entity';
-import UserAdapter from 'src/infrastructure/entities/user/user.adapter';
+import PasswordResetAdapter from 'src/infrastructure/repositories/entities/password-reset/password-reset.adapter';
+import { PasswordResetEntity } from 'src/infrastructure/repositories/entities/password-reset/password-reset.entity';
+import UserAdapter from 'src/infrastructure/repositories/entities/user/user.adapter';
 import { Repository } from 'typeorm';
 
 export class TypeormPasswordResetRespository implements PasswordResets {
@@ -39,6 +39,7 @@ export class TypeormPasswordResetRespository implements PasswordResets {
       ? PasswordResetAdapter.toPasswordReset(passwordResetEntity)
       : null;
   }
+
   async delete(passwordreset: PasswordReset): Promise<void> {
     this.passwordResetEntityRepository.delete(passwordreset);
   }

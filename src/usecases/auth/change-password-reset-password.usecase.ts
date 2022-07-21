@@ -12,11 +12,10 @@ export class ChangePasswordresetPasswordUseCases {
 
   async change(password: string, token: string): Promise<void> {
     const user = await this.users.findUserByResetPassword(token);
-    console.log(user);
     if (!user) throw new BadRequestException();
     const salt = await this.encrypt.genSaltkey();
     const hashedPassword = await this.encrypt.hash(password, salt);
-    await this.users.changePassword(user, hashedPassword);
+    await this.users.changePassword(user.id, hashedPassword);
     const passwordReset = await this.passwordResets.findByToken(token);
     await this.passwordResets.delete(passwordReset);
   }

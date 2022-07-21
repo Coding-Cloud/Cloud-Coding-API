@@ -1,0 +1,5 @@
+export enum ProjectStatus {
+  INITIALISING = 'INITIALISING',
+  INACTIVE = 'INACTIVE',
+  RUNNING = 'RUNNING',
+}

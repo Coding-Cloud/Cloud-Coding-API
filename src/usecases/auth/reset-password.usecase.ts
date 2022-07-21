@@ -1,8 +1,6 @@
 import { PasswordResets } from 'src/domain/user/password-resets.interface';
-import { User } from 'src/domain/user/user';
 import { Users } from 'src/domain/user/users.interface';
-import { MailApi } from 'src/infrastructure/mail/mail-api.abstract';
-import { MailjetMailApi } from 'src/infrastructure/mail/mailjet-mail-api';
+import { MailApi } from 'src/infrastructure/notifications/mail/mail-api.abstract';
 import { v4 as uuidv4 } from 'uuid';
 
 export class ResetPasswordUseCases {

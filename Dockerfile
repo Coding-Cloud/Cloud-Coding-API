@@ -1,27 +1,43 @@
-FROM node:16-alpine as node-builder
+FROM amd64/node:16-alpine as node-builder
 WORKDIR /app
 COPY --chown=node:node . .
-RUN npm install \
-    && npm run build \
-    && npm prune --production
+RUN apk --no-cache --virtual build-dependencies add python3 make
+RUN yarn install
+RUN npm run build
 
-FROM node:16-alpine
+FROM amd64/node:16-alpine
 USER node
 WORKDIR /app
 COPY --from=node-builder --chown=node:node /app/package*.json ./
 COPY --from=node-builder --chown=node:node /app/node_modules/ ./node_modules/
 COPY --from=node-builder --chown=node:node /app/dist/ ./dist/
 
-ENV \
- DATABASE_TYPE=postgres \
- DATABASE_HOST=127.0.0.1 \
- DATABASE_PORT=5432 \
- DATABASE_NAME=dbname \
- DATABASE_USER=user \
- DATABASE_PASSWORD=password \
- DATABASE_SYNC=false \
- JWT_SECRET=mysecret
+EXPOSE 3000
 
-# DB TYPE / NAME / SYNC unused yet
+ENV \
+  AMQP_HOST=localhost \
+  AMQP_PASSWORD=guest \
+  AMQP_PORT=5672 \
+  AMQP_USER=guest \
+  BASE_PATH_PROJECT=/data \
+  CODE_RUNNER_DNS_SUFFIX=http://localhost:8000 \
+  DATABASE_HOST=127.0.0.1 \
+  DATABASE_NAME=postgres \
+  DATABASE_PASSWORD=postgres \
+  DATABASE_PORT=5432 \
+  DATABASE_USER=postgres \
+  FRONT_PORT=4200 \
+  FRONT_URL=http://localhost \
+  HELM_BRIDGE_URL=http://helm-bridge.default.svc.cluster.local:5000 \
+  CODE_RUNNER_URL=code-runner.default.svc.cluster.local:8181 \
+  JWT_SECRET=mysecret \
+  MAIL_RECEIVER=example@mail.com \
+  MAIL_SENDER=example@mail.com \
+  MAIL_SENDER_NAME=CloudCoding \
+  SERVER_PORT=3000 \
+  SMTP_APIKEY_PRIVATE=privatekey \
+  SMTP_APIKEY_PUBLIC=publickey \
+  VERIF_REPO_PROJECT=false
+
 
 CMD ["node", "dist/main.js"]
