@@ -468,10 +468,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
         if (getConnectedUsers(room)) {
           const timeOut = setTimeout(async () => {
             this.connectedRunnerSockets.delete(uniqueName);
-            await this.stopProject
-              .getInstance()
-              .stopProjectRunner(`Timed out code runner ${uniqueName}`);
-            Logger.log('ça timeout');
+            await this.stopProject.getInstance().stopProjectRunner(uniqueName);
+            Logger.log(`Timed out code runner ${uniqueName}`);
           }, 300_000);
           Logger.log(`Timing out code runner ${uniqueName} in 5 minutes`);
           addDisconnectigProjectTimeout(room, timeOut);
