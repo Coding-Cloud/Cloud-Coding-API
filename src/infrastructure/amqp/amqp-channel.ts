@@ -6,6 +6,7 @@ import { AmqpQueue } from './amqp-queue';
 
 export class AmqpChannel {
   private _channel: Channel;
+
   constructor(
     private connection: AmqpConnection,
     private amqpExchanges: Map<string, AmqpExchange> = new Map(),
@@ -22,11 +23,11 @@ export class AmqpChannel {
   handleChannelEvents(): void {
     this._channel.on('error', (error) => {
       Logger.error('Received channel error', error);
-      this.connection.startConnection();
+      this.connection.startConnection().then();
     });
 
     this.channel.on('close', () => {
-      Logger.log('Channel closed');
+      Logger.log('AMQP Channel closed');
     });
   }
 
@@ -52,10 +53,9 @@ export class AmqpChannel {
   private createExchanges(): void {
     Object.values(this.amqpExchanges).forEach((exchange: AmqpExchange) => {
       try {
-        this._channel.assertExchange(
-          exchange.exchangeName,
-          exchange.exchangeMode,
-        );
+        this._channel
+          .assertExchange(exchange.exchangeName, exchange.exchangeMode)
+          .then();
       } catch (assertExchangeError) {
         Logger.error(`Error when start exchange`);
         throw assertExchangeError;
@@ -111,10 +111,7 @@ export class AmqpChannel {
     content: string,
     amqpExchangeName: string,
   ) {
-    Logger.log('on publish le message');
-    Logger.log(routingKey);
-    Logger.log(content);
-    Logger.log('----------------------------------------');
+    Logger.log('Publishing on routing key ' + routingKey);
     this._channel.publish(amqpExchangeName, routingKey, Buffer.from(content));
   }
 

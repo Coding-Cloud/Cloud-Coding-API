@@ -25,8 +25,8 @@ import { DeleteFolder } from 'src/usecases/project-edition/types/delete-folder';
 import { DeleteFolderDTO } from './dto/delete-folder.dto';
 import { DeleteFolderResource } from './resource/delete-folder.dto';
 import {
-  addDisconnectigProjectTimeout,
-  deleteDisconnectigProjectTimeout,
+  addDisconnectingProjectTimeout,
+  deleteDisconnectingProjectTimeout,
 } from './ram-disconnecting-project/disconnecting-project-timeout';
 import { HttpService } from '@nestjs/axios';
 import { CreateImageUseCase } from '../../../../usecases/project-edition/create-image.usecase';
@@ -438,9 +438,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
             clearInterval(interval);
           }
         },
-        error: (e) => {
-          Logger.error(e);
-        },
+        error: () => undefined,
       });
     }, 5000);
   }
@@ -455,7 +453,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     client.data.username = username;
     addConnectedUsers(uniqueName, username);
     this.checkCodeRunnerStatus(uniqueName, client);
-    deleteDisconnectigProjectTimeout(uniqueName);
+    deleteDisconnectingProjectTimeout(uniqueName);
 
     await this.createProject.getInstance().createProjectRunner(uniqueName);
   }
@@ -472,7 +470,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
             Logger.log(`Timed out code runner ${uniqueName}`);
           }, 300_000);
           Logger.log(`Timing out code runner ${uniqueName} in 5 minutes`);
-          addDisconnectigProjectTimeout(room, timeOut);
+          addDisconnectingProjectTimeout(room, timeOut);
         }
         deleteConnectedUsers(room, client.data.username);
         AmqpService.getInstance().sendBroadcastMessage(
@@ -554,9 +552,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
   private sendUserInRoomAMQP(roomDTO: RoomDto) {
     const connectedUsers = getConnectedUsers(roomDTO.room);
-    Logger.log('connected users');
     if (connectedUsers === undefined) return;
-    Logger.log('developer connected');
+    Logger.log('User connected to websocket');
     this.server
       .to(roomDTO.room)
       .emit('developerConnected', getConnectedUsers(roomDTO.room));

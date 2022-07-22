@@ -1,28 +1,26 @@
-import { Logger } from "@nestjs/common";
+import { Logger } from '@nestjs/common';
 
-export const conectedUsers = new Map<string, string[]>();
+export const connectedUsers = new Map<string, string[]>();
 
 export const addConnectedUsers = (room: string, username: string) => {
   if (!canAddUsername(room, username)) {
     return;
   }
-  if (conectedUsers.has(room)) {
-    conectedUsers.get(room).push(username);
-    conectedUsers.set(room, conectedUsers.get(room));
+  if (connectedUsers.has(room)) {
+    connectedUsers.get(room).push(username);
+    connectedUsers.set(room, connectedUsers.get(room));
   } else {
-    conectedUsers.set(room, [username]);
+    connectedUsers.set(room, [username]);
   }
   Logger.log('add ' + username + ' to ' + room);
-  console.log(room);
-  console.log(getConnectedUsers(room));
 };
 
 const canAddUsername = (room: string, username: string): boolean => {
   return (
     username !== '' &&
-    (!conectedUsers.has(room) ||
-      (conectedUsers.has(room) &&
-        conectedUsers
+    (!connectedUsers.has(room) ||
+      (connectedUsers.has(room) &&
+        connectedUsers
           .get(room)
           .find((usernameConnected) => usernameConnected === username) ===
           undefined))
@@ -30,14 +28,14 @@ const canAddUsername = (room: string, username: string): boolean => {
 };
 
 export const deleteConnectedUsers = (room: string, username: string) => {
-  if (conectedUsers.has(room)) {
-    const connectedUsersFilter = conectedUsers
+  if (connectedUsers.has(room)) {
+    const connectedUsersFilter = connectedUsers
       .get(room)
       .filter((usernameFromMap) => usernameFromMap !== username);
-    conectedUsers.set(room, connectedUsersFilter);
+    connectedUsers.set(room, connectedUsersFilter);
   }
 };
 
 export const getConnectedUsers = (room: string): string[] => {
-  return conectedUsers.get(room);
+  return connectedUsers.get(room);
 };
