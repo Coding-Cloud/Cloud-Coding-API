@@ -58,7 +58,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
   CODE_RUNNER_EXCHANGE_NAME = 'runnerExchange';
 
-  private connectedRunnerSockets: Set<string> = new Set();
+  private connectedRunnerSockets: Map<string, any> = new Map<string, any>();
 
   constructor(
     private httpService: HttpService,
@@ -421,18 +421,34 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     });
   }
 
-  private checkCodeRunnerStatus(uniqueName: string, client: Socket) {
+  private checkRunningProjectStatus(uniqueName: string, client: Socket) {
+    const interval = setInterval(async () => {
+      let runningProjectUrl = process.env.CODE_RUNNER_DNS_SUFFIX;
+      if (!runningProjectUrl.includes('localhost')) {
+        runningProjectUrl = `https://${uniqueName}${runningProjectUrl}`;
+      }
+      this.httpService.get(runningProjectUrl).subscribe({
+        next: (res) => {
+          if (res.status === 200) {
+            this.broadcastSiteIsReady(client);
+            clearInterval(interval);
+          }
+        },
+        error: () => undefined,
+      });
+    }, 5000);
+  }
+
+  private checkCodeRunnerStatus(uniqueName: string) {
     const interval = setInterval(async () => {
       let codeRunnerUrl = process.env.CODE_RUNNER_DNS_SUFFIX;
       if (!codeRunnerUrl.includes('localhost')) {
-        codeRunnerUrl = 'https://' + uniqueName + codeRunnerUrl;
+        codeRunnerUrl = `http://${uniqueName}-${process.env.CODE_RUNNER_URL}/status`;
       }
       this.httpService.get(codeRunnerUrl).subscribe({
         next: (res) => {
           if (res.status === 200) {
-            this.broadcastSiteIsReady(client);
             if (!this.connectedRunnerSockets.has(uniqueName)) {
-              this.connectedRunnerSockets.add(uniqueName);
               this.connectCodeRunner(uniqueName);
             }
             clearInterval(interval);
@@ -452,7 +468,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
     client.join(uniqueName);
     client.data.username = username;
     addConnectedUsers(uniqueName, username);
-    this.checkCodeRunnerStatus(uniqueName, client);
+    this.checkRunningProjectStatus(uniqueName, client);
+    this.checkCodeRunnerStatus(uniqueName);
     deleteDisconnectingProjectTimeout(uniqueName);
 
     await this.createProject.getInstance().createProjectRunner(uniqueName);
@@ -465,6 +482,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
       if (this.server.sockets.adapter.rooms.get(room).size === 1) {
         if (getConnectedUsers(room)) {
           const timeOut = setTimeout(async () => {
+            this.connectedRunnerSockets.get(uniqueName).close();
             this.connectedRunnerSockets.delete(uniqueName);
             await this.stopProject.getInstance().stopProjectRunner(uniqueName);
             Logger.log(`Timed out code runner ${uniqueName}`);
@@ -561,11 +579,12 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
   // ws client
 
-  private connectCodeRunner(uniqueName: string): void {
+  private connectCodeRunner(uniqueName: string) {
     const socket = io(`http://${uniqueName}-${process.env.CODE_RUNNER_URL}`, {
       transports: ['websocket'],
     });
     socket.on('logs', (logs) => this.onLogsReceived(logs, uniqueName));
+    this.connectedRunnerSockets.set(uniqueName, socket);
   }
 
   private onLogsReceived(logs: string, uniqueName: string) {
