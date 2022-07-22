@@ -2,11 +2,9 @@ import { Logger } from '@nestjs/common';
 
 export const disconnectingProjectTimeout = new Map<string, NodeJS.Timeout[]>();
 
-export const deleteDisconnectigProjectTimeout = (room: string) => {
-  Logger.log('on passe dans le delete');
+export const deleteDisconnectingProjectTimeout = (room: string) => {
   if (disconnectingProjectTimeout.has(room)) {
-    Logger.log('on rentre bien clean le timeout');
-    Logger.log(disconnectingProjectTimeout.get(room));
+    Logger.log('Cancelling timeout for ' + room);
     disconnectingProjectTimeout.get(room).forEach((timeOut) => {
       clearTimeout(timeOut);
     });
@@ -14,7 +12,7 @@ export const deleteDisconnectigProjectTimeout = (room: string) => {
   }
 };
 
-export const addDisconnectigProjectTimeout = (
+export const addDisconnectingProjectTimeout = (
   room: string,
   timeout: NodeJS.Timeout,
 ) => {

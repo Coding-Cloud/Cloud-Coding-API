@@ -15,7 +15,7 @@ export class AmqpConnection {
       this._connection = await connect(this.baseConnectionPath);
     } catch (connectError) {
       Logger.error(
-        `Error when trying to connect to ${this.baseConnectionPath}`,
+        `Error when trying to connect to AMQP ${this.baseConnectionPath}`,
         connectError,
       );
       throw connectError;
@@ -24,12 +24,12 @@ export class AmqpConnection {
 
   handleConnectionEvents(): void {
     this._connection.on('error', (connectionError) => {
-      Logger.error(`receiving connection error`, connectionError);
+      Logger.error(`Receiving AMQP connection error`, connectionError);
       this.startConnection();
     });
 
     this.connection.on('close', () => {
-      Logger.log(`connection closed`);
+      Logger.log(`AMQP connection closed`);
     });
   }
 
