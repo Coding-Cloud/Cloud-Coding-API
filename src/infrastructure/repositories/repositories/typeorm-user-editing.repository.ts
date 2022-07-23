@@ -47,7 +47,7 @@ export class TypeormUserEditingRepository implements UserEditingList {
     try {
       const userEditingEntities = await this.userEditingEntityRepository
         .createQueryBuilder()
-        .where('UserEditingEntity.room:=room', { room })
+        .where('UserEditingEntity.room=:room', { room })
         .getMany();
 
       return userEditingEntities.map((entity) =>
