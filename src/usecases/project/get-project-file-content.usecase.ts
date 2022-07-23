@@ -2,7 +2,13 @@ import { CodeWriter } from 'src/domain/code-writer.abstract';
 import { NotFoundException } from '@nestjs/common';
 
 export class GetProjectFileContentUseCase {
-  private FILES_NOT_INCLUDE = ['.angular', '.git', 'node_modules', '.pnpm-store'];
+  private FILES_NOT_INCLUDE = [
+    '.angular',
+    '.git',
+    'node_modules',
+    '.pnpm-store',
+    'dist',
+  ];
 
   constructor(private readonly codeWriter: CodeWriter) {}
 
