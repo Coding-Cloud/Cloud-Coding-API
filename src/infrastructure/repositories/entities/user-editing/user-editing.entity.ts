@@ -1,11 +1,11 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('user-socket')
+@Entity('user-editing')
 export class UserEditingEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('uuid', { nullable: false })
+  @Column({ nullable: false })
   username: string;
 
   @Column({ unique: true, nullable: false })
