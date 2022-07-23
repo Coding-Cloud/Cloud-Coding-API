@@ -469,7 +469,7 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   private async removeConnectedUsers(room: string, socketId: string) {
     await this.deleteUserEditing
       .getInstance()
-      .deleteUserEditingByRoom(socketId);
+      .deleteUserEditingBySocketId(socketId);
     AmqpService.getInstance().sendBroadcastMessage(
       'sendUser',
       JSON.stringify({ room }),
