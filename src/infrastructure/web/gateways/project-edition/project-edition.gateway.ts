@@ -598,11 +598,13 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
   private async sendUserInRoomAMQP(roomDTO: RoomDto) {
     Logger.log(`New user connected to room ${roomDTO.room}`);
-    deleteDisconnectingProjectTimeout(roomDTO.room);
 
     const connectedUsers = (
       await this.findUserEditing.getInstance().findByRoom(roomDTO.room)
     ).map((connectedUser) => connectedUser.username);
+    if (connectedUsers.length > 0) {
+      deleteDisconnectingProjectTimeout(roomDTO.room);
+    }
     this.server.to(roomDTO.room).emit('developerConnected', connectedUsers);
   }
 
