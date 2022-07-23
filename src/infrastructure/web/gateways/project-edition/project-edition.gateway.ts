@@ -49,6 +49,10 @@ import { GetProjectVersionsUseCase } from '../../../../usecases/project-version/
 import { DependenciesProjectRunnerUseCase } from '../../../../usecases/project-edition/dependencies-project-runner-use.case';
 import { RestartProjectRunnerUseCase } from '../../../../usecases/project-edition/restart-project-runner-use.case';
 import * as io from 'socket.io-client';
+import { UseCasesProxyUserEditingModule } from '../../../usecases-proxy/user-editing/usecase-proxy-user-socket.module';
+import { FindUserEditingUseCases } from '../../../../usecases/user-editing/find-user-editing-use.cases';
+import { DeleteUserEditingUseCases } from '../../../../usecases/user-editing/delete-user-editing-use.cases';
+import { AddUserEditingUseCases } from '../../../../usecases/user-editing/add-user-editing-use.cases';
 
 @WebSocketGateway({ path: '/code-runner' })
 @Injectable()
@@ -62,6 +66,12 @@ export class ProjectEditionGateway implements OnGatewayConnection {
 
   constructor(
     private httpService: HttpService,
+    @Inject(UseCasesProxyUserEditingModule.FIND_USER_EDITING_USE_CASES_PROXY)
+    private readonly findUserEditing: UseCaseProxy<FindUserEditingUseCases>,
+    @Inject(UseCasesProxyUserEditingModule.DELETE_USER_EDITING_USE_CASES_PROXY)
+    private readonly deleteUserEditing: UseCaseProxy<DeleteUserEditingUseCases>,
+    @Inject(UseCasesProxyUserEditingModule.ADD_USER_EDITING_USE_CASES_PROXY)
+    private readonly addUserEditing: UseCaseProxy<AddUserEditingUseCases>,
     @Inject(
       UseCasesProxyProjectEditionModule.CREATE_PROJECT_RUNNER_USE_CASES_PROXY,
     )

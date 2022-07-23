@@ -9,13 +9,13 @@ import { UseCasesProxySessionModule } from '../../usecases-proxy/session/usecase
 import { UseCasesProxyConversationModule } from '../../usecases-proxy/conversation/use-cases-proxy-conversation.module';
 import { SocialNetworkGateway } from './social-network/social-network.gateway';
 import { UseCasesProxyUserSocketModule } from '../../usecases-proxy/user-socket/usecase-proxy-user-socket.module';
-import {
-  UseCasesProxyProjectVersioningModule
-} from "../../usecases-proxy/project-version/use-cases-proxy-project-version.module";
+import { UseCasesProxyProjectVersioningModule } from '../../usecases-proxy/project-version/use-cases-proxy-project-version.module';
+import { UseCasesProxyUserEditingModule } from '../../usecases-proxy/user-editing/usecase-proxy-user-socket.module';
 
 @Module({
   imports: [
     HttpModule,
+    UseCasesProxyUserEditingModule.register(),
     UseCasesProxyProjectEditionModule.register(),
     UseCasesProxyMessageModule.register(),
     UsecasesProxyUserModule.register(),
