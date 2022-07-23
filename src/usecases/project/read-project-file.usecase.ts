@@ -10,6 +10,7 @@ export class ReadProjectUseCase {
     '.git',
     'node_modules',
     '.pnpm-store',
+    'dist',
   ];
 
   constructor(private readonly codeWriter: CodeWriter) {}
