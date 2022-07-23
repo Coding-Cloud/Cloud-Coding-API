@@ -197,7 +197,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   async handleConnection(client: Socket): Promise<void> {
     try {
       await this.onConnect(client);
-      client.on('disconnecting', () => this.onDisconnect(client));
+      client.on('disconnecting', () => {
+        this.onDisconnect(client);
+      });
     } catch (error) {
       Logger.error(error);
       client.disconnect();
@@ -476,8 +478,8 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   }
 
   private onDisconnect(client: Socket) {
+    Logger.log('on passe bien dans le on Disconnect');
     const uniqueName = client.handshake.query.projectId as string;
-
     client.rooms.forEach(async (room) => {
       if (this.server.sockets.adapter.rooms.get(room).size === 1) {
         if (getConnectedUsers(room)) {
@@ -488,9 +490,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
             Logger.log(`Timed out code runner ${uniqueName}`);
           }, 300_000);
           Logger.log(`Timing out code runner ${uniqueName} in 5 minutes`);
-          addDisconnectingProjectTimeout(room, timeOut);
+          addDisconnectingProjectTimeout(uniqueName, timeOut);
         }
-        deleteConnectedUsers(room, client.data.username);
+        deleteConnectedUsers(uniqueName, client.data.username);
         AmqpService.getInstance().sendBroadcastMessage(
           'sendUser',
           JSON.stringify({ room: 'gastric-coral-condor' }),
@@ -569,9 +571,11 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   }
 
   private sendUserInRoomAMQP(roomDTO: RoomDto) {
+    Logger.log('sendUserInRoomAMQP');
     const connectedUsers = getConnectedUsers(roomDTO.room);
     if (connectedUsers === undefined) return;
     Logger.log('User connected to websocket');
+    Logger.log(connectedUsers);
     this.server
       .to(roomDTO.room)
       .emit('developerConnected', getConnectedUsers(roomDTO.room));
