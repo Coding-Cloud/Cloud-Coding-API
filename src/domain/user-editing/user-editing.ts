@@ -1,6 +1,6 @@
 export class UserEditing {
   id: string;
-  userId: string;
+  username: string;
   room: string;
   socketId: string;
 }

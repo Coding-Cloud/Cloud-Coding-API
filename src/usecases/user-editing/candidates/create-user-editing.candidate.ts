@@ -1,4 +1,5 @@
 export class CreateUserEditingCandidate {
-  userId: string;
+  username: string;
   socketId: string;
+  room: string;
 }

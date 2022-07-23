@@ -5,12 +5,12 @@ export class UserEditingEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('uuid')
-  userId: string;
+  @Column('uuid', { nullable: false })
+  username: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: false })
   socketId: string;
 
-  @Column()
+  @Column({ nullable: false })
   room: string;
 }

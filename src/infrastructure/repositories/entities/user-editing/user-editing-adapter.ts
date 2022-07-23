@@ -3,10 +3,10 @@ import { UserEditing } from '../../../../domain/user-editing/user-editing';
 
 export default class UserEditingAdapter {
   static toUserEditing(session: UserEditingEntity): UserEditing {
-    const { id, userId, socketId, room } = session;
+    const { id, username, socketId, room } = session;
     return {
       id,
-      userId,
+      username,
       socketId,
       room,
     };
