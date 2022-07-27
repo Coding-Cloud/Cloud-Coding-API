@@ -54,7 +54,7 @@ export class TypeormGroupMembershipsRepository implements GroupMemberships {
       const groupMembership = this.groupMembershipEntityRepository.create({
         userId,
         groupId,
-        canEdit: true,
+        canEdit: false,
       });
 
       await this.groupMembershipEntityRepository.save(groupMembership);
