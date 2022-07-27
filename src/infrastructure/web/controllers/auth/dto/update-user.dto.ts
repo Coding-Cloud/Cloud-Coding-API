@@ -9,19 +9,19 @@ import {
 
 export class UpdateUserDTO {
   @IsString()
-  @MinLength(4)
+  @MinLength(2)
   @MaxLength(20)
   @ApiProperty()
   username: string;
 
   @IsString()
-  @MinLength(4)
+  @MinLength(2)
   @MaxLength(20)
   @ApiProperty()
   firstname: string;
 
   @IsString()
-  @MinLength(4)
+  @MinLength(2)
   @MaxLength(20)
   @ApiProperty()
   lastname: string;
