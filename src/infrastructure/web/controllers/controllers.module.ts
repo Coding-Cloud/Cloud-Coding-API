@@ -25,6 +25,7 @@ import { MessagesController } from './message/messages.controller';
 import { UserController } from './user/user.controller';
 import { UseCasesProxyCommentModule } from '../../usecases-proxy/comment/use-cases-proxy-comment.module';
 import { CommentsController } from './comment/comments.controller';
+import { BaseController } from './base.controller';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { CommentsController } from './comment/comments.controller';
     ProjectsController,
     ProjectVersionsController,
     UserController,
+    BaseController,
   ],
 })
 export class ControllersModule {}
