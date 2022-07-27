@@ -14,12 +14,12 @@ export class SetProjectHiddenGroupUseCase {
 
   async setProjectHiddenGroup(groupId: string): Promise<void> {
     const projects = await this.projects.findByGroupId(groupId);
-    projects.map(async (project) => {
+    for (const project of projects) {
       Logger.log(`Project {${project.id}} changed to hidden group`);
-      this.projects.updateProjectById(project.id, {
+      await this.projects.updateProjectById(project.id, {
         groupId: await this.groupCreation(project.name, project.creatorId),
       });
-    });
+    }
   }
 
   private async groupCreation(name: string, ownerId: string): Promise<string> {
