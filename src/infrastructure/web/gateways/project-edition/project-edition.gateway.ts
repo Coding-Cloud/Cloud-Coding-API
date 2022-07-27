@@ -495,6 +495,9 @@ export class ProjectEditionGateway implements OnGatewayConnection {
   private async onConnect(client: Socket) {
     const uniqueName = client.handshake.query.projectId as string;
     const username = client.handshake.query.username as string;
+    if (username === '' || uniqueName === '') {
+      throw new Error("username or unique project name can't be empty");
+    }
 
     Logger.log(`User ${username} connected to project ${uniqueName}`);
 
