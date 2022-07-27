@@ -4,4 +4,5 @@ export enum ProjectLanguage {
   QUARKUS = 'QUARKUS',
   NESTJS = 'NESTJS',
   FLASK = 'FLASK',
+  CC = 'CC',
 }
